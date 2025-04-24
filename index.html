@@ -60,9 +60,10 @@
     }
 
     #score-value {
-      display: inline-block;
-      transform-origin: left center;
-    }
+  display: inline-block;
+  transition: filter 0.2s linear;
+}
+
 
     #lives {
       position: absolute;
@@ -254,20 +255,27 @@
       }
     }
 
-    function updateRotation() {
-      const scoreVal = document.getElementById("score-value");
-      let angle = 0;
+    function updateRainbowEffect() {
+    const scoreVal = document.getElementById("score-value");
+    let hue = 0;
 
-      function rotate() {
-        if (gameOver) return;
-        const speed = Math.min(0.1 + score * 0.02, 6);
-        angle += speed;
-        scoreVal.style.transform = `rotate(${angle}deg)`;
-        requestAnimationFrame(rotate);
-      }
-
-      rotate();
+    function animate() {
+      if (gameOver) return;
+      hue = (hue + Math.min(1 + score * 0.2, 20)) % 360;
+      scoreVal.style.filter = `hue-rotate(${hue}deg)`;
+      requestAnimationFrame(animate);
     }
+
+    animate();
+  }
+
+  // REPLACE this:
+  // updateRotation();
+  // WITH:
+  updateRainbowEffect();
+
+  spawnLoop();
+  scaleDifficulty();
 
     function spawnLoop() {
       if (gameOver) return;
