@@ -1,137 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Letter Reaction Challenge</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Letter Reaction Challenge</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        body {
-            font-family: 'Press Start 2P', cursive;
-            background: #111;
-            color: white;
-            margin: 0;
-            overflow: hidden;
-            position: relative;
-        }
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: #111;
+      color: white;
+      margin: 0;
+      overflow: hidden;
+      position: relative;
+    }
 
-        .container {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .container {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .letter {
-            font-size: 32px;
-            font-weight: bold;
-            color: yellow;
-            position: absolute;
-        }
+    .letter {
+      font-size: 32px;
+      font-weight: bold;
+      color: yellow;
+      position: absolute;
+    }
 
-        .circle, .circle-inner {
-            position: absolute;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-        }
+    .circle, .circle-inner {
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
 
-        .circle {
-            width: 100px;
-            height: 100px;
-            border: 6px solid rgba(255, 255, 255, 0.95);
-            transition: width linear, height linear;
-        }
+    .circle {
+      width: 100px;
+      height: 100px;
+      border: 6px solid rgba(255, 255, 255, 0.95);
+      transition: width linear, height linear;
+    }
 
-        .circle-inner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(0, 200, 255, 0.95);
-        }
+    .circle-inner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(0, 200, 255, 0.95);
+    }
 
-        #score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 36px;
-        }
-    </style>
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 36px;
+    }
+
+    .flash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      animation: flash-effect 0.2s ease-out;
+    }
+
+    @keyframes flash-effect {
+      0% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+  </style>
 </head>
 <body>
 
-    <div id="score">Score: 0</div>
+  <div id="score">Score: 0</div>
+  <div id="flash" class="flash"></div>
 
-    <script>
-        let score = 0;
-        let activeLetters = [];
+  <script>
+    let score = 0;
+    let activeLetters = [];
 
-        function spawnLetter() {
-            const char = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Random A-Z
-            const x = Math.random() * window.innerWidth * 0.85;
-            const y = Math.random() * window.innerHeight * 0.85;
-            const duration = Math.random() * 2000 + 1000;
+    function spawnLetter() {
+      const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+      const x = Math.random() * window.innerWidth * 0.85;
+      const y = Math.random() * window.innerHeight * 0.85;
+      const duration = Math.random() * 2000 + 1000;
 
-            const container = document.createElement("div");
-            container.className = "container";
-            container.style.left = `${x}px`;
-            container.style.top = `${y}px`;
+      const container = document.createElement("div");
+      container.className = "container";
+      container.style.left = `${x}px`;
+      container.style.top = `${y}px`;
 
-            const letterDiv = document.createElement("div");
-            letterDiv.className = "letter";
-            letterDiv.innerText = char;
+      const letterDiv = document.createElement("div");
+      letterDiv.className = "letter";
+      letterDiv.innerText = char;
 
-            const outerCircle = document.createElement("div");
-            outerCircle.className = "circle";
+      const outerCircle = document.createElement("div");
+      outerCircle.className = "circle";
 
-            const innerCircle = document.createElement("div");
-            innerCircle.className = "circle-inner";
+      const innerCircle = document.createElement("div");
+      innerCircle.className = "circle-inner";
 
-            container.appendChild(outerCircle);
-            container.appendChild(innerCircle);
-            container.appendChild(letterDiv);
-            document.body.appendChild(container);
+      container.appendChild(outerCircle);
+      container.appendChild(innerCircle);
+      container.appendChild(letterDiv);
+      document.body.appendChild(container);
 
-            const createdAt = Date.now();
+      const createdAt = Date.now();
 
-            activeLetters.push({ char, container, outerCircle, innerCircle, createdAt, duration });
+      activeLetters.push({ char, container, outerCircle, innerCircle, createdAt, duration });
 
-            setTimeout(() => {
-                outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
-                outerCircle.style.width = "0px";
-                outerCircle.style.height = "0px";
-            }, 50);
+      setTimeout(() => {
+        outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
+        outerCircle.style.width = "0px";
+        outerCircle.style.height = "0px";
+      }, 50);
 
-            setTimeout(() => {
-                container.remove();
-                activeLetters = activeLetters.filter(l => l.char !== char);
-            }, duration);
+      setTimeout(() => {
+        container.remove();
+        activeLetters = activeLetters.filter(l => l.char !== char);
+      }, duration);
+    }
+
+    function triggerFlash() {
+      const flash = document.getElementById('flash');
+      flash.style.animation = 'none';
+      void flash.offsetWidth; // force reflow
+      flash.style.animation = 'flash-effect 0.2s ease-out';
+    }
+
+    function checkInput(event) {
+      const typedChar = event.key.toUpperCase();
+      const index = activeLetters.findIndex(l => l.char === typedChar);
+
+      if (index !== -1) {
+        const { outerCircle, container } = activeLetters[index];
+
+        const outerSize = parseFloat(getComputedStyle(outerCircle).width); // real-time size
+        const isPerfect = outerSize <= 52 && outerSize >= 48; // right when touching inner
+
+        if (isPerfect) {
+          score += 10;
+          triggerFlash();
+        } else {
+          score += 1;
         }
 
-        function checkInput(event) {
-            const typedChar = event.key.toUpperCase();
-            const index = activeLetters.findIndex(l => l.char === typedChar);
+        document.getElementById("score").innerText = `Score: ${score}`;
+        container.remove();
+        activeLetters.splice(index, 1);
+      }
+    }
 
-            if (index !== -1) {
-                const { outerCircle, innerCircle, createdAt, duration, container } = activeLetters[index];
-                const elapsed = Date.now() - createdAt;
-                const progress = elapsed / duration;
-                const outerSize = 100 * (1 - progress);
-
-                const isTouching = outerSize <= 50 && outerSize >= 45;
-
-                score += isTouching ? 10 : 1;
-                document.getElementById("score").innerText = `Score: ${score}`;
-
-                container.remove();
-                activeLetters.splice(index, 1);
-            }
-        }
-
-        document.addEventListener("keydown", checkInput);
-        setInterval(spawnLetter, 1500);
-    </script>
+    document.addEventListener("keydown", checkInput);
+    setInterval(spawnLetter, 1500);
+  </script>
 </body>
 </html>
