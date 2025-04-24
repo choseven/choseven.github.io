@@ -108,24 +108,25 @@
             const index = activeLetters.findIndex(l => l.char === typedChar);
 
             if (index !== -1) {
-                score++;
-                document.getElementById("score").innerText = `Score: ${score}`;
-                
-                let { circleDiv, smallCircleDiv } = activeLetters[index];
+                let { container, circleDiv, smallCircleDiv } = activeLetters[index];
+
                 if (circleDiv.getBoundingClientRect().intersects(smallCircleDiv.getBoundingClientRect())) {
-                    circleDiv.style.backgroundColor = "green";
+                    score += 10; // Bonus points
+                    circleDiv.style.backgroundColor = "green"; // Turn green
                     circleDiv.style.opacity = 1;
                     let fadeInterval = setInterval(() => {
                         circleDiv.style.opacity -= 0.05;
                         if (circleDiv.style.opacity <= 0) {
                             clearInterval(fadeInterval);
-                            activeLetters[index].container.remove();
+                            container.remove();
                         }
                     }, 50);
                 } else {
-                    activeLetters[index].container.remove();
+                    score++; // Regular points
+                    container.remove();
                 }
-                
+
+                document.getElementById("score").innerText = `Score: ${score}`;
                 activeLetters.splice(index, 1);
                 spawnLetter(); // Immediately spawn a new letter
             }
