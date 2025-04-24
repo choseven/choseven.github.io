@@ -133,8 +133,8 @@
     }
 
     .game-over p {
-      font-size: 16px;
-      margin-top: 10px;
+      font-size: 20px;
+      margin: 10px 0;
       color: #ccc;
     }
   </style>
@@ -218,7 +218,6 @@
     }
 
     function showPerfect(x, y) {
-      // play the sound effect
       perfectSfx.currentTime = 0;
       perfectSfx.play();
 
@@ -294,7 +293,11 @@
       activeLetters.forEach(l => l.container.remove());
       const overlay = document.createElement("div");
       overlay.className = "game-over";
-      overlay.innerHTML = `<h1>GAME OVER</h1><p>Refresh Page</p>`;
+      overlay.innerHTML = `
+        <h1>GAME OVER</h1>
+        <p>Your Score: ${score}</p>
+        <p>Refresh Page to Play Again</p>
+      `;
       document.body.appendChild(overlay);
     }
 
