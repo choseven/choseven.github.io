@@ -57,6 +57,7 @@
       top: 10px;
       left: 10px;
       font-size: 36px;
+      transform-origin: left top;
     }
 
     .flash {
@@ -71,9 +72,23 @@
       animation: flash-effect 0.2s ease-out;
     }
 
+    .perfect {
+      position: absolute;
+      font-size: 16px;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+      pointer-events: none;
+      animation: fadeOut 0.8s ease-out forwards;
+    }
+
     @keyframes flash-effect {
       0% { opacity: 0.8; }
       100% { opacity: 0; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
     }
   </style>
 </head>
@@ -85,12 +100,14 @@
   <script>
     let score = 0;
     let activeLetters = [];
+    let spawnInterval = 1500;
+    let shrinkSpeedModifier = 1.0;
 
     function spawnLetter() {
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
-      const duration = Math.random() * 2000 + 1000;
+      const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
 
       const container = document.createElement("div");
       container.className = "container";
@@ -112,9 +129,7 @@
       container.appendChild(letterDiv);
       document.body.appendChild(container);
 
-      const createdAt = Date.now();
-
-      activeLetters.push({ char, container, outerCircle, innerCircle, createdAt, duration });
+      activeLetters.push({ char, container, outerCircle, innerCircle });
 
       setTimeout(() => {
         outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
@@ -131,36 +146,71 @@
     function triggerFlash() {
       const flash = document.getElementById('flash');
       flash.style.animation = 'none';
-      void flash.offsetWidth; // force reflow
+      void flash.offsetWidth;
       flash.style.animation = 'flash-effect 0.2s ease-out';
     }
 
-    function checkInput(event) {
-  const typedChar = event.key.toUpperCase();
-  const index = activeLetters.findIndex(l => l.char === typedChar);
-
-  if (index !== -1) {
-    const { outerCircle, container } = activeLetters[index];
-
-    const outerSize = parseFloat(getComputedStyle(outerCircle).width);
-    const isPerfect = outerSize <= 58 && outerSize >= 42; // wider window
-
-    if (isPerfect) {
-      score += 10;
-      triggerFlash();
-    } else {
-      score += 1;
+    function showPerfect(x, y) {
+      const perfect = document.createElement('div');
+      perfect.className = 'perfect';
+      perfect.innerText = 'PERFECT!';
+      perfect.style.left = `${x}px`;
+      perfect.style.top = `${y}px`;
+      document.body.appendChild(perfect);
+      setTimeout(() => perfect.remove(), 800);
     }
 
-    document.getElementById("score").innerText = `Score: ${score}`;
-    container.remove();
-    activeLetters.splice(index, 1);
-  }
-}
+    function checkInput(event) {
+      const typedChar = event.key.toUpperCase();
+      const index = activeLetters.findIndex(l => l.char === typedChar);
 
+      if (index !== -1) {
+        const { outerCircle, container } = activeLetters[index];
+
+        const outerSize = parseFloat(getComputedStyle(outerCircle).width);
+        const isPerfect = outerSize <= 58 && outerSize >= 42;
+
+        if (isPerfect) {
+          score += 10;
+          triggerFlash();
+          const rect = container.getBoundingClientRect();
+          showPerfect(rect.left, rect.top);
+        } else {
+          score += 1;
+        }
+
+        document.getElementById("score").innerText = `Score: ${score}`;
+        activeLetters[index].container.remove();
+        activeLetters.splice(index, 1);
+      }
+    }
+
+    function updateRotation() {
+      const scoreElem = document.getElementById("score");
+      const speed = Math.min(0.1 + score * 0.002, 2); // caps at 2
+      let angle = 0;
+      setInterval(() => {
+        angle += speed;
+        scoreElem.style.transform = `rotate(${angle}deg)`;
+      }, 30);
+    }
+
+    function startSpawning() {
+      spawnLetter();
+      setInterval(() => spawnLetter(), spawnInterval);
+    }
+
+    function scaleDifficulty() {
+      setInterval(() => {
+        if (spawnInterval > 400) spawnInterval -= 100;
+        if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
+      }, 15000);
+    }
 
     document.addEventListener("keydown", checkInput);
-    setInterval(spawnLetter, 1500);
+    updateRotation();
+    startSpawning();
+    scaleDifficulty();
   </script>
 </body>
 </html>
