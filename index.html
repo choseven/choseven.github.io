@@ -57,7 +57,11 @@
       top: 10px;
       left: 10px;
       font-size: 36px;
-      transform-origin: left top;
+    }
+
+    #score-value {
+      display: inline-block;
+      transform-origin: left center;
     }
 
     .flash {
@@ -94,7 +98,7 @@
 </head>
 <body>
 
-  <div id="score">Score: 0</div>
+  <div id="score">Score: <span id="score-value">0</span></div>
   <div id="flash" class="flash"></div>
 
   <script>
@@ -129,7 +133,7 @@
       container.appendChild(letterDiv);
       document.body.appendChild(container);
 
-      activeLetters.push({ char, container, outerCircle, innerCircle });
+      activeLetters.push({ char, container, outerCircle });
 
       setTimeout(() => {
         outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
@@ -166,7 +170,6 @@
 
       if (index !== -1) {
         const { outerCircle, container } = activeLetters[index];
-
         const outerSize = parseFloat(getComputedStyle(outerCircle).width);
         const isPerfect = outerSize <= 58 && outerSize >= 42;
 
@@ -179,25 +182,29 @@
           score += 1;
         }
 
-        document.getElementById("score").innerText = `Score: ${score}`;
-        activeLetters[index].container.remove();
+        document.getElementById("score-value").innerText = score;
+        container.remove();
         activeLetters.splice(index, 1);
       }
     }
 
     function updateRotation() {
-      const scoreElem = document.getElementById("score");
-      const speed = Math.min(0.1 + score * 0.002, 2); // caps at 2
+      const scoreVal = document.getElementById("score-value");
       let angle = 0;
-      setInterval(() => {
+
+      function rotate() {
+        const speed = Math.min(0.1 + score * 0.02, 6); // scale faster
         angle += speed;
-        scoreElem.style.transform = `rotate(${angle}deg)`;
-      }, 30);
+        scoreVal.style.transform = `rotate(${angle}deg)`;
+        requestAnimationFrame(rotate);
+      }
+
+      rotate();
     }
 
-    function startSpawning() {
+    function spawnLoop() {
       spawnLetter();
-      setInterval(() => spawnLetter(), spawnInterval);
+      setTimeout(spawnLoop, spawnInterval);
     }
 
     function scaleDifficulty() {
@@ -209,7 +216,7 @@
 
     document.addEventListener("keydown", checkInput);
     updateRotation();
-    startSpawning();
+    spawnLoop();
     scaleDifficulty();
   </script>
 </body>
