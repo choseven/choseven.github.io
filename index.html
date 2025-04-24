@@ -13,19 +13,26 @@
             overflow: hidden;
             position: relative;
         }
-        .letter {
+        .container {
             position: absolute;
-            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .letter {
+            font-size: 28px;
             font-weight: bold;
             color: yellow;
+            position: absolute;
         }
         .circle {
-            position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            border: 3px solid white;
+            border: 5px solid rgba(255, 255, 255, 0.9);
+            position: absolute;
             transition: width linear, height linear;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* Glowing effect */
         }
         #score {
             position: absolute;
@@ -49,30 +56,31 @@
             const y = Math.random() * window.innerHeight * 0.9;
             const duration = Math.random() * 2000 + 1000; // 1-3 seconds
 
+            const container = document.createElement("div");
+            container.className = "container";
+            container.style.left = `${x}px`;
+            container.style.top = `${y}px`;
+
             const letterDiv = document.createElement("div");
             letterDiv.className = "letter";
             letterDiv.innerText = char;
-            letterDiv.style.left = `${x}px`;
-            letterDiv.style.top = `${y}px`;
 
             const circleDiv = document.createElement("div");
             circleDiv.className = "circle";
-            circleDiv.style.left = `${x - 10}px`;
-            circleDiv.style.top = `${y - 10}px`;
 
-            document.body.appendChild(circleDiv);
-            document.body.appendChild(letterDiv);
+            container.appendChild(circleDiv);
+            container.appendChild(letterDiv);
+            document.body.appendChild(container);
 
-            activeLetters.push({ char, letterDiv, circleDiv });
+            activeLetters.push({ char, container, letterDiv, circleDiv });
 
             setTimeout(() => {
                 circleDiv.style.width = "0px";
                 circleDiv.style.height = "0px";
-            }, 50); // Start shrinking immediately
+            }, 50); // Shrinking begins immediately
 
             setTimeout(() => {
-                circleDiv.remove();
-                letterDiv.remove();
+                container.remove();
                 activeLetters = activeLetters.filter(l => l.char !== char);
             }, duration); // Remove if not typed in time
         }
@@ -84,8 +92,7 @@
             if (index !== -1) {
                 score++;
                 document.getElementById("score").innerText = `Score: ${score}`;
-                activeLetters[index].letterDiv.remove();
-                activeLetters[index].circleDiv.remove();
+                activeLetters[index].container.remove();
                 activeLetters.splice(index, 1);
             }
         }
