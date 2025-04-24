@@ -64,6 +64,15 @@
       transform-origin: left center;
     }
 
+    #lives {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: red;
+      font-size: 36px;
+    }
+
     .flash {
       position: fixed;
       top: 0; left: 0;
@@ -78,7 +87,7 @@
 
     .perfect {
       position: absolute;
-      font-size: 16px;
+      font-size: 24px;
       color: #0ff;
       text-shadow: 0 0 10px #0ff;
       pointer-events: none;
@@ -86,28 +95,68 @@
     }
 
     @keyframes flash-effect {
-      0% { opacity: 0.8; }
+      0% { opacity: 0.9; }
       100% { opacity: 0; }
     }
 
     @keyframes fadeOut {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-20px); }
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-30px) scale(1.4); }
     }
+
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-5px, 5px); }
+      50% { transform: translate(5px, -5px); }
+      75% { transform: translate(-5px, 5px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .game-over {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      z-index: 9999;
+    }
+
+    .game-over h1 {
+      font-size: 64px;
+      color: red;
+      margin: 0;
+    }
+
+    .game-over p {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #ccc;
+    }
+
   </style>
 </head>
 <body>
 
   <div id="score">Score: <span id="score-value">0</span></div>
+  <div id="lives">5</div>
   <div id="flash" class="flash"></div>
 
   <script>
     let score = 0;
+    let lives = 5;
     let activeLetters = [];
     let spawnInterval = 1500;
     let shrinkSpeedModifier = 1.0;
+    let gameOver = false;
 
     function spawnLetter() {
+      if (gameOver) return;
+
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
@@ -142,9 +191,20 @@
       }, 50);
 
       setTimeout(() => {
-        container.remove();
-        activeLetters = activeLetters.filter(l => l.char !== char);
+        if (!gameOver && document.body.contains(container)) {
+          container.remove();
+          activeLetters = activeLetters.filter(l => l.char !== char);
+          loseLife();
+        }
       }, duration);
+    }
+
+    function loseLife() {
+      lives--;
+      document.getElementById("lives").innerText = lives;
+      if (lives <= 0) {
+        triggerGameOver();
+      }
     }
 
     function triggerFlash() {
@@ -161,10 +221,16 @@
       perfect.style.left = `${x}px`;
       perfect.style.top = `${y}px`;
       document.body.appendChild(perfect);
-      setTimeout(() => perfect.remove(), 800);
+      document.body.classList.add('shake');
+      setTimeout(() => {
+        perfect.remove();
+        document.body.classList.remove('shake');
+      }, 800);
     }
 
     function checkInput(event) {
+      if (gameOver) return;
+
       const typedChar = event.key.toUpperCase();
       const index = activeLetters.findIndex(l => l.char === typedChar);
 
@@ -193,7 +259,8 @@
       let angle = 0;
 
       function rotate() {
-        const speed = Math.min(0.1 + score * 0.02, 6); // scale faster
+        if (gameOver) return;
+        const speed = Math.min(0.1 + score * 0.02, 6);
         angle += speed;
         scoreVal.style.transform = `rotate(${angle}deg)`;
         requestAnimationFrame(rotate);
@@ -203,6 +270,7 @@
     }
 
     function spawnLoop() {
+      if (gameOver) return;
       spawnLetter();
       setTimeout(spawnLoop, spawnInterval);
     }
@@ -212,6 +280,15 @@
         if (spawnInterval > 400) spawnInterval -= 100;
         if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
       }, 15000);
+    }
+
+    function triggerGameOver() {
+      gameOver = true;
+      activeLetters.forEach(l => l.container.remove());
+      const overlay = document.createElement("div");
+      overlay.className = "game-over";
+      overlay.innerHTML = `<h1>GAME OVER</h1><p>Refresh Page</p>`;
+      document.body.appendChild(overlay);
     }
 
     document.addEventListener("keydown", checkInput);
