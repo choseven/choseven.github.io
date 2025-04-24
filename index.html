@@ -5,13 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Letter Reaction Challenge</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
     body {
-      font-family: 'Courier New', monospace;
+      font-family: 'Press Start 2P', cursive;
       background: #111;
       color: white;
       margin: 0;
       overflow: hidden;
       position: relative;
+    }
+
+    .container {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .letter {
+      font-size: 32px;
+      font-weight: bold;
+      color: yellow;
+      position: absolute;
+    }
+
+    .circle, .circle-inner {
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+
+    .circle {
+      width: 100px;
+      height: 100px;
+      border: 6px solid rgba(255, 255, 255, 0.95);
+      transition: width linear, height linear;
+    }
+
+    .circle-inner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(0, 200, 255, 0.95);
     }
 
     #score {
@@ -31,116 +69,101 @@
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 36px;
       color: red;
-    }
-
-    .container {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .letter {
-      font-size: 32px;
-      font-weight: bold;
-      color: yellow;
-      position: absolute;
-    }
-
-    .circle {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 6px solid rgba(255, 255, 255, 0.95);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: width linear, height linear;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-    }
-
-    .inner-circle {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: 4px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .perfect-text {
-      position: absolute;
-      color: lime;
-      font-size: 28px;
-      font-weight: bold;
-      pointer-events: none;
-      animation: pop 1s ease-out forwards;
-    }
-
-    @keyframes pop {
-      0% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(2); }
+      font-size: 36px;
     }
 
     .flash {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       background: white;
-      opacity: 0.6;
-      animation: flashbang 0.3s ease-out forwards;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      animation: flash-effect 0.2s ease-out;
+    }
+
+    .perfect {
+      position: absolute;
+      font-size: 24px;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+      pointer-events: none;
+      animation: fadeOut 0.8s ease-out forwards;
+    }
+
+    @keyframes flash-effect {
+      0% { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-30px) scale(1.4); }
+    }
+
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-5px, 5px); }
+      50% { transform: translate(5px, -5px); }
+      75% { transform: translate(-5px, 5px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .game-over {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
       z-index: 9999;
     }
 
-    @keyframes flashbang {
-      from { opacity: 0.6; }
-      to { opacity: 0; }
-    }
-
-    #game-over {
-      position: fixed;
-      top: 40%;
-      width: 100%;
-      text-align: center;
+    .game-over h1 {
       font-size: 64px;
-      font-weight: bold;
       color: red;
-      display: none;
-      z-index: 10000;
+      margin: 0;
     }
 
-    #game-over small {
-      display: block;
-      font-size: 24px;
-      margin-top: 20px;
-      color: white;
+    .game-over p {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #ccc;
     }
   </style>
+
+  <!-- Preload the sound effect -->
+  <audio id="perfect-sfx" src="correct.mp3" preload="auto"></audio>
 </head>
 <body>
-
   <div id="score">Score: <span id="score-value">0</span></div>
   <div id="lives">5</div>
-  <div id="game-over">GAME OVER<small>Refresh Page</small></div>
-
-  <audio id="perfect-sound" src="correct.mp3" preload="auto"></audio>
+  <div id="flash" class="flash"></div>
 
   <script>
     let score = 0;
     let lives = 5;
-    let gameOver = false;
     let activeLetters = [];
-    let difficulty = 1500;
+    let spawnInterval = 1500;
+    let shrinkSpeedModifier = 1.0;
+    let gameOver = false;
+
+    const perfectSfx = document.getElementById('perfect-sfx');
 
     function spawnLetter() {
+      if (gameOver) return;
+
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
-      const duration = Math.random() * 2000 + 1000;
+      const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
 
       const container = document.createElement("div");
       container.className = "container";
@@ -151,24 +174,23 @@
       letterDiv.className = "letter";
       letterDiv.innerText = char;
 
-      const circleDiv = document.createElement("div");
-      circleDiv.className = "circle";
+      const outerCircle = document.createElement("div");
+      outerCircle.className = "circle";
 
       const innerCircle = document.createElement("div");
-      innerCircle.className = "inner-circle";
+      innerCircle.className = "circle-inner";
 
-      circleDiv.appendChild(innerCircle);
-      container.appendChild(circleDiv);
+      container.appendChild(outerCircle);
+      container.appendChild(innerCircle);
       container.appendChild(letterDiv);
       document.body.appendChild(container);
 
-      const start = Date.now();
-      activeLetters.push({ char, container, circleDiv, innerCircle, start, duration });
+      activeLetters.push({ char, container, outerCircle });
 
       setTimeout(() => {
-        circleDiv.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
-        circleDiv.style.width = "0px";
-        circleDiv.style.height = "0px";
+        outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
+        outerCircle.style.width = "0px";
+        outerCircle.style.height = "0px";
       }, 50);
 
       setTimeout(() => {
@@ -177,29 +199,67 @@
           activeLetters = activeLetters.filter(l => l.char !== char);
           loseLife();
         }
-      }, duration + 50);
+      }, duration);
     }
 
-    function showPerfect(x, y) {
-      const text = document.createElement("div");
-      text.className = "perfect-text";
-      text.innerText = "PERFECT!";
-      text.style.left = `${x}px`;
-      text.style.top = `${y}px`;
-      document.body.appendChild(text);
-      setTimeout(() => text.remove(), 1000);
+    function loseLife() {
+      lives--;
+      document.getElementById("lives").innerText = lives;
+      if (lives <= 0) {
+        triggerGameOver();
+      }
     }
 
     function triggerFlash() {
-      const flash = document.createElement("div");
-      flash.className = "flash";
-      document.body.appendChild(flash);
-      setTimeout(() => flash.remove(), 300);
+      const flash = document.getElementById('flash');
+      flash.style.animation = 'none';
+      void flash.offsetWidth;
+      flash.style.animation = 'flash-effect 0.2s ease-out';
     }
 
-    function updateScore() {
-      const scoreVal = document.getElementById("score-value");
-      scoreVal.innerText = score;
+    function showPerfect(x, y) {
+      // play the sound effect
+      perfectSfx.currentTime = 0;
+      perfectSfx.play();
+
+      const perfect = document.createElement('div');
+      perfect.className = 'perfect';
+      perfect.innerText = 'PERFECT!';
+      perfect.style.left = `${x}px`;
+      perfect.style.top = `${y}px`;
+      document.body.appendChild(perfect);
+
+      document.body.classList.add('shake');
+      setTimeout(() => {
+        perfect.remove();
+        document.body.classList.remove('shake');
+      }, 800);
+    }
+
+    function checkInput(event) {
+      if (gameOver) return;
+
+      const typedChar = event.key.toUpperCase();
+      const index = activeLetters.findIndex(l => l.char === typedChar);
+
+      if (index !== -1) {
+        const { outerCircle, container } = activeLetters[index];
+        const outerSize = parseFloat(getComputedStyle(outerCircle).width);
+        const isPerfect = outerSize <= 58 && outerSize >= 42;
+        const rect = container.getBoundingClientRect();
+
+        if (isPerfect) {
+          score += 10;
+          showPerfect(rect.left, rect.top);
+          triggerFlash();
+        } else {
+          score += 1;
+        }
+
+        document.getElementById("score-value").innerText = score;
+        container.remove();
+        activeLetters.splice(index, 1);
+      }
     }
 
     function updateRainbowEffect() {
@@ -216,61 +276,29 @@
       animate();
     }
 
-    function loseLife() {
-      lives--;
-      document.getElementById("lives").innerText = lives;
-      if (lives <= 0) {
-        gameOver = true;
-        document.getElementById("game-over").style.display = "block";
-      }
-    }
-
-    function checkInput(event) {
-      if (gameOver) return;
-
-      const typedChar = event.key.toUpperCase();
-      const index = activeLetters.findIndex(l => l.char === typedChar);
-      if (index !== -1) {
-        const { container, circleDiv, innerCircle, start, duration } = activeLetters[index];
-
-        const elapsed = Date.now() - start;
-        const progress = elapsed / duration;
-        const outerSize = 100 * (1 - progress);
-        const innerSize = 50;
-        const diff = Math.abs(outerSize - innerSize);
-
-        let isPerfect = diff < 25;
-
-        if (isPerfect) {
-          score += 10;
-          triggerFlash();
-          showPerfect(container.offsetLeft, container.offsetTop);
-          document.getElementById("perfect-sound").currentTime = 0;
-          document.getElementById("perfect-sound").play();
-        } else {
-          score += 1;
-        }
-
-        updateScore();
-        container.remove();
-        activeLetters.splice(index, 1);
-      }
-    }
-
-    document.addEventListener("keydown", checkInput);
-
     function spawnLoop() {
       if (gameOver) return;
       spawnLetter();
-      setTimeout(spawnLoop, difficulty);
+      setTimeout(spawnLoop, spawnInterval);
     }
 
     function scaleDifficulty() {
       setInterval(() => {
-        if (difficulty > 500) difficulty -= 25;
-      }, 5000);
+        if (spawnInterval > 400) spawnInterval -= 100;
+        if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
+      }, 15000);
     }
 
+    function triggerGameOver() {
+      gameOver = true;
+      activeLetters.forEach(l => l.container.remove());
+      const overlay = document.createElement("div");
+      overlay.className = "game-over";
+      overlay.innerHTML = `<h1>GAME OVER</h1><p>Refresh Page</p>`;
+      document.body.appendChild(overlay);
+    }
+
+    document.addEventListener("keydown", checkInput);
     updateRainbowEffect();
     spawnLoop();
     scaleDifficulty();
