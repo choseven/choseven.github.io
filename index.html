@@ -20,19 +20,22 @@
             justify-content: center;
         }
         .letter {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: yellow;
             position: absolute;
         }
         .circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 5px solid rgba(255, 255, 255, 0.9);
             position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 6px solid rgba(255, 255, 255, 0.95); /* Brighter than background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: width linear, height linear;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* Glowing effect */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); /* Slight glow */
         }
         #score {
             position: absolute;
@@ -52,9 +55,9 @@
 
         function spawnLetter() {
             const char = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Random A-Z
-            const x = Math.random() * window.innerWidth * 0.9;
-            const y = Math.random() * window.innerHeight * 0.9;
-            const duration = Math.random() * 2000 + 1000; // 1-3 seconds
+            const x = Math.random() * window.innerWidth * 0.85;
+            const y = Math.random() * window.innerHeight * 0.85;
+            const duration = Math.random() * 2000 + 1000; // Time until it disappears (1-3 sec)
 
             const container = document.createElement("div");
             container.className = "container";
@@ -72,12 +75,13 @@
             container.appendChild(letterDiv);
             document.body.appendChild(container);
 
-            activeLetters.push({ char, container, letterDiv, circleDiv });
+            activeLetters.push({ char, container, circleDiv });
 
             setTimeout(() => {
+                circleDiv.style.transition = `width ${duration}ms linear, height ${duration}ms linear`; // Dynamic shrinking speed
                 circleDiv.style.width = "0px";
                 circleDiv.style.height = "0px";
-            }, 50); // Shrinking begins immediately
+            }, 50); // Start shrinking quickly
 
             setTimeout(() => {
                 container.remove();
