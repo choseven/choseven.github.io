@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LOGAN</title>
+  <title>Letter Reaction Challenge</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -62,6 +62,31 @@
     #score-value {
       display: inline-block;
       transition: filter 0.2s linear;
+    }
+
+    #combo-bar {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      width: 300px;
+      height: 20px;
+      border: 2px solid #0ff;
+      background: #333;
+    }
+
+    #combo-fill {
+      height: 100%;
+      width: 0%;
+      background: #0ff;
+      transition: width 0.1s linear;
+    }
+
+    #combo-text {
+      position: absolute;
+      top: 60px;
+      left: 320px;
+      font-size: 18px;
+      color: #0ff;
     }
 
     #lives {
@@ -144,6 +169,8 @@
 </head>
 <body>
   <div id="score">Score: <span id="score-value">0</span></div>
+  <div id="combo-bar"><div id="combo-fill"></div></div>
+  <div id="combo-text">Combo: 0×</div>
   <div id="lives">5</div>
   <div id="flash" class="flash"></div>
 
@@ -155,11 +182,45 @@
     let shrinkSpeedModifier = 1.0;
     let gameOver = false;
 
+    // combo system
+    let combo = 0;
+    let multiplier = 1;
+    let lastHitTime = 0;
+    const COMBO_RESET_MS = 2000;         // reset combo if >2s between hits
+    const COMBO_THRESHOLDS = [10, 25, 50];
+    const MULTIPLIERS = [1.5, 2, 3];
+
     const perfectSfx = document.getElementById('perfect-sfx');
+    const comboFill = document.getElementById('combo-fill');
+    const comboText = document.getElementById('combo-text');
+
+    function updateComboBar() {
+      // full on next threshold or max
+      const next = COMBO_THRESHOLDS.find(t => combo < t) || COMBO_THRESHOLDS.slice(-1)[0];
+      const pct = Math.min(combo / next, 1) * 100;
+      comboFill.style.width = pct + '%';
+      comboText.innerText = `Combo: ${combo}×`;
+    }
+
+    function checkCombo() {
+      const now = performance.now();
+      if (now - lastHitTime <= COMBO_RESET_MS) {
+        combo++;
+      } else {
+        combo = 1;
+      }
+      lastHitTime = now;
+
+      // update multiplier
+      multiplier = 1;
+      COMBO_THRESHOLDS.forEach((th, i) => {
+        if (combo >= th) multiplier = MULTIPLIERS[i];
+      });
+      updateComboBar();
+    }
 
     function spawnLetter() {
       if (gameOver) return;
-
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
@@ -176,15 +237,11 @@
 
       const outerCircle = document.createElement("div");
       outerCircle.className = "circle";
-
       const innerCircle = document.createElement("div");
       innerCircle.className = "circle-inner";
 
-      container.appendChild(outerCircle);
-      container.appendChild(innerCircle);
-      container.appendChild(letterDiv);
-      document.body.appendChild(container);
-
+      container.append(outerCircle, innerCircle, letterDiv);
+      document.body.append(container);
       activeLetters.push({ char, container, outerCircle });
 
       setTimeout(() => {
@@ -196,8 +253,10 @@
       setTimeout(() => {
         if (!gameOver && document.body.contains(container)) {
           container.remove();
-          activeLetters = activeLetters.filter(l => l.char !== char);
+          activeLetters = activeLetters.filter(l => l.container !== container);
           loseLife();
+          combo = 0;
+          updateComboBar();
         }
       }, duration);
     }
@@ -205,74 +264,68 @@
     function loseLife() {
       lives--;
       document.getElementById("lives").innerText = lives;
-      if (lives <= 0) {
-        triggerGameOver();
-      }
+      if (lives <= 0) triggerGameOver();
     }
 
     function triggerFlash() {
-      const flash = document.getElementById('flash');
-      flash.style.animation = 'none';
-      void flash.offsetWidth;
-      flash.style.animation = 'flash-effect 0.2s ease-out';
+      const f = document.getElementById('flash');
+      f.style.animation = 'none';
+      void f.offsetWidth;
+      f.style.animation = 'flash-effect 0.2s ease-out';
     }
 
     function showPerfect(x, y) {
       perfectSfx.currentTime = 0;
       perfectSfx.play();
-
-      const perfect = document.createElement('div');
-      perfect.className = 'perfect';
-      perfect.innerText = 'PERFECT!';
-      perfect.style.left = `${x}px`;
-      perfect.style.top = `${y}px`;
-      document.body.appendChild(perfect);
-
+      const p = document.createElement('div');
+      p.className = 'perfect';
+      p.innerText = 'PERFECT!';
+      p.style.left = `${x}px`;
+      p.style.top = `${y}px`;
+      document.body.append(p);
       document.body.classList.add('shake');
       setTimeout(() => {
-        perfect.remove();
+        p.remove();
         document.body.classList.remove('shake');
       }, 800);
     }
 
-    function checkInput(event) {
+    function checkInput(e) {
       if (gameOver) return;
+      const key = e.key.toUpperCase();
+      const idx = activeLetters.findIndex(l => l.char === key);
+      if (idx === -1) return;
 
-      const typedChar = event.key.toUpperCase();
-      const index = activeLetters.findIndex(l => l.char === typedChar);
+      const { outerCircle, container } = activeLetters[idx];
+      const size = parseFloat(getComputedStyle(outerCircle).width);
+      const rect = container.getBoundingClientRect();
+      const isPerfect = size <= 58 && size >= 42;
 
-      if (index !== -1) {
-        const { outerCircle, container } = activeLetters[index];
-        const outerSize = parseFloat(getComputedStyle(outerCircle).width);
-        const isPerfect = outerSize <= 58 && outerSize >= 42;
-        const rect = container.getBoundingClientRect();
+      checkCombo();  // update combo before awarding points
 
-        if (isPerfect) {
-          score += 10;
-          showPerfect(rect.left, rect.top);
-          triggerFlash();
-        } else {
-          score += 1;
-        }
+      const basePoints = isPerfect ? 10 : 1;
+      score += Math.floor(basePoints * multiplier);
+      document.getElementById("score-value").innerText = score;
 
-        document.getElementById("score-value").innerText = score;
-        container.remove();
-        activeLetters.splice(index, 1);
+      if (isPerfect) {
+        showPerfect(rect.left, rect.top);
+        triggerFlash();
       }
+
+      container.remove();
+      activeLetters.splice(idx, 1);
     }
 
     function updateRainbowEffect() {
-      const scoreVal = document.getElementById("score-value");
+      const sv = document.getElementById("score-value");
       let hue = 0;
-
-      function animate() {
+      function anim() {
         if (gameOver) return;
         hue = (hue + Math.min(1 + score * 0.2, 20)) % 360;
-        scoreVal.style.filter = `hue-rotate(${hue}deg)`;
-        requestAnimationFrame(animate);
+        sv.style.filter = `hue-rotate(${hue}deg)`;
+        requestAnimationFrame(anim);
       }
-
-      animate();
+      anim();
     }
 
     function spawnLoop() {
@@ -291,14 +344,15 @@
     function triggerGameOver() {
       gameOver = true;
       activeLetters.forEach(l => l.container.remove());
-      const overlay = document.createElement("div");
-      overlay.className = "game-over";
-      overlay.innerHTML = `
+      const ov = document.createElement("div");
+      ov.className = "game-over";
+      ov.innerHTML = `
         <h1>GAME OVER</h1>
         <p>Your Score: ${score}</p>
-        <p>Refresh Page to Play Again</p>
+        <p>Max Combo: ${combo}×</p>
+        <p>Refresh to Play Again</p>
       `;
-      document.body.appendChild(overlay);
+      document.body.append(ov);
     }
 
     document.addEventListener("keydown", checkInput);
