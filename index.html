@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Letter Reaction Challenge</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Press Start 2P', cursive; /* Pixelated font */
             background: #111;
             color: white;
             margin: 0;
@@ -30,18 +32,26 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 6px solid rgba(255, 255, 255, 0.95); /* Brighter than background */
+            border: 6px solid rgba(255, 255, 255, 0.95);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: width linear, height linear;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); /* Slight glow */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        .small-circle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.8);
         }
         #score {
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 18px;
+            font-size: 36px; /* 2x the size */
+            font-weight: bold; /* Bolded */
         }
     </style>
 </head>
@@ -54,10 +64,10 @@
         let activeLetters = [];
 
         function spawnLetter() {
-            const char = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Random A-Z
+            const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
             const x = Math.random() * window.innerWidth * 0.85;
             const y = Math.random() * window.innerHeight * 0.85;
-            const duration = Math.random() * 2000 + 1000; // Time until it disappears (1-3 sec)
+            const duration = Math.random() * 2000 + 1000;
 
             const container = document.createElement("div");
             container.className = "container";
@@ -71,22 +81,26 @@
             const circleDiv = document.createElement("div");
             circleDiv.className = "circle";
 
+            const smallCircleDiv = document.createElement("div");
+            smallCircleDiv.className = "small-circle";
+
             container.appendChild(circleDiv);
+            container.appendChild(smallCircleDiv);
             container.appendChild(letterDiv);
             document.body.appendChild(container);
 
-            activeLetters.push({ char, container, circleDiv });
+            activeLetters.push({ char, container, circleDiv, smallCircleDiv });
 
             setTimeout(() => {
-                circleDiv.style.transition = `width ${duration}ms linear, height ${duration}ms linear`; // Dynamic shrinking speed
+                circleDiv.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
                 circleDiv.style.width = "0px";
                 circleDiv.style.height = "0px";
-            }, 50); // Start shrinking quickly
+            }, 50);
 
             setTimeout(() => {
                 container.remove();
                 activeLetters = activeLetters.filter(l => l.char !== char);
-            }, duration); // Remove if not typed in time
+            }, duration);
         }
 
         function checkInput(event) {
@@ -96,14 +110,29 @@
             if (index !== -1) {
                 score++;
                 document.getElementById("score").innerText = `Score: ${score}`;
-                activeLetters[index].container.remove();
+                
+                let { circleDiv, smallCircleDiv } = activeLetters[index];
+                if (circleDiv.getBoundingClientRect().intersects(smallCircleDiv.getBoundingClientRect())) {
+                    circleDiv.style.backgroundColor = "green";
+                    circleDiv.style.opacity = 1;
+                    let fadeInterval = setInterval(() => {
+                        circleDiv.style.opacity -= 0.05;
+                        if (circleDiv.style.opacity <= 0) {
+                            clearInterval(fadeInterval);
+                            activeLetters[index].container.remove();
+                        }
+                    }, 50);
+                } else {
+                    activeLetters[index].container.remove();
+                }
+                
                 activeLetters.splice(index, 1);
+                spawnLetter(); // Immediately spawn a new letter
             }
         }
 
         document.addEventListener("keydown", checkInput);
-        setInterval(spawnLetter, 1500); // New letter every 1.5 seconds
-
+        setInterval(spawnLetter, 1500);
     </script>
 </body>
 </html>
