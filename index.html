@@ -136,27 +136,28 @@
     }
 
     function checkInput(event) {
-      const typedChar = event.key.toUpperCase();
-      const index = activeLetters.findIndex(l => l.char === typedChar);
+  const typedChar = event.key.toUpperCase();
+  const index = activeLetters.findIndex(l => l.char === typedChar);
 
-      if (index !== -1) {
-        const { outerCircle, container } = activeLetters[index];
+  if (index !== -1) {
+    const { outerCircle, container } = activeLetters[index];
 
-        const outerSize = parseFloat(getComputedStyle(outerCircle).width); // real-time size
-        const isPerfect = outerSize <= 52 && outerSize >= 48; // right when touching inner
+    const outerSize = parseFloat(getComputedStyle(outerCircle).width);
+    const isPerfect = outerSize <= 58 && outerSize >= 42; // wider window
 
-        if (isPerfect) {
-          score += 10;
-          triggerFlash();
-        } else {
-          score += 1;
-        }
-
-        document.getElementById("score").innerText = `Score: ${score}`;
-        container.remove();
-        activeLetters.splice(index, 1);
-      }
+    if (isPerfect) {
+      score += 10;
+      triggerFlash();
+    } else {
+      score += 1;
     }
+
+    document.getElementById("score").innerText = `Score: ${score}`;
+    container.remove();
+    activeLetters.splice(index, 1);
+  }
+}
+
 
     document.addEventListener("keydown", checkInput);
     setInterval(spawnLetter, 1500);
