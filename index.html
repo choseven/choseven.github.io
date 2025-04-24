@@ -3,38 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endless Typing Page</title>
+    <title>Infinite Typing Challenge</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #111;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            background: #111;
+            color: white;
+            text-align: center;
         }
-        textarea {
+        #gameArea {
+            position: relative;
             width: 80%;
-            height: 90%;
-            font-size: 16px;
-            background: #222;
-            color: #fff;
-            border: none;
-            resize: none;
-            outline: none;
-            padding: 10px;
+            height: 400px;
+            margin: auto;
+            border: 2px solid white;
+            overflow: hidden;
+        }
+        .word {
+            position: absolute;
+            font-size: 20px;
+            color: yellow;
         }
     </style>
 </head>
 <body>
-
-    <textarea id="typingArea" placeholder="Start typing..."></textarea>
+    <h1>Infinite Typing Challenge</h1>
+    <p>Type the words before they disappear!</p>
+    <p>Score: <span id="score">0</span></p>
+    <div id="gameArea"></div>
+    <input type="text" id="wordInput" autofocus placeholder="Type here...">
 
     <script>
-        document.getElementById('typingArea').focus(); // Auto-focus the textarea
-    </script>
+        let words = ["speed", "shadow", "echo", "lightning", "time", "warp", "glitch", "random", "pixel", "energy"];
+        let activeWords = [];
+        let score = 0;
 
+        function spawnWord() {
+            let wordText = words[Math.floor(Math.random() * words.length)];
+            let wordElement = document.createElement("div");
+            wordElement.className = "word";
+            wordElement.innerText = wordText;
+            wordElement.style.top = `${Math.random() * 80}%`;
+            wordElement.style.left = `${Math.random() * 80}%`;
+            document.getElementById("gameArea").appendChild(wordElement);
+            activeWords.push({ text: wordText, element: wordElement });
+            
+            setTimeout(() => {
+                if (activeWords.includes(wordText)) {
+                    wordElement.remove();
+                    activeWords.splice(activeWords.indexOf(wordText), 1);
+                }
+            }, 5000); // Word disappears after 5 seconds
+        }
+
+        function checkWord() {
+            let input = document.getElementById("wordInput").value;
+            let foundIndex = activeWords.findIndex(w => w.text === input);
+            if (foundIndex !== -1) {
+                activeWords[foundIndex].element.remove();
+                activeWords.splice(foundIndex, 1);
+                score++;
+                document.getElementById("score").innerText = score;
+                document.getElementById("wordInput").value = "";
+            }
+        }
+
+        document.getElementById("wordInput").addEventListener("input", checkWord);
+
+        setInterval(spawnWord, 2000); // Words appear every 2 seconds
+    </script>
 </body>
 </html>
