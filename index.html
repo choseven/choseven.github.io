@@ -240,6 +240,10 @@
   const innerCircle = document.createElement("div");
   innerCircle.className = "circle-inner";
 
+  const originalSize = 100 * scaleFactor; // base size is 100px
+  activeLetters.push({ char, container, outerCircle, originalSize });
+
+
   // 🔥 Add random scale factor between 1 and 2
   const scaleFactor = 1 + Math.random(); // 1.0 to 2.0
   outerCircle.style.width = `${100 * scaleFactor}px`;
@@ -304,10 +308,14 @@
       const idx = activeLetters.findIndex(l => l.char === key);
       if (idx === -1) return;
 
-      const { outerCircle, container } = activeLetters[idx];
-      const size = parseFloat(getComputedStyle(outerCircle).width);
-      const rect = container.getBoundingClientRect();
-      const isPerfect = size <= 58 && size >= 42;
+      const { outerCircle, container, originalSize } = activeLetters[idx];
+    const size = parseFloat(getComputedStyle(outerCircle).width);
+
+    // Check if size is within 42%–58% of original
+    const lowerBound = originalSize * 0.42;
+    const upperBound = originalSize * 0.58;
+    const isPerfect = size >= lowerBound && size <= upperBound;
+
 
       checkCombo();  // update combo before awarding points
 
