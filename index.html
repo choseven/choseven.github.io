@@ -220,46 +220,54 @@
     }
 
     function spawnLetter() {
-      if (gameOver) return;
-      const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-      const x = Math.random() * window.innerWidth * 0.85;
-      const y = Math.random() * window.innerHeight * 0.85;
-      const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
+  if (gameOver) return;
+  const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  const x = Math.random() * window.innerWidth * 0.85;
+  const y = Math.random() * window.innerHeight * 0.85;
+  const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
 
-      const container = document.createElement("div");
-      container.className = "container";
-      container.style.left = `${x}px`;
-      container.style.top = `${y}px`;
+  const container = document.createElement("div");
+  container.className = "container";
+  container.style.left = `${x}px`;
+  container.style.top = `${y}px`;
 
-      const letterDiv = document.createElement("div");
-      letterDiv.className = "letter";
-      letterDiv.innerText = char;
+  const letterDiv = document.createElement("div");
+  letterDiv.className = "letter";
+  letterDiv.innerText = char;
 
-      const outerCircle = document.createElement("div");
-      outerCircle.className = "circle";
-      const innerCircle = document.createElement("div");
-      innerCircle.className = "circle-inner";
+  const outerCircle = document.createElement("div");
+  outerCircle.className = "circle";
+  const innerCircle = document.createElement("div");
+  innerCircle.className = "circle-inner";
 
-      container.append(outerCircle, innerCircle, letterDiv);
-      document.body.append(container);
-      activeLetters.push({ char, container, outerCircle });
+  // 🔥 Add random scale factor between 1 and 2
+  const scaleFactor = 1 + Math.random(); // 1.0 to 2.0
+  outerCircle.style.width = `${100 * scaleFactor}px`;
+  outerCircle.style.height = `${100 * scaleFactor}px`;
+  innerCircle.style.width = `${50 * scaleFactor}px`;
+  innerCircle.style.height = `${50 * scaleFactor}px`;
 
-      setTimeout(() => {
-        outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
-        outerCircle.style.width = "0px";
-        outerCircle.style.height = "0px";
-      }, 50);
+  container.append(outerCircle, innerCircle, letterDiv);
+  document.body.append(container);
+  activeLetters.push({ char, container, outerCircle });
 
-      setTimeout(() => {
-        if (!gameOver && document.body.contains(container)) {
-          container.remove();
-          activeLetters = activeLetters.filter(l => l.container !== container);
-          loseLife();
-          combo = 0;
-          updateComboBar();
-        }
-      }, duration);
+  setTimeout(() => {
+    outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
+    outerCircle.style.width = "0px";
+    outerCircle.style.height = "0px";
+  }, 50);
+
+  setTimeout(() => {
+    if (!gameOver && document.body.contains(container)) {
+      container.remove();
+      activeLetters = activeLetters.filter(l => l.container !== container);
+      loseLife();
+      combo = 0;
+      updateComboBar();
     }
+  }, duration);
+}
+
 
     function loseLife() {
       lives--;
