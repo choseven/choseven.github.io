@@ -24,13 +24,21 @@
     }
 
     .letter {
-      font-size: 32px;
-      font-weight: bold;
-      color: yellow;
-      position: absolute;
-      text-align: center;
-      white-space: nowrap;
-    }
+   font-size: 32px;
+   font-weight: bold;
+    color: yellow;
+    position: absolute;
+   text-align: center;
+    max-width: 90px;
+    max-height: 90px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
     .circle, .circle-inner {
       position: absolute;
@@ -267,60 +275,82 @@
     }
 
     function spawnLetter() {
-      if (gameOver) return;
-      const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-      let requireShift = false;
-      let extraKey = null;
+  if (gameOver) return;
+  const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  let requireShift = false;
+  let extraKey = null;
 
-      if (score > 1000 && Math.random() < 0.3) {
-        const ek = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        if (ek !== char) extraKey = ek;
-      }
+  if (score > 1000 && Math.random() < 0.3) {
+    const ek = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    if (ek !== char) extraKey = ek;
+  }
 
-      requireShift = score > 500 && Math.random() < 0.3;
-      let displayChar = char;
+  requireShift = score > 500 && Math.random() < 0.3;
+  let displayChar = char;
 
-      if (extraKey) displayChar = `${char}+${extraKey}`;
-      else if (requireShift) displayChar = `Shift+${char}`;
+  if (extraKey) displayChar = `${char}+${extraKey}`;
+  else if (requireShift) displayChar = `Shift+${char}`;
 
-      const x = Math.random() * window.innerWidth * 0.85;
-      const y = Math.random() * window.innerHeight * 0.85;
-      const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
+  const x = Math.random() * window.innerWidth * 0.85;
+  const y = Math.random() * window.innerHeight * 0.85;
+  const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
 
-      const container = document.createElement("div");
-      container.className = "container";
-      container.style.left = `${x}px`;
-      container.style.top = `${y}px`;
+  const container = document.createElement("div");
+  container.className = "container";
+  container.style.left = `${x}px`;
+  container.style.top = `${y}px`;
 
-      const letterDiv = document.createElement("div");
-      letterDiv.className = "letter";
-      letterDiv.innerText = displayChar;
+  const letterDiv = document.createElement("div");
+  letterDiv.className = "letter";
+  letterDiv.innerText = displayChar;
+  letterDiv.style.whiteSpace = 'normal'; // allow wrapping
 
-      const outerCircle = document.createElement("div");
-      outerCircle.className = "circle";
-      const innerCircle = document.createElement("div");
-      innerCircle.className = "circle-inner";
+  // Adjust font size to fit in 100px circle
+  function fitText() {
+    let fontSize = 32;
+    letterDiv.style.fontSize = `${fontSize}px`;
 
-      container.append(outerCircle, innerCircle, letterDiv);
-      document.body.append(container);
-      activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
+    container.appendChild(letterDiv);
+    document.body.appendChild(container);
 
-      setTimeout(() => {
-        outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
-        outerCircle.style.width = "0px";
-        outerCircle.style.height = "0px";
-      }, 50);
+    const maxWidth = 90; // inside 100px circle minus padding
+    const maxHeight = 90;
 
-      setTimeout(() => {
-        if (!gameOver && document.body.contains(container)) {
-          container.remove();
-          activeLetters = activeLetters.filter(l => l.container !== container);
-          loseLife();
-          combo = 0;
-          updateComboBar();
-        }
-      }, duration);
+    while ((letterDiv.scrollWidth > maxWidth || letterDiv.scrollHeight > maxHeight) && fontSize > 8) {
+      fontSize -= 1;
+      letterDiv.style.fontSize = `${fontSize}px`;
     }
+  }
+
+  const outerCircle = document.createElement("div");
+  outerCircle.className = "circle";
+  const innerCircle = document.createElement("div");
+  innerCircle.className = "circle-inner";
+
+  container.append(outerCircle, innerCircle, letterDiv);
+  document.body.append(container);
+
+  fitText(); // Fit the text after appending
+
+  activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
+
+  setTimeout(() => {
+    outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
+    outerCircle.style.width = "0px";
+    outerCircle.style.height = "0px";
+  }, 50);
+
+  setTimeout(() => {
+    if (!gameOver && document.body.contains(container)) {
+      container.remove();
+      activeLetters = activeLetters.filter(l => l.container !== container);
+      loseLife();
+      combo = 0;
+      updateComboBar();
+    }
+  }, duration);
+}
+
 
     function checkInput(e) {
       if (gameOver) return;
