@@ -24,20 +24,24 @@
     }
 
     .letter {
-   font-size: 32px;
-   font-weight: bold;
-    color: yellow;
-    position: absolute;
-   text-align: center;
-    max-width: 90px;
-    max-height: 90px;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    white-space: normal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: yellow;
+  position: absolute;
+  text-align: center;
+  max-width: 90px;
+  max-height: 90px;
+  overflow: hidden;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  padding: 4px;
+  white-space: normal;
+  flex-direction: column;
 }
+
 
 
     .circle, .circle-inner {
@@ -276,6 +280,7 @@
 
     function spawnLetter() {
   if (gameOver) return;
+
   const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
   let requireShift = false;
   let extraKey = null;
@@ -303,24 +308,6 @@
   const letterDiv = document.createElement("div");
   letterDiv.className = "letter";
   letterDiv.innerText = displayChar;
-  letterDiv.style.whiteSpace = 'normal'; // allow wrapping
-
-  // Adjust font size to fit in 100px circle
-  function fitText() {
-    let fontSize = 32;
-    letterDiv.style.fontSize = `${fontSize}px`;
-
-    container.appendChild(letterDiv);
-    document.body.appendChild(container);
-
-    const maxWidth = 90; // inside 100px circle minus padding
-    const maxHeight = 90;
-
-    while ((letterDiv.scrollWidth > maxWidth || letterDiv.scrollHeight > maxHeight) && fontSize > 8) {
-      fontSize -= 1;
-      letterDiv.style.fontSize = `${fontSize}px`;
-    }
-  }
 
   const outerCircle = document.createElement("div");
   outerCircle.className = "circle";
@@ -330,7 +317,23 @@
   container.append(outerCircle, innerCircle, letterDiv);
   document.body.append(container);
 
-  fitText(); // Fit the text after appending
+  // Auto-resize font
+  function fitText() {
+    let fontSize = 32;
+    letterDiv.style.fontSize = `${fontSize}px`;
+    const maxSize = 90;
+
+    const fits = () =>
+      letterDiv.scrollWidth <= maxSize &&
+      letterDiv.scrollHeight <= maxSize;
+
+    while (!fits() && fontSize > 8) {
+      fontSize -= 1;
+      letterDiv.style.fontSize = `${fontSize}px`;
+    }
+  }
+
+  fitText();
 
   activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
 
@@ -350,6 +353,7 @@
     }
   }, duration);
 }
+
 
 
     function checkInput(e) {
