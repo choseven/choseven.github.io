@@ -28,6 +28,8 @@
       font-weight: bold;
       color: yellow;
       position: absolute;
+      text-align: center;
+      white-space: nowrap;
     }
 
     .circle, .circle-inner {
@@ -55,17 +57,18 @@
     .wave {
       position: absolute;
       border-radius: 50%;
-      border: 3px solid #0ff;
-      width: 10px;
-      height: 10px;
+      border: 1px solid #0ff;
+      width: 20px;
+      height: 20px;
       transform: translate(-50%, -50%);
       pointer-events: none;
       animation: waveExpand 0.6s ease-out forwards;
+      z-index: 999;
     }
 
     @keyframes waveExpand {
       from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      to { opacity: 0; transform: translate(-50%, -50%) scale(8); }
+      to { opacity: 0; transform: translate(-50%, -50%) scale(30); }
     }
 
     #score {
@@ -266,8 +269,20 @@
     function spawnLetter() {
       if (gameOver) return;
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-      const requireShift = score > 500 && Math.random() < 0.3;
-      const displayChar = requireShift ? char.toLowerCase() : char;
+      let requireShift = false;
+      let extraKey = null;
+
+      if (score > 1000 && Math.random() < 0.3) {
+        const ek = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        if (ek !== char) extraKey = ek;
+      }
+
+      requireShift = score > 500 && Math.random() < 0.3;
+      let displayChar = char;
+
+      if (extraKey) displayChar = `${char}+${extraKey}`;
+      else if (requireShift) displayChar = `Shift+${char}`;
+
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
       const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
@@ -288,7 +303,7 @@
 
       container.append(outerCircle, innerCircle, letterDiv);
       document.body.append(container);
-      activeLetters.push({ char, container, outerCircle, requireShift });
+      activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
 
       setTimeout(() => {
         outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
@@ -311,26 +326,40 @@
       if (gameOver) return;
       const key = e.key.toUpperCase();
       const shiftPressed = e.shiftKey;
-      const idx = activeLetters.findIndex(l => l.char === key && l.requireShift === shiftPressed);
-      if (idx === -1) return;
 
-      const { outerCircle, container } = activeLetters[idx];
-      const size = parseFloat(getComputedStyle(outerCircle).width);
-      const rect = container.getBoundingClientRect();
-      const isPerfect = size <= 58 && size >= 42;
+      for (let i = 0; i < activeLetters.length; i++) {
+        const l = activeLetters[i];
+        const mainMatch = l.char === key && l.requireShift === shiftPressed && !l.extraKey;
+        const comboMatch = l.extraKey && (key === l.char || key === l.extraKey);
 
-      checkCombo();
-      const basePoints = isPerfect ? 10 : 1;
-      score += Math.floor(basePoints * multiplier);
-      document.getElementById("score-value").innerText = score;
+        if (mainMatch || comboMatch) {
+          if (l.extraKey) {
+            if (!l.hitKeys) l.hitKeys = new Set();
+            l.hitKeys.add(key);
 
-      if (isPerfect) {
-        showPerfect(rect.left, rect.top);
-        triggerFlash();
+            if (!l.hitKeys.has(l.char) || !l.hitKeys.has(l.extraKey)) return;
+          }
+
+          const { outerCircle, container } = l;
+          const size = parseFloat(getComputedStyle(outerCircle).width);
+          const rect = container.getBoundingClientRect();
+          const isPerfect = size <= 58 && size >= 42;
+
+          checkCombo();
+          const basePoints = isPerfect ? 10 : 1;
+          score += Math.floor(basePoints * multiplier);
+          document.getElementById("score-value").innerText = score;
+
+          if (isPerfect) {
+            showPerfect(rect.left, rect.top);
+            triggerFlash();
+          }
+
+          container.remove();
+          activeLetters.splice(i, 1);
+          return;
+        }
       }
-
-      container.remove();
-      activeLetters.splice(idx, 1);
     }
 
     function updateRainbowEffect() {
