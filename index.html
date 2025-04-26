@@ -52,6 +52,22 @@
       border: 4px solid rgba(0, 200, 255, 0.95);
     }
 
+    .wave {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid #0ff;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: waveExpand 0.6s ease-out forwards;
+    }
+
+    @keyframes waveExpand {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      to { opacity: 0; transform: translate(-50%, -50%) scale(8); }
+    }
+
     #score {
       position: absolute;
       top: 10px;
@@ -164,7 +180,6 @@
     }
   </style>
 
-  <!-- Preload the sound effect -->
   <audio id="perfect-sfx" src="correct.mp3" preload="auto"></audio>
 </head>
 <body>
@@ -181,21 +196,17 @@
     let spawnInterval = 1500;
     let shrinkSpeedModifier = 1.0;
     let gameOver = false;
-
-    // combo system
     let combo = 0;
     let multiplier = 1;
     let lastHitTime = 0;
-    const COMBO_RESET_MS = 2000;         // reset combo if >2s between hits
+    const COMBO_RESET_MS = 2000;
     const COMBO_THRESHOLDS = [10, 25, 50];
     const MULTIPLIERS = [1.5, 2, 3];
-
     const perfectSfx = document.getElementById('perfect-sfx');
     const comboFill = document.getElementById('combo-fill');
     const comboText = document.getElementById('combo-text');
 
     function updateComboBar() {
-      // full on next threshold or max
       const next = COMBO_THRESHOLDS.find(t => combo < t) || COMBO_THRESHOLDS.slice(-1)[0];
       const pct = Math.min(combo / next, 1) * 100;
       comboFill.style.width = pct + '%';
@@ -204,14 +215,8 @@
 
     function checkCombo() {
       const now = performance.now();
-      if (now - lastHitTime <= COMBO_RESET_MS) {
-        combo++;
-      } else {
-        combo = 1;
-      }
+      combo = (now - lastHitTime <= COMBO_RESET_MS) ? combo + 1 : 1;
       lastHitTime = now;
-
-      // update multiplier
       multiplier = 1;
       COMBO_THRESHOLDS.forEach((th, i) => {
         if (combo >= th) multiplier = MULTIPLIERS[i];
@@ -219,9 +224,50 @@
       updateComboBar();
     }
 
+    function showPerfect(x, y) {
+      perfectSfx.currentTime = 0;
+      perfectSfx.play();
+      const p = document.createElement('div');
+      p.className = 'perfect';
+      p.innerText = 'PERFECT!';
+      p.style.left = `${x}px`;
+      p.style.top = `${y}px`;
+      document.body.append(p);
+      document.body.classList.add('shake');
+      createWave(x, y);
+      setTimeout(() => {
+        p.remove();
+        document.body.classList.remove('shake');
+      }, 800);
+    }
+
+    function createWave(x, y) {
+      const wave = document.createElement('div');
+      wave.className = 'wave';
+      wave.style.left = `${x}px`;
+      wave.style.top = `${y}px`;
+      document.body.append(wave);
+      setTimeout(() => wave.remove(), 600);
+    }
+
+    function triggerFlash() {
+      const f = document.getElementById('flash');
+      f.style.animation = 'none';
+      void f.offsetWidth;
+      f.style.animation = 'flash-effect 0.2s ease-out';
+    }
+
+    function loseLife() {
+      lives--;
+      document.getElementById("lives").innerText = lives;
+      if (lives <= 0) triggerGameOver();
+    }
+
     function spawnLetter() {
       if (gameOver) return;
       const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+      const requireShift = score > 500 && Math.random() < 0.3;
+      const displayChar = requireShift ? char.toLowerCase() : char;
       const x = Math.random() * window.innerWidth * 0.85;
       const y = Math.random() * window.innerHeight * 0.85;
       const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
@@ -233,7 +279,7 @@
 
       const letterDiv = document.createElement("div");
       letterDiv.className = "letter";
-      letterDiv.innerText = char;
+      letterDiv.innerText = displayChar;
 
       const outerCircle = document.createElement("div");
       outerCircle.className = "circle";
@@ -242,7 +288,7 @@
 
       container.append(outerCircle, innerCircle, letterDiv);
       document.body.append(container);
-      activeLetters.push({ char, container, outerCircle });
+      activeLetters.push({ char, container, outerCircle, requireShift });
 
       setTimeout(() => {
         outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
@@ -261,39 +307,11 @@
       }, duration);
     }
 
-    function loseLife() {
-      lives--;
-      document.getElementById("lives").innerText = lives;
-      if (lives <= 0) triggerGameOver();
-    }
-
-    function triggerFlash() {
-      const f = document.getElementById('flash');
-      f.style.animation = 'none';
-      void f.offsetWidth;
-      f.style.animation = 'flash-effect 0.2s ease-out';
-    }
-
-    function showPerfect(x, y) {
-      perfectSfx.currentTime = 0;
-      perfectSfx.play();
-      const p = document.createElement('div');
-      p.className = 'perfect';
-      p.innerText = 'PERFECT!';
-      p.style.left = `${x}px`;
-      p.style.top = `${y}px`;
-      document.body.append(p);
-      document.body.classList.add('shake');
-      setTimeout(() => {
-        p.remove();
-        document.body.classList.remove('shake');
-      }, 800);
-    }
-
     function checkInput(e) {
       if (gameOver) return;
       const key = e.key.toUpperCase();
-      const idx = activeLetters.findIndex(l => l.char === key);
+      const shiftPressed = e.shiftKey;
+      const idx = activeLetters.findIndex(l => l.char === key && l.requireShift === shiftPressed);
       if (idx === -1) return;
 
       const { outerCircle, container } = activeLetters[idx];
@@ -301,8 +319,7 @@
       const rect = container.getBoundingClientRect();
       const isPerfect = size <= 58 && size >= 42;
 
-      checkCombo();  // update combo before awarding points
-
+      checkCombo();
       const basePoints = isPerfect ? 10 : 1;
       score += Math.floor(basePoints * multiplier);
       document.getElementById("score-value").innerText = score;
@@ -328,19 +345,6 @@
       anim();
     }
 
-    function spawnLoop() {
-      if (gameOver) return;
-      spawnLetter();
-      setTimeout(spawnLoop, spawnInterval);
-    }
-
-    function scaleDifficulty() {
-      setInterval(() => {
-        if (spawnInterval > 400) spawnInterval -= 100;
-        if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
-      }, 15000);
-    }
-
     function triggerGameOver() {
       gameOver = true;
       activeLetters.forEach(l => l.container.remove());
@@ -353,6 +357,19 @@
         <p>Refresh to Play Again</p>
       `;
       document.body.append(ov);
+    }
+
+    function spawnLoop() {
+      if (gameOver) return;
+      spawnLetter();
+      setTimeout(spawnLoop, spawnInterval);
+    }
+
+    function scaleDifficulty() {
+      setInterval(() => {
+        if (spawnInterval > 400) spawnInterval -= 100;
+        if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
+      }, 15000);
     }
 
     document.addEventListener("keydown", checkInput);
