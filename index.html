@@ -41,13 +41,18 @@
 
     .shift-label {
   position: absolute;
-  top: -20px;
-  width: 100%;
-  text-align: center;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 14px;
+  font-weight: bold;
   color: cyan;
   text-shadow: 0 0 5px #0ff;
+  white-space: nowrap;
+  pointer-events: none;
 }
+
+
 
 
 
@@ -353,6 +358,7 @@
     }
   }, duration);
 }
+
 
 
 
