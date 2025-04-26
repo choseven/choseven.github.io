@@ -29,18 +29,26 @@
   color: yellow;
   position: absolute;
   text-align: center;
-  max-width: 90px;
-  max-height: 90px;
-  overflow: hidden;
-  word-break: break-word;
+  white-space: nowrap;
+  max-width: 100px;
+  max-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1.2;
   padding: 4px;
-  white-space: normal;
-  flex-direction: column;
 }
+
+
+    .shift-label {
+  position: absolute;
+  top: -20px;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: cyan;
+  text-shadow: 0 0 5px #0ff;
+}
+
 
 
 
@@ -291,10 +299,6 @@
   }
 
   requireShift = score > 500 && Math.random() < 0.3;
-  let displayChar = char;
-
-  if (extraKey) displayChar = `${char}+${extraKey}`;
-  else if (requireShift) displayChar = `Shift+${char}`;
 
   const x = Math.random() * window.innerWidth * 0.85;
   const y = Math.random() * window.innerHeight * 0.85;
@@ -307,33 +311,29 @@
 
   const letterDiv = document.createElement("div");
   letterDiv.className = "letter";
-  letterDiv.innerText = displayChar;
 
   const outerCircle = document.createElement("div");
   outerCircle.className = "circle";
   const innerCircle = document.createElement("div");
   innerCircle.className = "circle-inner";
 
-  container.append(outerCircle, innerCircle, letterDiv);
-  document.body.append(container);
+  if (requireShift && !extraKey) {
+    // Show just the key in the circle
+    letterDiv.innerText = char;
 
-  // Auto-resize font
-  function fitText() {
-    let fontSize = 32;
-    letterDiv.style.fontSize = `${fontSize}px`;
-    const maxSize = 90;
-
-    const fits = () =>
-      letterDiv.scrollWidth <= maxSize &&
-      letterDiv.scrollHeight <= maxSize;
-
-    while (!fits() && fontSize > 8) {
-      fontSize -= 1;
-      letterDiv.style.fontSize = `${fontSize}px`;
-    }
+    // Add SHIFT label above it
+    const shiftTag = document.createElement("div");
+    shiftTag.className = "shift-label";
+    shiftTag.innerText = "SHIFT";
+    container.append(shiftTag);
+  } else if (extraKey) {
+    letterDiv.innerText = `${char}+${extraKey}`;
+  } else {
+    letterDiv.innerText = char;
   }
 
-  fitText();
+  container.append(outerCircle, innerCircle, letterDiv);
+  document.body.append(container);
 
   activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
 
@@ -353,6 +353,7 @@
     }
   }, duration);
 }
+
 
 
 
