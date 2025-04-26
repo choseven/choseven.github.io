@@ -16,6 +16,93 @@
       position: relative;
     }
 
+    .top-bar {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      z-index: 100;
+    }
+
+    .top-bar input {
+      width: 80px;
+      font-size: 16px;
+      padding: 4px;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+    }
+
+    #score {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      font-size: 20px;
+      color: #0ff;
+    }
+
+    #combo-bar {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      width: 200px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid #0ff;
+    }
+
+    #combo-fill {
+      height: 100%;
+      width: 0%;
+      background: #0ff;
+      transition: width 0.3s ease;
+    }
+
+    #combo-text {
+      position: absolute;
+      top: 125px;
+      left: 20px;
+      font-size: 16px;
+      color: #0ff;
+    }
+
+    #lives {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: red;
+    }
+
+    #next-keys {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .next-key {
+      padding: 8px;
+      border: 2px solid #333;
+      background: #222;
+      color: #777;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .next-key.active {
+      border-color: yellow;
+      color: yellow;
+      background: #442;
+    }
+
+    /* Additional styles */
     .container {
       position: absolute;
       display: flex;
@@ -24,38 +111,32 @@
     }
 
     .letter {
-  font-size: 32px;
-  font-weight: bold;
-  color: yellow;
-  position: absolute;
-  text-align: center;
-  white-space: nowrap;
-  max-width: 100px;
-  max-height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-}
-
+      font-size: 32px;
+      font-weight: bold;
+      color: yellow;
+      position: absolute;
+      text-align: center;
+      white-space: nowrap;
+      max-width: 100px;
+      max-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
 
     .shift-label {
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  font-weight: bold;
-  color: cyan;
-  text-shadow: 0 0 5px #0ff;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-
-
-
-
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      font-weight: bold;
+      color: cyan;
+      text-shadow: 0 0 5px #0ff;
+      white-space: nowrap;
+      pointer-events: none;
+    }
 
     .circle, .circle-inner {
       position: absolute;
@@ -79,235 +160,169 @@
       border: 4px solid rgba(0, 200, 255, 0.95);
     }
 
-    .wave {
+    .wave { position: absolute; border-radius: 50%; border: 1px solid #0ff; width: 20px; height: 20px; transform: translate(-50%, -50%); pointer-events: none; animation: waveExpand 0.6s ease-out forwards; z-index: 999; }
+    @keyframes waveExpand { from {opacity: 1; transform: translate(-50%, -50%) scale(1);} to {opacity: 0; transform: translate(-50%, -50%) scale(30);} }
+    .perfect { position: absolute; font-size: 24px; color: #0ff; text-shadow: 0 0 10px #0ff; pointer-events: none; animation: fadeOut 0.8s ease-out forwards; }
+    @keyframes fadeOut { 0% {opacity: 1; transform: translateY(0) scale(1);} 100% {opacity: 0; transform: translateY(-30px) scale(1.4);} }
+    .flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; pointer-events: none; z-index: 9999; animation: flash-effect 0.2s ease-out; }
+    @keyframes flash-effect { 0% {opacity: 0.9;} 100% {opacity: 0;} }
+    .game-over { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 9999; }
+    .game-over h1 { font-size: 64px; color: red; margin: 0; }
+    .game-over p { font-size: 20px; margin: 10px 0; color: #ccc; }
+
+    .beat-indicator {
       position: absolute;
-      border-radius: 50%;
-      border: 1px solid #0ff;
-      width: 20px;
-      height: 20px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      animation: waveExpand 0.6s ease-out forwards;
-      z-index: 999;
-    }
-
-    @keyframes waveExpand {
-      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      to { opacity: 0; transform: translate(-50%, -50%) scale(30); }
-    }
-
-    #score {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 36px;
-    }
-
-    #score-value {
-      display: inline-block;
-      transition: filter 0.2s linear;
-    }
-
-    #combo-bar {
-      position: absolute;
-      top: 60px;
-      left: 10px;
-      width: 300px;
-      height: 20px;
-      border: 2px solid #0ff;
-      background: #333;
-    }
-
-    #combo-fill {
-      height: 100%;
-      width: 0%;
-      background: #0ff;
-      transition: width 0.1s linear;
-    }
-
-    #combo-text {
-      position: absolute;
-      top: 60px;
-      left: 320px;
-      font-size: 18px;
-      color: #0ff;
-    }
-
-    #lives {
-      position: absolute;
-      top: 10px;
+      top: 45px;
       left: 50%;
       transform: translateX(-50%);
-      color: red;
-      font-size: 36px;
+      width: 20px;
+      height: 20px;
+      background-color: #444;
+      border-radius: 50%;
     }
-
-    .flash {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 9999;
-      animation: flash-effect 0.2s ease-out;
-    }
-
-    .perfect {
-      position: absolute;
-      font-size: 24px;
-      color: #0ff;
-      text-shadow: 0 0 10px #0ff;
-      pointer-events: none;
-      animation: fadeOut 0.8s ease-out forwards;
-    }
-
-    @keyframes flash-effect {
-      0% { opacity: 0.9; }
-      100% { opacity: 0; }
-    }
-
-    @keyframes fadeOut {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-30px) scale(1.4); }
-    }
-
-    .shake {
-      animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-      0% { transform: translate(0, 0); }
-      25% { transform: translate(-5px, 5px); }
-      50% { transform: translate(5px, -5px); }
-      75% { transform: translate(-5px, 5px); }
-      100% { transform: translate(0, 0); }
-    }
-
-    .game-over {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      text-align: center;
-      z-index: 9999;
-    }
-
-    .game-over h1 {
-      font-size: 64px;
-      color: red;
-      margin: 0;
-    }
-
-    .game-over p {
-      font-size: 20px;
-      margin: 10px 0;
-      color: #ccc;
+    
+    .beat-indicator.active {
+      background-color: #0ff;
+      box-shadow: 0 0 10px #0ff;
     }
   </style>
-
-  <audio id="perfect-sfx" src="correct.mp3" preload="auto"></audio>
 </head>
 <body>
+  <div class="top-bar">
+    BPM: <input id="bpm-input" type="number" value="120" min="30" max="300"> 
+  </div>
+  <div class="beat-indicator" id="beat-indicator"></div>
+  <div id="next-keys"></div>
   <div id="score">Score: <span id="score-value">0</span></div>
   <div id="combo-bar"><div id="combo-fill"></div></div>
   <div id="combo-text">Combo: 0×</div>
-  <div id="lives">5</div>
+  <div id="lives">♥♥♥♥♥</div>
   <div id="flash" class="flash"></div>
+  <audio id="perfect-sfx" src="correct.mp3" preload="auto"></audio>
+  <audio id="metronome-sfx" src="data:audio/wav;base64,UklGRmYEAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YUIEAAB3/wAAcP8AAHv/AAB1/wAAef8AAHD/AAB2/wAAdf8AAH3/AAB3/wAAev8AAHH/AABy/wAAdf8AAHn/AAB0/wAAeP8AAHP/AAB1/wAAeP8AAHX/AAB3/wAAcv8AAHL/AAB1/wAAd/8AAHX/AAB3/wAAcf8AAHP/AAB3/wAAd/8AAHX/AAB2/wAAcf8AAHI/AAB3/wAAev8AAHX/AAB5/wAAc/8AAHP/AAB2/wAAef8AAHX/AAB5/wAAc/8AAHP/AAB3/wAAef8AAHX/AAB5/wAAcv8AAHI/AAB2/wAAeP8AAHX/AAB4/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcv8AAHP/AAB3/wAAeP8AAHX/AAB3/wAAcg==" preload="auto"></audio>
 
-  <script>
-    let score = 0;
-    let lives = 5;
-    let activeLetters = [];
-    let spawnInterval = 1500;
-    let shrinkSpeedModifier = 1.0;
-    let gameOver = false;
-    let combo = 0;
-    let multiplier = 1;
-    let lastHitTime = 0;
-    const COMBO_RESET_MS = 2000;
-    const COMBO_THRESHOLDS = [10, 25, 50];
-    const MULTIPLIERS = [1.5, 2, 3];
-    const perfectSfx = document.getElementById('perfect-sfx');
-    const comboFill = document.getElementById('combo-fill');
-    const comboText = document.getElementById('combo-text');
+<script>
+let bpm = 120;
+let beatIntervalMs = 60000 / bpm;
+let lastBeatTime = performance.now();
+let nextBeatTime = lastBeatTime + beatIntervalMs;
 
-    function updateComboBar() {
-      const next = COMBO_THRESHOLDS.find(t => combo < t) || COMBO_THRESHOLDS.slice(-1)[0];
-      const pct = Math.min(combo / next, 1) * 100;
-      comboFill.style.width = pct + '%';
-      comboText.innerText = `Combo: ${combo}×`;
-    }
+const bpmInput = document.getElementById('bpm-input');
+const beatIndicator = document.getElementById('beat-indicator');
+const metronomeSound = document.getElementById('metronome-sfx');
+const nextKeysDisplay = document.getElementById('next-keys');
 
-    function checkCombo() {
-      const now = performance.now();
-      combo = (now - lastHitTime <= COMBO_RESET_MS) ? combo + 1 : 1;
-      lastHitTime = now;
-      multiplier = 1;
-      COMBO_THRESHOLDS.forEach((th, i) => {
-        if (combo >= th) multiplier = MULTIPLIERS[i];
-      });
-      updateComboBar();
-    }
+// Create the key sequence pattern
+const keyPatterns = [
+  { char: 'X', requireShift: false, displayText: 'X' },
+  { char: 'X', requireShift: true, displayText: 'SHIFT+X' },
+  { char: 'Z', requireShift: false, displayText: 'Z' }
+];
 
-    function showPerfect(x, y) {
-      perfectSfx.currentTime = 0;
-      perfectSfx.play();
-      const p = document.createElement('div');
-      p.className = 'perfect';
-      p.innerText = 'PERFECT!';
-      p.style.left = `${x}px`;
-      p.style.top = `${y}px`;
-      document.body.append(p);
-      document.body.classList.add('shake');
-      createWave(x, y);
-      setTimeout(() => {
-        p.remove();
-        document.body.classList.remove('shake');
-      }, 800);
-    }
+let currentKeyIndex = 0;
+let activeLetters = [];
+let gameOver = false;
+let score = 0;
+let lives = 5;
+let combo = 0;
+let multiplier = 1;
+let lastHitTime = 0;
+let missCount = 0;
+const COMBO_THRESHOLDS = [10, 25, 50];
+const MULTIPLIERS = [1.5, 2, 3];
+const COMBO_RESET_MS = 2000;
+const perfectSfx = document.getElementById('perfect-sfx');
+const maxMissesBeforeFail = 3;
 
-    function createWave(x, y) {
-      const wave = document.createElement('div');
-      wave.className = 'wave';
-      wave.style.left = `${x}px`;
-      wave.style.top = `${y}px`;
-      document.body.append(wave);
-      setTimeout(() => wave.remove(), 600);
-    }
+const comboFill = document.getElementById('combo-fill');
+const comboText = document.getElementById('combo-text');
+const scoreDisplay = document.getElementById('score-value');
+const livesDisplay = document.getElementById('lives');
 
-    function triggerFlash() {
-      const f = document.getElementById('flash');
-      f.style.animation = 'none';
-      void f.offsetWidth;
-      f.style.animation = 'flash-effect 0.2s ease-out';
-    }
+// Initialize next keys display
+function initNextKeysDisplay() {
+  nextKeysDisplay.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const keyDiv = document.createElement('div');
+    keyDiv.className = 'next-key';
+    keyDiv.id = `next-key-${i}`;
+    keyDiv.textContent = keyPatterns[i].displayText;
+    nextKeysDisplay.appendChild(keyDiv);
+  }
+  updateNextKeysDisplay();
+}
 
-    function loseLife() {
-      lives--;
-      document.getElementById("lives").innerText = lives;
-      if (lives <= 0) triggerGameOver();
-    }
+// Update the next keys display to highlight the current key
+function updateNextKeysDisplay() {
+  for (let i = 0; i < 3; i++) {
+    const keyDiv = document.getElementById(`next-key-${i}`);
+    keyDiv.className = i === currentKeyIndex ? 'next-key active' : 'next-key';
+  }
+}
 
-    function spawnLetter() {
+bpmInput.addEventListener('change', () => {
+  bpm = parseInt(bpmInput.value);
+  if (bpm < 30) bpm = 30;
+  if (bpm > 300) bpm = 300;
+  bpmInput.value = bpm;
+  beatIntervalMs = 60000 / bpm;
+});
+
+function updateComboBar() {
+  const next = COMBO_THRESHOLDS.find(t => combo < t) || COMBO_THRESHOLDS.slice(-1)[0];
+  const pct = Math.min(combo / next, 1) * 100;
+  comboFill.style.width = pct + '%';
+  comboText.innerText = `Combo: ${combo}×`;
+}
+
+function createWave(x, y) {
+  const wave = document.createElement('div');
+  wave.className = 'wave';
+  wave.style.left = `${x}px`;
+  wave.style.top = `${y}px`;
+  document.body.append(wave);
+  setTimeout(() => wave.remove(), 600);
+}
+
+function showPerfect(x, y) {
+  perfectSfx.currentTime = 0;
+  perfectSfx.play();
+  const p = document.createElement('div');
+  p.className = 'perfect';
+  p.innerText = 'PERFECT!';
+  p.style.left = `${x}px`;
+  p.style.top = `${y}px`;
+  document.body.append(p);
+  createWave(x, y);
+  setTimeout(() => p.remove(), 800);
+}
+
+function triggerFlash() {
+  const f = document.getElementById('flash');
+  f.style.animation = 'none';
+  void f.offsetWidth;
+  f.style.animation = 'flash-effect 0.2s ease-out';
+}
+
+function updateLives() {
+  livesDisplay.innerText = '♥'.repeat(lives);
+}
+
+function loseLife() {
+  lives--;
+  updateLives();
+  if (lives <= 0) triggerGameOver();
+}
+
+function spawnLetter() {
   if (gameOver) return;
 
-  const char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-  let requireShift = false;
-  let extraKey = null;
-
-  if (score > 1000 && Math.random() < 0.3) {
-    const ek = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-    if (ek !== char) extraKey = ek;
-  }
-
-  requireShift = score > 500 && Math.random() < 0.3;
-
-  const x = Math.random() * window.innerWidth * 0.85;
-  const y = Math.random() * window.innerHeight * 0.85;
-  const duration = (Math.random() * 2000 + 1000) * shrinkSpeedModifier;
+  const currentKey = keyPatterns[currentKeyIndex];
+  const { char, requireShift } = currentKey;
+  
+  // Position the letter in a random position on screen
+  const x = Math.random() * (window.innerWidth - 200) + 100;
+  const y = Math.random() * (window.innerHeight - 200) + 100;
 
   const container = document.createElement("div");
   container.className = "container";
@@ -316,136 +331,171 @@
 
   const letterDiv = document.createElement("div");
   letterDiv.className = "letter";
+  letterDiv.innerText = char;
 
   const outerCircle = document.createElement("div");
   outerCircle.className = "circle";
   const innerCircle = document.createElement("div");
   innerCircle.className = "circle-inner";
 
-  if (requireShift && !extraKey) {
-    // Show just the key in the circle
-    letterDiv.innerText = char;
-
-    // Add SHIFT label above it
+  if (requireShift) {
     const shiftTag = document.createElement("div");
     shiftTag.className = "shift-label";
     shiftTag.innerText = "SHIFT";
     container.append(shiftTag);
-  } else if (extraKey) {
-    letterDiv.innerText = `${char}+${extraKey}`;
-  } else {
-    letterDiv.innerText = char;
   }
 
   container.append(outerCircle, innerCircle, letterDiv);
   document.body.append(container);
 
-  activeLetters.push({ char, extraKey, container, outerCircle, requireShift });
-
-  setTimeout(() => {
-    outerCircle.style.transition = `width ${duration}ms linear, height ${duration}ms linear`;
-    outerCircle.style.width = "0px";
-    outerCircle.style.height = "0px";
-  }, 50);
-
-  setTimeout(() => {
-    if (!gameOver && document.body.contains(container)) {
-      container.remove();
-      activeLetters = activeLetters.filter(l => l.container !== container);
-      loseLife();
-      combo = 0;
-      updateComboBar();
-    }
-  }, duration);
+  activeLetters.push({ 
+    char, 
+    requireShift, 
+    container, 
+    spawnTime: performance.now(),
+    keyIndex: currentKeyIndex
+  });
+  
+  // Advance to the next key in the pattern
+  currentKeyIndex = (currentKeyIndex + 1) % keyPatterns.length;
+  updateNextKeysDisplay();
 }
 
+function checkCombo() {
+  const now = performance.now();
+  combo = (now - lastHitTime <= COMBO_RESET_MS) ? combo + 1 : 1;
+  lastHitTime = now;
+  multiplier = 1;
+  COMBO_THRESHOLDS.forEach((th, i) => {
+    if (combo >= th) multiplier = MULTIPLIERS[i];
+  });
+  updateComboBar();
+}
 
-
-
-
-    function checkInput(e) {
-      if (gameOver) return;
-      const key = e.key.toUpperCase();
-      const shiftPressed = e.shiftKey;
-
-      for (let i = 0; i < activeLetters.length; i++) {
-        const l = activeLetters[i];
-        const mainMatch = l.char === key && l.requireShift === shiftPressed && !l.extraKey;
-        const comboMatch = l.extraKey && (key === l.char || key === l.extraKey);
-
-        if (mainMatch || comboMatch) {
-          if (l.extraKey) {
-            if (!l.hitKeys) l.hitKeys = new Set();
-            l.hitKeys.add(key);
-
-            if (!l.hitKeys.has(l.char) || !l.hitKeys.has(l.extraKey)) return;
-          }
-
-          const { outerCircle, container } = l;
-          const size = parseFloat(getComputedStyle(outerCircle).width);
-          const rect = container.getBoundingClientRect();
-          const isPerfect = size <= 58 && size >= 42;
-
-          checkCombo();
-          const basePoints = isPerfect ? 10 : 1;
-          score += Math.floor(basePoints * multiplier);
-          document.getElementById("score-value").innerText = score;
-
-          if (isPerfect) {
-            showPerfect(rect.left, rect.top);
-            triggerFlash();
-          }
-
-          container.remove();
-          activeLetters.splice(i, 1);
-          return;
-        }
+function checkInput(e) {
+  if (gameOver) return;
+  const key = e.key.toUpperCase();
+  const shiftPressed = e.shiftKey;
+  const now = performance.now();
+  
+  // Look for the oldest matching letter that hasn't been hit
+  let foundMatch = false;
+  
+  for (let i = 0; i < activeLetters.length; i++) {
+    const letter = activeLetters[i];
+    if (letter.char === key && letter.requireShift === shiftPressed) {
+      const rect = letter.container.getBoundingClientRect();
+      const timeSinceBeat = Math.abs(now - lastBeatTime);
+      const timeToNextBeat = Math.abs(nextBeatTime - now);
+      const closeToBeat = Math.min(timeSinceBeat, timeToNextBeat);
+      
+      // Check if the hit is close to a beat
+      const perfectWindow = beatIntervalMs * 0.3; // 30% window
+      
+      if (closeToBeat <= perfectWindow) {
+        // Perfect hit!
+        checkCombo();
+        const basePoints = 10;
+        score += Math.floor(basePoints * multiplier);
+        scoreDisplay.innerText = score;
+        showPerfect(rect.left, rect.top);
+        triggerFlash();
+      } else {
+        // Good hit but not perfect
+        score += 1;
+        scoreDisplay.innerText = score;
+        combo = 0; // Reset combo on non-perfect hit
+        updateComboBar();
       }
-    }
 
-    function updateRainbowEffect() {
-      const sv = document.getElementById("score-value");
-      let hue = 0;
-      function anim() {
-        if (gameOver) return;
-        hue = (hue + Math.min(1 + score * 0.2, 20)) % 360;
-        sv.style.filter = `hue-rotate(${hue}deg)`;
-        requestAnimationFrame(anim);
-      }
-      anim();
+      letter.container.remove();
+      activeLetters.splice(i, 1);
+      foundMatch = true;
+      break;
     }
-
-    function triggerGameOver() {
-      gameOver = true;
-      activeLetters.forEach(l => l.container.remove());
-      const ov = document.createElement("div");
-      ov.className = "game-over";
-      ov.innerHTML = `
-        <h1>GAME OVER</h1>
-        <p>Your Score: ${score}</p>
-        <p>Max Combo: ${combo}×</p>
-        <p>Refresh to Play Again</p>
-      `;
-      document.body.append(ov);
+  }
+  
+  // If no match found and it's a key we care about, count as a miss
+  if (!foundMatch && keyPatterns.some(p => p.char === key)) {
+    missCount++;
+    if (missCount >= maxMissesBeforeFail) {
+      missCount = 0;
+      loseLife();
     }
+    combo = 0; // Reset combo on miss
+    updateComboBar();
+  }
+}
 
-    function spawnLoop() {
-      if (gameOver) return;
-      spawnLetter();
-      setTimeout(spawnLoop, spawnInterval);
+function cleanupOldNotes() {
+  const now = performance.now();
+  // Remove letters that have been on screen too long (more than 2 beats)
+  for (let i = activeLetters.length - 1; i >= 0; i--) {
+    const letter = activeLetters[i];
+    if (now - letter.spawnTime > beatIntervalMs * 2) {
+      letter.container.remove();
+      activeLetters.splice(i, 1);
+      
+      // Penalize missed notes
+      combo = 0;
+      updateComboBar();
+      loseLife();
     }
+  }
+}
 
-    function scaleDifficulty() {
-      setInterval(() => {
-        if (spawnInterval > 400) spawnInterval -= 100;
-        if (shrinkSpeedModifier > 0.6) shrinkSpeedModifier *= 0.95;
-      }, 15000);
+function triggerGameOver() {
+  gameOver = true;
+  activeLetters.forEach(l => l.container.remove());
+  activeLetters = [];
+  
+  const ov = document.createElement("div");
+  ov.className = "game-over";
+  ov.innerHTML = `
+    <h1>GAME OVER</h1>
+    <p>Your Score: ${score}</p>
+    <p>Max Combo: ${combo}×</p>
+    <p>Press SPACE to Play Again</p>
+  `;
+  document.body.append(ov);
+  
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && gameOver) {
+      location.reload();
     }
+  });
+}
 
-    document.addEventListener("keydown", checkInput);
-    updateRainbowEffect();
-    spawnLoop();
-    scaleDifficulty();
-  </script>
+function pulseIndicator() {
+  beatIndicator.classList.add('active');
+  setTimeout(() => beatIndicator.classList.remove('active'), 100);
+  metronomeSound.currentTime = 0;
+  metronomeSound.play();
+}
+
+function metronomeLoop() {
+  if (gameOver) return;
+  
+  const now = performance.now();
+  
+  // If it's time for the next beat
+  if (now >= nextBeatTime) {
+    pulseIndicator();
+    spawnLetter();
+    lastBeatTime = nextBeatTime;
+    nextBeatTime += beatIntervalMs;
+  }
+  
+  cleanupOldNotes();
+  
+  // Request the next frame
+  requestAnimationFrame(metronomeLoop);
+}
+
+document.addEventListener("keydown", checkInput);
+initNextKeysDisplay();
+updateLives();
+requestAnimationFrame(metronomeLoop);
+</script>
 </body>
 </html>
