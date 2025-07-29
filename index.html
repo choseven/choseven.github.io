@@ -182,7 +182,7 @@
       }
     }
 
-    // Enhanced Particle Background
+    // === Enhanced Particle Background ===
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
 
@@ -210,29 +210,33 @@
 
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       for (let p of particles) {
-        // Twinkle effect
+        // Twinkle
         p.opacity += p.twinkleSpeed * (Math.random() > 0.5 ? 1 : -1);
-        p.opacity = Math.max(0.2, Math.min(p.opacity, 1));
+        p.opacity = Math.max(0.3, Math.min(p.opacity, 1));
 
         // Movement
         p.x += p.speedX;
         p.y += p.speedY;
 
+        // Wrap edges
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
         // Draw
+        ctx.save();
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "rgba(255, 215, 0, 0.6)";
+        ctx.shadowColor = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.shadowBlur = 10;
         ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.restore();
       }
+
       requestAnimationFrame(drawParticles);
     }
 
