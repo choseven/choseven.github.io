@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Game Select</title>
   <style>
     html, body {
@@ -12,9 +12,11 @@
       font-family: Arial, sans-serif;
       height: 100%;
       cursor: default;
+      background: #121212;
+      color: white;
     }
 
-    /* ✅ Smoothed radial glow with extra blur (no banding) */
+    /* Gradient glow with strong stops + heavy blur to remove rings */
     body::before {
       content: '';
       position: fixed;
@@ -23,17 +25,18 @@
       width: 100vw;
       height: 100vh;
       background: radial-gradient(
-        circle at 60% 50%, 
-        rgba(255, 215, 0, 0.05) 0%, 
-        rgba(255, 215, 0, 0.04) 40%, 
-        rgba(255, 215, 0, 0.025) 70%, 
-        rgba(0, 0, 0, 0) 100%
+        circle at 60% 50%,
+        rgba(255, 215, 0, 0.2) 0%,
+        rgba(255, 215, 0, 0.15) 30%,
+        rgba(255, 215, 0, 0.08) 60%,
+        rgba(255, 215, 0, 0) 100%
       );
-      filter: blur(6px); /* extra blur to eliminate visible rings */
+      filter: blur(100px);
       z-index: -0.5;
       pointer-events: none;
     }
 
+    /* Particle canvas */
     canvas#bg {
       position: fixed;
       top: 0;
@@ -41,14 +44,12 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      background: #121212;
     }
 
     body {
       display: flex;
       flex-direction: row;
       height: 100vh;
-      color: #fff;
     }
 
     .title {
@@ -88,6 +89,7 @@
       text-align: center;
       position: relative;
       cursor: pointer;
+      user-select: none;
     }
 
     .game-button:hover, .group-button:hover {
@@ -101,6 +103,7 @@
       position: absolute;
       right: 30px;
       font-size: 1.3em;
+      user-select: none;
     }
 
     .scuffed-group {
@@ -251,16 +254,20 @@
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.7)';
+        ctx.shadowBlur = 8;
         ctx.fill();
       }
       requestAnimationFrame(drawParticles);
     }
 
     window.addEventListener('resize', resizeCanvas);
+
     canvas.addEventListener('mousemove', e => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
+
     canvas.addEventListener('mouseleave', () => {
       mouse.x = -9999;
       mouse.y = -9999;
