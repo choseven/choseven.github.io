@@ -11,32 +11,9 @@
       overflow: hidden;
       font-family: Arial, sans-serif;
       height: 100%;
-      cursor: none;
+      background-color: #000;
     }
 
-    /* === CUSTOM CURSOR === */
-    .custom-cursor {
-      position: fixed;
-      width: 25px;
-      height: 25px;
-      border: 2px solid #ffd700;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transition: transform 0.08s ease;
-    }
-
-    /* Hide custom cursor when needed */
-    .hide-custom-cursor .custom-cursor {
-      display: none;
-    }
-
-    /* Show system pointer on interactive elements */
-    a, .group-button {
-      cursor: pointer;
-    }
-
-    /* === BACKGROUND PARTICLES CANVAS === */
     canvas#bg {
       position: fixed;
       top: 0;
@@ -44,7 +21,7 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      background: #121212;
+      background: #000;
     }
 
     body {
@@ -90,6 +67,7 @@
       text-shadow: 0 0 12px #ffd700;
       text-align: center;
       position: relative;
+      cursor: pointer;
     }
 
     .game-button:hover, .group-button:hover {
@@ -154,7 +132,6 @@
 </head>
 <body>
   <canvas id="bg"></canvas>
-  <div class="custom-cursor" id="cursor"></div>
 
   <div class="button-container">
     <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
@@ -205,12 +182,11 @@
       }
     }
 
-    // Particle background with repulsion
+    // Enhanced Particle Background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
 
     let particles = [];
-    let mouse = { x: -9999, y: -9999 };
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -218,14 +194,16 @@
     }
 
     function createParticles(count) {
+      particles = [];
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.5 + 0.3
+          radius: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 0.4,
+          speedY: (Math.random() - 0.5) * 0.4,
+          opacity: Math.random() * 0.6 + 0.4,
+          twinkleSpeed: Math.random() * 0.02 + 0.005
         });
       }
     }
@@ -233,17 +211,11 @@
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let p of particles) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const force = dist < 100 ? (100 - dist) / 100 : 0;
+        // Twinkle effect
+        p.opacity += p.twinkleSpeed * (Math.random() > 0.5 ? 1 : -1);
+        p.opacity = Math.max(0.2, Math.min(p.opacity, 1));
 
-        if (force > 0) {
-          const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 1.5;
-          p.y += Math.sin(angle) * force * 1.5;
-        }
-
+        // Movement
         p.x += p.speedX;
         p.y += p.speedY;
 
@@ -252,45 +224,26 @@
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
+        // Draw
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "rgba(255, 215, 0, 0.6)";
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
       requestAnimationFrame(drawParticles);
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    canvas.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-    canvas.addEventListener('mouseleave', () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      createParticles(150);
     });
 
     resizeCanvas();
     createParticles(150);
     drawParticles();
-
-    // Custom cursor logic
-    const cursor = document.getElementById('cursor');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-    });
-
-    // Hide custom cursor on hover for links and group button
-    const hoverTargets = document.querySelectorAll('a, .group-button');
-    hoverTargets.forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        document.body.classList.add('hide-custom-cursor');
-      });
-      el.addEventListener('mouseleave', () => {
-        document.body.classList.remove('hide-custom-cursor');
-      });
-    });
   </script>
 </body>
 </html>
