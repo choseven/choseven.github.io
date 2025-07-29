@@ -148,7 +148,7 @@
   <div class="title">Select Your Game</div>
 
   <script>
-    // Group Toggle Logic
+    // Toggle logic
     const group = document.getElementById('scuffed-group');
     const toggleSymbol = document.getElementById('group-toggle');
     let expanded = false;
@@ -182,11 +182,12 @@
       }
     }
 
-    // Animated Gold Dust Canvas Background
+    // Particle canvas with mouse repulsion
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
 
     let particles = [];
+    let mouse = { x: null, y: null };
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -209,11 +210,19 @@
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
-        ctx.fill();
+        // Repulsion effect
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const force = dist < 100 ? (100 - dist) / 100 : 0;
 
+        if (force > 0) {
+          const angle = Math.atan2(dy, dx);
+          p.x += Math.cos(angle) * force * 1.5;
+          p.y += Math.sin(angle) * force * 1.5;
+        }
+
+        // Move normally
         p.x += p.speedX;
         p.y += p.speedY;
 
@@ -222,11 +231,27 @@
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
+
+        // Draw
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.fill();
       }
       requestAnimationFrame(drawParticles);
     }
 
     window.addEventListener('resize', resizeCanvas);
+    canvas.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
     resizeCanvas();
     createParticles(150);
     drawParticles();
