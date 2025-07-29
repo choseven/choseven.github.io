@@ -11,7 +11,19 @@
       overflow: hidden;
       font-family: Arial, sans-serif;
       height: 100%;
-      cursor: none; /* Hide default cursor */
+      cursor: none;
+    }
+
+    /* === CUSTOM CURSOR === */
+    .custom-cursor {
+      position: fixed;
+      width: 25px;
+      height: 25px;
+      border: 2px solid #ffd700;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.08s ease;
     }
 
     /* === BACKGROUND PARTICLES CANVAS === */
@@ -23,20 +35,6 @@
       height: 100vh;
       z-index: -1;
       background: #121212;
-    }
-
-    /* Custom Cursor */
-    #custom-cursor {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 30px;
-      height: 30px;
-      border: 2px solid gold;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 10000;
-      transition: transform 0.1s ease;
     }
 
     body {
@@ -146,7 +144,7 @@
 </head>
 <body>
   <canvas id="bg"></canvas>
-  <div id="custom-cursor"></div>
+  <div class="custom-cursor" id="cursor"></div>
 
   <div class="button-container">
     <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
@@ -176,6 +174,7 @@
         group.classList.remove('collapse');
         group.style.visibility = 'visible';
         group.classList.add('reveal');
+
         [...group.children].forEach(btn => {
           btn.style.animation = '';
           void btn.offsetWidth;
@@ -184,9 +183,11 @@
       } else {
         group.classList.remove('reveal');
         group.classList.add('collapse');
+
         [...group.children].forEach(btn => {
           btn.style.animation = 'groupItemReveal 0.2s ease reverse';
         });
+
         setTimeout(() => {
           group.classList.remove('collapse');
           group.style.visibility = 'hidden';
@@ -194,8 +195,10 @@
       }
     }
 
+    // Particle background with repulsion
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
+
     let particles = [];
     let mouse = { x: -9999, y: -9999 };
 
@@ -224,17 +227,21 @@
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const force = dist < 100 ? (100 - dist) / 100 : 0;
+
         if (force > 0) {
           const angle = Math.atan2(dy, dx);
           p.x += Math.cos(angle) * force * 1.5;
           p.y += Math.sin(angle) * force * 1.5;
         }
+
         p.x += p.speedX;
         p.y += p.speedY;
+
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
@@ -247,11 +254,7 @@
     canvas.addEventListener('mousemove', e => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-      const cursor = document.getElementById('custom-cursor');
-      cursor.style.left = `${e.clientX - 15}px`;
-      cursor.style.top = `${e.clientY - 15}px`;
     });
-
     canvas.addEventListener('mouseleave', () => {
       mouse.x = -9999;
       mouse.y = -9999;
@@ -260,6 +263,13 @@
     resizeCanvas();
     createParticles(150);
     drawParticles();
+
+    // Custom cursor logic
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
   </script>
 </body>
 </html>
