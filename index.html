@@ -1,154 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Game Select</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle UI</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
       height: 100%;
+      overflow: hidden;
+      background: #000;
     }
 
-    /* === BACKGROUND PARTICLES CANVAS === */
-    canvas#bg {
+    canvas {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
       z-index: -1;
-      background: #121212;
     }
 
-    body {
-      display: flex;
-      flex-direction: row;
-      height: 100vh;
-      color: #fff;
-    }
-
-    .title {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 6em;
-      text-shadow: 0 0 30px #ffd700;
-      padding: 20px;
-    }
-
-    .button-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      gap: 20px;
-      position: relative;
-    }
-
-    .game-button, .group-button {
-      background-color: #1e1e1e;
-      border: 2px solid #ffd700;
-      color: #fff;
-      padding: 20px 40px;
-      font-size: 2em;
-      font-weight: bold;
-      border-radius: 40px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      width: 80%;
-      box-shadow: 0 0 10px #ffd700;
-      text-shadow: 0 0 12px #ffd700;
-      text-align: center;
-      position: relative;
-    }
-
-    .game-button:hover, .group-button:hover {
-      transform: scale(1.05);
-      background-color: #ffd700;
-      box-shadow: 0 0 20px #ffd700;
-      color: #121212;
-    }
-
-    .group-button span {
+    #toggle-container {
       position: absolute;
-      right: 30px;
-      font-size: 1.3em;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+
+    #group-toggle {
+      background: none;
+      border: 2px solid gold;
+      color: gold;
+      font-size: 24px;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 8px;
     }
 
     .scuffed-group {
-      visibility: hidden;
-      overflow: hidden;
-      height: 0;
-      display: flex;
+      display: none;
       flex-direction: column;
-      gap: 15px;
-      width: 80%;
-      align-items: center;
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      gap: 10px;
+      max-height: 0;
+      overflow: hidden;
     }
 
     .scuffed-group.reveal {
-      animation: groupExpand 0.4s ease forwards;
+      animation: groupReveal 0.4s ease forwards;
     }
 
     .scuffed-group.collapse {
       animation: groupCollapse 0.4s ease forwards;
     }
 
-    .scuffed-group.reveal a {
-      animation: groupItemReveal 0.4s ease forwards;
+    .scuffed-group button {
+      padding: 10px;
+      border: none;
+      background: gold;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
       opacity: 0;
-      transform: translateY(-20px) scale(0.9);
     }
 
-    .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
-    .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
-    .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
-
-    @keyframes groupExpand {
-      from { height: 0; visibility: visible; }
-      to { height: 300px; visibility: visible; }
+    @keyframes groupReveal {
+      from { max-height: 0; }
+      to { max-height: 300px; }
     }
 
     @keyframes groupCollapse {
-      from { height: 300px; visibility: visible; }
-      to { height: 0; visibility: hidden; }
+      from { max-height: 300px; }
+      to { max-height: 0; }
     }
 
     @keyframes groupItemReveal {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
       }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #custom-cursor {
+      position: fixed;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #ffd700;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s ease-out;
+    }
+
+    body {
+      cursor: none;
     }
   </style>
 </head>
 <body>
   <canvas id="bg"></canvas>
 
-  <div class="button-container">
-    <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
-    <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
-    <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
-
-    <div class="group-button" onclick="toggleGroup()">Scuffed<span id="group-toggle">+</span></div>
+  <div id="toggle-container">
+    <button id="group-toggle">+</button>
     <div class="scuffed-group" id="scuffed-group">
-      <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
-      <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
-      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
+      <button>Option 1</button>
+      <button>Option 2</button>
+      <button>Option 3</button>
     </div>
   </div>
 
-  <div class="title">Select Your Game</div>
+  <div id="custom-cursor"></div>
 
   <script>
-    // Toggle logic
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 100 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 1,
+    }));
+
+    let mouse = { x: null, y: null };
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      document.getElementById('custom-cursor').style.left = `${e.clientX}px`;
+      document.getElementById('custom-cursor').style.top = `${e.clientY}px`;
+    });
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let p of particles) {
+        let dx = p.x - mouse.x;
+        let dy = p.y - mouse.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 100) {
+          let angle = Math.atan2(dy, dx);
+          p.vx += Math.cos(angle) * 0.1;
+          p.vy += Math.sin(angle) * 0.1;
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+
+        if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+          p.x = Math.random() * canvas.width;
+          p.y = Math.random() * canvas.height;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 215, 0, 0.6)";
+        ctx.fill();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    animateParticles();
+
     const group = document.getElementById('scuffed-group');
     const toggleSymbol = document.getElementById('group-toggle');
     let expanded = false;
@@ -159,102 +185,34 @@
 
       if (expanded) {
         group.classList.remove('collapse');
-        group.style.visibility = 'visible';
-        group.classList.add('reveal');
-
-        [...group.children].forEach(btn => {
-          btn.style.animation = '';
-          void btn.offsetWidth;
-          btn.style.animation = 'groupItemReveal 0.4s ease forwards';
+        group.style.display = 'flex';
+        requestAnimationFrame(() => {
+          group.classList.add('reveal');
+          [...group.children].forEach(btn => {
+            btn.style.animation = '';
+            void btn.offsetWidth;
+            btn.style.animation = 'groupItemReveal 0.4s ease forwards';
+          });
         });
       } else {
         group.classList.remove('reveal');
         group.classList.add('collapse');
-
         [...group.children].forEach(btn => {
           btn.style.animation = 'groupItemReveal 0.2s ease reverse';
         });
-
         setTimeout(() => {
+          group.style.display = 'none';
           group.classList.remove('collapse');
-          group.style.visibility = 'hidden';
         }, 400);
       }
     }
 
-    // Particle canvas with mouse repulsion
-    const canvas = document.getElementById('bg');
-    const ctx = canvas.getContext('2d');
+    document.getElementById('group-toggle').addEventListener('click', toggleGroup);
 
-    let particles = [];
-    let mouse = { x: null, y: null };
-
-    function resizeCanvas() {
+    window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-    }
-
-    function createParticles(count) {
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.5 + 0.3
-        });
-      }
-    }
-
-    function drawParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of particles) {
-        // Repulsion effect
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const force = dist < 100 ? (100 - dist) / 100 : 0;
-
-        if (force > 0) {
-          const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 1.5;
-          p.y += Math.sin(angle) * force * 1.5;
-        }
-
-        // Move normally
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        // Wrap around
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-
-        // Draw
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
-        ctx.fill();
-      }
-      requestAnimationFrame(drawParticles);
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-    canvas.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
     });
-
-    canvas.addEventListener('mouseleave', () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
-
-    resizeCanvas();
-    createParticles(150);
-    drawParticles();
   </script>
 </body>
 </html>
