@@ -13,7 +13,6 @@
             flex-direction: row;
             height: 100vh;
             color: #fff;
-            overflow: hidden;
         }
 
         .title {
@@ -31,7 +30,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
+            justify-content: center; /* centers everything vertically */
+            padding: 20px;
             gap: 20px;
             position: relative;
         }
@@ -72,6 +72,7 @@
             gap: 15px;
             width: 80%;
             animation: groupExpand 0.4s ease forwards;
+            align-items: center;
         }
 
         .scuffed-group.reveal a {
@@ -85,12 +86,8 @@
         .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
 
         @keyframes groupExpand {
-            from {
-                max-height: 0;
-            }
-            to {
-                max-height: 300px;
-            }
+            from { max-height: 0; }
+            to { max-height: 300px; }
         }
 
         @keyframes groupItemReveal {
@@ -132,7 +129,7 @@
                     group.classList.add('reveal');
                     [...group.children].forEach(btn => {
                         btn.style.animation = '';
-                        void btn.offsetWidth; // Trigger reflow for restart
+                        void btn.offsetWidth; // trigger reflow
                         btn.style.animation = 'groupItemReveal 0.4s ease forwards';
                     });
                 });
