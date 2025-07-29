@@ -30,7 +30,6 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             padding: 40px;
             gap: 20px;
@@ -47,8 +46,7 @@
             border-radius: 40px;
             text-decoration: none;
             transition: all 0.3s ease;
-            min-width: 300px;
-            width: 100%;
+            width: 80%; /* shrunk by 1/5 horizontally */
             box-shadow: 0 0 10px #0073e6;
             text-shadow: 0 0 12px #0073e6;
             text-align: center;
@@ -69,27 +67,33 @@
 
         .scuffed-group {
             overflow: hidden;
-            display: flex;
+            display: none;
             flex-direction: column;
             gap: 15px;
-            width: 100%;
-        }
-
-        .scuffed-group a {
-            opacity: 0;
-            transform: translateY(-10px) scale(0.95);
-            animation: none;
+            width: 80%;
+            animation: groupExpand 0.4s ease forwards;
         }
 
         .scuffed-group.reveal a {
-            animation: showItem 0.4s ease forwards;
+            animation: groupItemReveal 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.9);
         }
 
         .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
         .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
         .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
 
-        @keyframes showItem {
+        @keyframes groupExpand {
+            from {
+                max-height: 0;
+            }
+            to {
+                max-height: 300px;
+            }
+        }
+
+        @keyframes groupItemReveal {
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -123,13 +127,18 @@
             toggleSymbol.textContent = expanded ? '−' : '+';
 
             if (expanded) {
-                group.classList.add('reveal');
+                group.style.display = 'flex';
+                requestAnimationFrame(() => {
+                    group.classList.add('reveal');
+                    [...group.children].forEach(btn => {
+                        btn.style.animation = '';
+                        void btn.offsetWidth; // Trigger reflow for restart
+                        btn.style.animation = 'groupItemReveal 0.4s ease forwards';
+                    });
+                });
             } else {
                 group.classList.remove('reveal');
-                Array.from(group.children).forEach(btn => {
-                    btn.style.opacity = 0;
-                    btn.style.transform = 'translateY(-10px) scale(0.95)';
-                });
+                group.style.display = 'none';
             }
         }
     </script>
