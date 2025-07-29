@@ -12,6 +12,7 @@
       font-family: Arial, sans-serif;
       height: 100%;
       cursor: default;
+      background: #121212;
     }
 
     canvas#bg {
@@ -21,7 +22,6 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      background: #121212;
     }
 
     body {
@@ -182,58 +182,68 @@
       }
     }
 
-    // Particle background
+    // --- Miside-inspired background ---
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
-    let particles = [];
+    let symbols = [];
     let mouse = { x: -9999, y: -9999 };
+
+    const symbolShapes = ['❤', '✖', '♡', '★'];
+    const colors = ['#ff69b4', '#ff4da6', '#e60073', '#ff80bf'];
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
 
-    function createParticles(count) {
+    function createSymbols(count) {
+      symbols = [];
       for (let i = 0; i < count; i++) {
-        particles.push({
+        symbols.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.5 + 0.3
+          speedX: (Math.random() - 0.5) * 0.4,
+          speedY: (Math.random() - 0.5) * 0.4,
+          opacity: Math.random() * 0.6 + 0.2,
+          size: Math.random() * 20 + 12,
+          char: symbolShapes[Math.floor(Math.random() * symbolShapes.length)],
+          color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
     }
 
-    function drawParticles() {
+    function drawSymbols() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of particles) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
+      for (let s of symbols) {
+        const dx = s.x - mouse.x;
+        const dy = s.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const force = dist < 100 ? (100 - dist) / 100 : 0;
 
         if (force > 0) {
           const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 1.5;
-          p.y += Math.sin(angle) * force * 1.5;
+          s.x += Math.cos(angle) * force * 1.2;
+          s.y += Math.sin(angle) * force * 1.2;
         }
 
-        p.x += p.speedX;
-        p.y += p.speedY;
+        s.x += s.speedX;
+        s.y += s.speedY;
 
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        if (s.x < -50) s.x = canvas.width + 50;
+        if (s.x > canvas.width + 50) s.x = -50;
+        if (s.y < -50) s.y = canvas.height + 50;
+        if (s.y > canvas.height + 50) s.y = -50;
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
-        ctx.fill();
+        ctx.font = `${s.size}px Arial`;
+        ctx.globalAlpha = s.opacity;
+        ctx.fillStyle = s.color;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 15;
+        ctx.fillText(s.char, s.x, s.y);
+        ctx.shadowBlur = 0;
       }
-      requestAnimationFrame(drawParticles);
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawSymbols);
     }
 
     window.addEventListener('resize', resizeCanvas);
@@ -247,8 +257,8 @@
     });
 
     resizeCanvas();
-    createParticles(150);
-    drawParticles();
+    createSymbols(100);
+    drawSymbols();
   </script>
 </body>
 </html>
