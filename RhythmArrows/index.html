@@ -10,68 +10,55 @@
     <title>LOGAN</title>
 
     <style>
+        /* Make html and body fill entire viewport, no margin/padding */
         html, body {
             margin: 0;
             padding: 0;
             border: 0;
-            overflow: hidden;
             height: 100%;
+            width: 100%;
+            overflow: hidden;
             background: #000;
         }
 
+        /* Container div fills screen exactly and is fixed so it won't shift */
+        .gm4html5_div_class {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0; padding: 0; border: 0;
+            background: #000;
+            z-index: 0;
+        }
+
+        /* Canvas fills container exactly */
         canvas {
-            display: block;
-            margin: 0;
-            padding: 0;
-            border: 0;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
             image-rendering: pixelated;
             -ms-touch-action: none;
             touch-action: none;
+            margin: 0; padding: 0; border: 0;
+            display: block;
         }
 
-        div.gm4html5_div_class {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            height: 100%;
-        }
-
-        div.gm4html5_login {
-            padding: 20px;
-            position: absolute;
-            border: solid 2px #000000;
-            background-color: #404040;
-            color: #00ff00;
-            border-radius: 15px;
-            box-shadow: #101010 20px 20px 40px;
-        }
-
-        div.gm4html5_cancel_button {
-            float: right;
-        }
-
-        div.gm4html5_login_button {
-            float: left;
-        }
-
-        div.gm4html5_login_header {
-            text-align: center;
-        }
-
+        /* Start message overlays entire screen */
         #start-message {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            color: #cccccc;
+            color: #ccc;
             font-family: sans-serif;
-            z-index: 999;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            user-select: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -88,7 +75,6 @@
     <!-- Game script -->
     <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
 
-    <!-- Fullscreen + Resize Logic -->
     <script>
         window.onload = function () {
             document.body.addEventListener('click', enterFullscreen, { once: true });
@@ -99,40 +85,39 @@
             const message = document.getElementById("start-message");
             if (message) message.style.display = "none";
 
-            // Fullscreen request
-            if (canvas.requestFullscreen) {
-                canvas.requestFullscreen();
-            } else if (canvas.webkitRequestFullscreen) {
-                canvas.webkitRequestFullscreen();
-            } else if (canvas.mozRequestFullScreen) {
-                canvas.mozRequestFullScreen();
-            } else if (canvas.msRequestFullscreen) {
-                canvas.msRequestFullscreen();
+            // Request fullscreen on the container div for best effect
+            const container = document.getElementById("gm4html5_div_id");
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            } else if (container.mozRequestFullScreen) {
+                container.mozRequestFullScreen();
+            } else if (container.msRequestFullscreen) {
+                container.msRequestFullscreen();
             }
 
-            // Resize to fit screen
             resizeCanvasToFullscreen(canvas);
 
-            // Start GameMaker game
             GameMaker_Init();
         }
 
         function resizeCanvasToFullscreen(canvas) {
+            // Set canvas resolution to window size (for sharpness)
             const width = window.innerWidth;
             const height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
+            // CSS size handled by position:absolute + width/height 100%
         }
 
-        // Optional: Resize again if the window size changes
         window.addEventListener('resize', () => {
             const canvas = document.getElementById("canvas");
+            const container = document.getElementById("gm4html5_div_id");
             if (
-                document.fullscreenElement === canvas ||
+                document.fullscreenElement === container ||
                 document.fullscreenElement === document.body ||
-                document.webkitFullscreenElement === canvas
+                document.webkitFullscreenElement === container
             ) {
                 resizeCanvasToFullscreen(canvas);
             }
