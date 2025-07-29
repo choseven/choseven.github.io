@@ -12,16 +12,31 @@
       font-family: Arial, sans-serif;
       height: 100%;
       cursor: default;
+      background-color: #000;
+    }
+
+    /* Animated golden ambient glow behind content */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: radial-gradient(circle at center, rgba(255, 215, 0, 0.2), transparent 70%);
+      animation: pulseGlow 5s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.1); }
     }
 
     canvas#bg {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       z-index: -1;
-      background: #121212;
+      background: transparent;
     }
 
     body {
@@ -33,9 +48,7 @@
 
     .title {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-size: 6em;
       text-shadow: 0 0 30px #ffd700;
       padding: 20px;
@@ -47,8 +60,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      gap: 20px;
+      padding: 20px; gap: 20px;
       position: relative;
     }
 
@@ -97,17 +109,14 @@
     .scuffed-group.reveal {
       animation: groupExpand 0.4s ease forwards;
     }
-
     .scuffed-group.collapse {
       animation: groupCollapse 0.4s ease forwards;
     }
-
     .scuffed-group.reveal a {
       animation: groupItemReveal 0.4s ease forwards;
       opacity: 0;
       transform: translateY(-20px) scale(0.9);
     }
-
     .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
     .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
     .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
@@ -116,17 +125,12 @@
       from { height: 0; visibility: visible; }
       to { height: 300px; visibility: visible; }
     }
-
     @keyframes groupCollapse {
       from { height: 300px; visibility: visible; }
       to { height: 0; visibility: hidden; }
     }
-
     @keyframes groupItemReveal {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
   </style>
 </head>
@@ -152,16 +156,13 @@
     const group = document.getElementById('scuffed-group');
     const toggleSymbol = document.getElementById('group-toggle');
     let expanded = false;
-
     function toggleGroup() {
       expanded = !expanded;
       toggleSymbol.textContent = expanded ? '−' : '+';
-
       if (expanded) {
         group.classList.remove('collapse');
         group.style.visibility = 'visible';
         group.classList.add('reveal');
-
         [...group.children].forEach(btn => {
           btn.style.animation = '';
           void btn.offsetWidth;
@@ -170,11 +171,9 @@
       } else {
         group.classList.remove('reveal');
         group.classList.add('collapse');
-
         [...group.children].forEach(btn => {
           btn.style.animation = 'groupItemReveal 0.2s ease reverse';
         });
-
         setTimeout(() => {
           group.classList.remove('collapse');
           group.style.visibility = 'hidden';
@@ -186,66 +185,52 @@
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
     let particles = [];
-    let mouse = { x: -9999, y: -9999 };
-
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-
     function createParticles(count) {
+      particles = [];
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.5 + 0.3
+          radius: Math.random() * 1.5 + 0.5,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.5 + 0.3,
+          twinkleSpeed: Math.random() * 0.015 + 0.005
         });
       }
     }
-
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of particles) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const force = dist < 100 ? (100 - dist) / 100 : 0;
-
-        if (force > 0) {
-          const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 1.5;
-          p.y += Math.sin(angle) * force * 1.5;
-        }
-
+      particles.forEach(p => {
+        p.opacity += p.twinkleSpeed * (Math.random() > 0.5 ? 1 : -1);
+        p.opacity = Math.min(1, Math.max(0.3, p.opacity));
         p.x += p.speedX;
         p.y += p.speedY;
-
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
+        ctx.save();
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.shadowColor = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.shadowBlur = 10;
         ctx.fill();
-      }
+        ctx.restore();
+      });
       requestAnimationFrame(drawParticles);
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    canvas.addEventListener('mousemove', e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      createParticles(150);
     });
-    canvas.addEventListener('mouseleave', () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
-
     resizeCanvas();
     createParticles(150);
     drawParticles();
