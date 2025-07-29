@@ -1,48 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructions</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Select</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff;
         }
-        .links {
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px #0073e6;
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .game-button {
+            background-color: #1e1e1e;
+            border: 2px solid #0073e6;
+            color: #fff;
             text-align: center;
-            font-size: 1.5em;
-        }
-        .links a {
-            display: block;
-            margin: 10px 0;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            border-radius: 30px;
             text-decoration: none;
-            color: #333;
-            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 250px;
         }
-        .links a:hover {
-            color: #0073e6;
+
+        .game-button:hover {
+            transform: scale(1.1);
+            background-color: #0073e6;
+            color: #fff;
+            box-shadow: 0 0 15px #0073e6;
         }
     </style>
 </head>
 <body>
-    <div class="links">
-        <a href="">NOTICE: TO FULLSCREEN, USE F10 ON WINDOWS OR SEARCH+ADDVOLUME ON CHROMEBOOK</a>
-        <a href=""> </a>
-        <a href="https://Choseven.github.io/RhythmArrows">Rhythm Arrows</a>
-        <a href="https://Choseven.github.io/RhythmBars">Rhythm Bars</a>
-        <a href="https://Choseven.github.io/Snake">Snake</a>
-        <a href="https://Choseven.github.io/Keys">Keys</a>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Douglas</a>
-        <a href="https://Choseven.github.io/RhythmScuffed">Rhythm Scuffed</a>
-        <a href="https://Choseven.github.io/Chatroom">Chatroom</a>
-        <a href="https://Choseven.github.io/SecondChatroom">Second Chatroom</a>
+    <h1>Select Your Game</h1>
+    <div class="button-container">
+        <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
+        <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
+        <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
+        <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
+        <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
+        <a href="https://Choseven.github.io/Chatroom" class="game-button">Chatroom</a>
+        <a href="https://Choseven.github.io/SecondChatroom" class="game-button">Second Chatroom</a>
     </div>
 </body>
 </html>
