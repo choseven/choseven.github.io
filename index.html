@@ -16,7 +16,7 @@
       color: white;
     }
 
-    /* Gradient glow with strong stops + heavy blur to remove rings */
+    /* Strong radial gradient with heavier blur */
     body::before {
       content: '';
       position: fixed;
@@ -26,17 +26,16 @@
       height: 100vh;
       background: radial-gradient(
         circle at 60% 50%,
-        rgba(255, 215, 0, 0.2) 0%,
+        rgba(255, 215, 0, 0.25) 0%,
         rgba(255, 215, 0, 0.15) 30%,
-        rgba(255, 215, 0, 0.08) 60%,
+        rgba(255, 215, 0, 0.07) 60%,
         rgba(255, 215, 0, 0) 100%
       );
-      filter: blur(100px);
+      filter: blur(140px);
       z-index: -0.5;
       pointer-events: none;
     }
 
-    /* Particle canvas */
     canvas#bg {
       position: fixed;
       top: 0;
