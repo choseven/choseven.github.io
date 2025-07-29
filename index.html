@@ -5,162 +5,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Game Select</title>
   <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    height: 100%;
-    cursor: default;
-    background: #000;
-  }
-
-  /* Background depth layer (radial gradient from center to edges) */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(ellipse at center, rgba(40, 40, 40, 0.6) 0%, rgba(5, 5, 5, 0.9) 80%, rgba(0, 0, 0, 1) 100%);
-    z-index: -3;
-    pointer-events: none;
-  }
-
-  /* Optional faint glow noise texture (like Miside) */
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(255, 215, 0, 0.02), transparent 60%);
-    z-index: -2;
-    pointer-events: none;
-    animation: pulseGlow 6s ease-in-out infinite;
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { opacity: 0.02; transform: scale(1); }
-    50% { opacity: 0.04; transform: scale(1.05); }
-  }
-
-  canvas#bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-    background: transparent;
-  }
-
-  body {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    color: #fff;
-  }
-
-  .title {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 6em;
-    text-shadow: 0 0 30px #ffd700;
-    padding: 20px;
-  }
-
-  .button-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    gap: 20px;
-    position: relative;
-  }
-
-  .game-button, .group-button {
-    background-color: #1e1e1e;
-    border: 2px solid #ffd700;
-    color: #fff;
-    padding: 20px 40px;
-    font-size: 2em;
-    font-weight: bold;
-    border-radius: 40px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    width: 80%;
-    box-shadow: 0 0 10px #ffd700;
-    text-shadow: 0 0 12px #ffd700;
-    text-align: center;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .game-button:hover, .group-button:hover {
-    transform: scale(1.05);
-    background-color: #ffd700;
-    box-shadow: 0 0 20px #ffd700;
-    color: #121212;
-  }
-
-  .group-button span {
-    position: absolute;
-    right: 30px;
-    font-size: 1.3em;
-  }
-
-  .scuffed-group {
-    visibility: hidden;
-    overflow: hidden;
-    height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 80%;
-    align-items: center;
-  }
-
-  .scuffed-group.reveal {
-    animation: groupExpand 0.4s ease forwards;
-  }
-
-  .scuffed-group.collapse {
-    animation: groupCollapse 0.4s ease forwards;
-  }
-
-  .scuffed-group.reveal a {
-    animation: groupItemReveal 0.4s ease forwards;
-    opacity: 0;
-    transform: translateY(-20px) scale(0.9);
-  }
-
-  .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
-  .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
-  .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
-
-  @keyframes groupExpand {
-    from { height: 0; visibility: visible; }
-    to { height: 300px; visibility: visible; }
-  }
-
-  @keyframes groupCollapse {
-    from { height: 300px; visibility: visible; }
-    to { height: 0; visibility: hidden; }
-  }
-
-  @keyframes groupItemReveal {
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      cursor: default;
+      background: #000;
     }
-  }
-</style>
 
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(ellipse at center, rgba(40, 40, 40, 0.6) 0%, rgba(5, 5, 5, 0.9) 80%, rgba(0, 0, 0, 1) 100%);
+      z-index: -3;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, rgba(255, 215, 0, 0.02), transparent 60%);
+      z-index: -2;
+      pointer-events: none;
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.02; transform: scale(1); }
+      50% { opacity: 0.04; transform: scale(1.05); }
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: transparent;
+    }
+
+    body {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6em;
+      text-shadow: 0 0 30px #ffd700;
+      padding: 20px;
+    }
+
+    .button-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 20px;
+      position: relative;
+    }
+
+    .game-button, .group-button {
+      background-color: #1e1e1e;
+      border: 2px solid #ffd700;
+      color: #fff;
+      padding: 20px 40px;
+      font-size: 2em;
+      font-weight: bold;
+      border-radius: 40px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      width: 80%;
+      box-shadow: 0 0 10px #ffd700;
+      text-shadow: 0 0 12px #ffd700;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .game-button:hover, .group-button:hover {
+      transform: scale(1.05);
+      background-color: #ffd700;
+      box-shadow: 0 0 20px #ffd700;
+      color: #121212;
+    }
+
+    .group-button span {
+      position: absolute;
+      right: 30px;
+      font-size: 1.3em;
+    }
+
+    .scuffed-group {
+      visibility: hidden;
+      overflow: hidden;
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 80%;
+      align-items: center;
+    }
+
+    .scuffed-group.reveal {
+      animation: groupExpand 0.4s ease forwards;
+    }
+
+    .scuffed-group.collapse {
+      animation: groupCollapse 0.4s ease forwards;
+    }
+
+    .scuffed-group.reveal a {
+      animation: groupItemReveal 0.4s ease forwards;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.9);
+    }
+
+    .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
+    .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
+    .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
+
+    @keyframes groupExpand {
+      from { height: 0; visibility: visible; }
+      to { height: 300px; visibility: visible; }
+    }
+
+    @keyframes groupCollapse {
+      from { height: 300px; visibility: visible; }
+      to { height: 0; visibility: hidden; }
+    }
+
+    @keyframes groupItemReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+  </style>
 </head>
 <body>
   <canvas id="bg"></canvas>
@@ -214,7 +213,6 @@
       }
     }
 
-    // Particle background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
     let particles = [];
