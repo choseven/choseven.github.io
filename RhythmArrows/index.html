@@ -21,9 +21,8 @@
 
         canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
             image-rendering: optimizeSpeed;
+            image-rendering: pixelated;
             -webkit-interpolation-mode: nearest-neighbor;
             -ms-touch-action: none;
             touch-action: none;
@@ -95,7 +94,7 @@
     <!-- Game script -->
     <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
 
-    <!-- Fullscreen and game init -->
+    <!-- Fullscreen and canvas scaling -->
     <script>
         window.onload = function () {
             document.body.addEventListener('click', enterFullscreen, { once: true });
@@ -106,6 +105,7 @@
             const message = document.getElementById("start-message");
             if (message) message.style.display = "none";
 
+            // Request fullscreen
             if (canvas.requestFullscreen) {
                 canvas.requestFullscreen();
             } else if (canvas.webkitRequestFullscreen) {
@@ -116,8 +116,32 @@
                 canvas.msRequestFullscreen();
             }
 
+            // Resize canvas to match screen resolution
+            resizeCanvasToFullscreen(canvas);
+
+            // Start the game
             GameMaker_Init();
         }
+
+        function resizeCanvasToFullscreen(canvas) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById("canvas");
+            if (
+                document.fullscreenElement === canvas ||
+                document.fullscreenElement === document.body ||
+                document.webkitFullscreenElement === canvas
+            ) {
+                resizeCanvasToFullscreen(canvas);
+            }
+        });
     </script>
 </body>
 </html>
