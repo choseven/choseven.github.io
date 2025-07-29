@@ -14,42 +14,25 @@
       cursor: default;
     }
 
+    /* ✅ Smoothed radial glow with extra blur (no banding) */
     body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(
-    circle at 60% 50%, 
-    rgba(255, 215, 0, 0.05) 0%, 
-    rgba(255, 215, 0, 0.04) 40%, 
-    rgba(255, 215, 0, 0.025) 70%, 
-    rgba(0, 0, 0, 0) 100%
-  );
-  z-index: -0.5;
-  pointer-events: none;
-}
-
-
-    body::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4AWMYBaNgPQAHygJ/XL4XvgAAAABJRU5ErkJggg==');
-        background-size: 100px 100px;
-        opacity: 0.05;
-        z-index: -0.4;
-        pointer-events: none;
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(
+        circle at 60% 50%, 
+        rgba(255, 215, 0, 0.05) 0%, 
+        rgba(255, 215, 0, 0.04) 40%, 
+        rgba(255, 215, 0, 0.025) 70%, 
+        rgba(0, 0, 0, 0) 100%
+      );
+      filter: blur(6px); /* extra blur to eliminate visible rings */
+      z-index: -0.5;
+      pointer-events: none;
     }
-
-
-
-
 
     canvas#bg {
       position: fixed;
