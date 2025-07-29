@@ -1,165 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Game Select</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            display: flex;
-            flex-direction: row;
-            height: 100vh;
-            color: #fff;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Select</title>
+  <style>
+    /* === BACKGROUND ANIMATION === */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at 50% 50%, #2c2c2c, #121212);
+      background-size: 400% 400%;
+      animation: backgroundMove 30s ease infinite;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      color: #fff;
+    }
 
-        .title {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 6em;
-            text-shadow: 0 0 30px #0073e6;
-            padding: 20px;
-        }
+    @keyframes backgroundMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-        .button-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            gap: 20px;
-            position: relative;
-        }
+    /* === MAIN LAYOUT === */
+    .title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6em;
+      text-shadow: 0 0 30px #ffd700;
+      padding: 20px;
+    }
 
-        .game-button, .group-button {
-            background-color: #1e1e1e;
-            border: 2px solid #0073e6;
-            color: #fff;
-            padding: 20px 40px;
-            font-size: 2em;
-            font-weight: bold;
-            border-radius: 40px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            width: 80%;
-            box-shadow: 0 0 10px #0073e6;
-            text-shadow: 0 0 12px #0073e6;
-            text-align: center;
-            position: relative;
-        }
+    .button-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 20px;
+      position: relative;
+    }
 
-        .game-button:hover, .group-button:hover {
-            transform: scale(1.05);
-            background-color: #0073e6;
-            box-shadow: 0 0 20px #0073e6;
-        }
+    .game-button, .group-button {
+      background-color: #1e1e1e;
+      border: 2px solid #ffd700;
+      color: #fff;
+      padding: 20px 40px;
+      font-size: 2em;
+      font-weight: bold;
+      border-radius: 40px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      width: 80%;
+      box-shadow: 0 0 10px #ffd700;
+      text-shadow: 0 0 12px #ffd700;
+      text-align: center;
+      position: relative;
+    }
 
-        .group-button span {
-            position: absolute;
-            right: 30px;
-            font-size: 1.3em;
-        }
+    .game-button:hover, .group-button:hover {
+      transform: scale(1.05);
+      background-color: #ffd700;
+      box-shadow: 0 0 20px #ffd700;
+      color: #121212;
+    }
 
-        .scuffed-group {
-            overflow: hidden;
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-            width: 80%;
-            align-items: center;
-        }
+    .group-button span {
+      position: absolute;
+      right: 30px;
+      font-size: 1.3em;
+    }
 
-        .scuffed-group.reveal {
-            animation: groupExpand 0.4s ease forwards;
-        }
+    .scuffed-group {
+      visibility: hidden;
+      overflow: hidden;
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 80%;
+      align-items: center;
+    }
 
-        .scuffed-group.reveal a {
-            animation: groupItemReveal 0.4s ease forwards;
-            opacity: 0;
-            transform: translateY(-20px) scale(0.9);
-        }
+    .scuffed-group.reveal {
+      animation: groupExpand 0.4s ease forwards;
+    }
 
-        .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
-        .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
-        .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
+    .scuffed-group.collapse {
+      animation: groupCollapse 0.4s ease forwards;
+    }
 
-        .scuffed-group.collapse {
-            animation: groupCollapse 0.4s ease forwards;
-        }
+    .scuffed-group.reveal a {
+      animation: groupItemReveal 0.4s ease forwards;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.9);
+    }
 
-        @keyframes groupExpand {
-            from { max-height: 0; }
-            to { max-height: 300px; }
-        }
+    .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
+    .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
+    .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
 
-        @keyframes groupCollapse {
-            from { max-height: 300px; }
-            to { max-height: 0; }
-        }
+    @keyframes groupExpand {
+      from { height: 0; visibility: visible; }
+      to { height: 300px; visibility: visible; }
+    }
 
-        @keyframes groupItemReveal {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-    </style>
+    @keyframes groupCollapse {
+      from { height: 300px; visibility: visible; }
+      to { height: 0; visibility: hidden; }
+    }
+
+    @keyframes groupItemReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="button-container">
-        <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
-        <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
-        <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
+  <div class="button-container">
+    <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
+    <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
+    <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
 
-        <div class="group-button" onclick="toggleGroup()">Scuffed<span id="group-toggle">+</span></div>
-        <div class="scuffed-group" id="scuffed-group">
-            <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
-            <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
-            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
-        </div>
+    <div class="group-button" onclick="toggleGroup()">Scuffed<span id="group-toggle">+</span></div>
+    <div class="scuffed-group" id="scuffed-group">
+      <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
+      <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
+      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
     </div>
+  </div>
 
-    <div class="title">Select Your Game</div>
+  <div class="title">Select Your Game</div>
 
-    <script>
-        const group = document.getElementById('scuffed-group');
-        const toggleSymbol = document.getElementById('group-toggle');
-        let expanded = false;
+  <script>
+    const group = document.getElementById('scuffed-group');
+    const toggleSymbol = document.getElementById('group-toggle');
+    let expanded = false;
 
-        function toggleGroup() {
-            expanded = !expanded;
-            toggleSymbol.textContent = expanded ? '−' : '+';
+    function toggleGroup() {
+      expanded = !expanded;
+      toggleSymbol.textContent = expanded ? '−' : '+';
 
-            if (expanded) {
-                group.classList.remove('collapse');
-                group.style.display = 'flex';
-                requestAnimationFrame(() => {
-                    group.classList.add('reveal');
-                    [...group.children].forEach(btn => {
-                        btn.style.animation = '';
-                        void btn.offsetWidth; // trigger reflow
-                        btn.style.animation = 'groupItemReveal 0.4s ease forwards';
-                    });
-                });
-            } else {
-                group.classList.remove('reveal');
-                group.classList.add('collapse');
+      if (expanded) {
+        group.classList.remove('collapse');
+        group.style.visibility = 'visible';
+        group.classList.add('reveal');
 
-                [...group.children].forEach(btn => {
-                    btn.style.animation = 'groupItemReveal 0.2s ease reverse';
-                });
+        [...group.children].forEach(btn => {
+          btn.style.animation = '';
+          void btn.offsetWidth;
+          btn.style.animation = 'groupItemReveal 0.4s ease forwards';
+        });
+      } else {
+        group.classList.remove('reveal');
+        group.classList.add('collapse');
 
-                setTimeout(() => {
-                    group.style.display = 'none';
-                    group.classList.remove('collapse');
-                }, 400);
-            }
-        }
-    </script>
+        [...group.children].forEach(btn => {
+          btn.style.animation = 'groupItemReveal 0.2s ease reverse';
+        });
+
+        // Let the collapse animation complete before hiding visually
+        setTimeout(() => {
+          group.classList.remove('collapse');
+          group.style.visibility = 'hidden';
+        }, 400);
+      }
+    }
+  </script>
 </body>
 </html>
