@@ -12,37 +12,6 @@
       font-family: Arial, sans-serif;
       height: 100%;
       cursor: default;
-      background: #000;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(ellipse at center, rgba(40, 40, 40, 0.6) 0%, rgba(5, 5, 5, 0.9) 80%, rgba(0, 0, 0, 1) 100%);
-      z-index: -3;
-      pointer-events: none;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(circle at center, rgba(255, 215, 0, 0.02), transparent 60%);
-      z-index: -2;
-      pointer-events: none;
-      animation: pulseGlow 6s ease-in-out infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.02; transform: scale(1); }
-      50% { opacity: 0.04; transform: scale(1.05); }
     }
 
     canvas#bg {
@@ -52,7 +21,7 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      background: transparent;
+      background: #121212;
     }
 
     body {
@@ -213,6 +182,7 @@
       }
     }
 
+    // Particle background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
     let particles = [];
