@@ -16,7 +16,6 @@
       color: white;
     }
 
-    /* Strong radial gradient with heavier blur */
     body::before {
       content: '';
       position: fixed;
@@ -42,7 +41,8 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 9999; /* bring to front */
+      pointer-events: none; /* allow clicks through */
     }
 
     body {
