@@ -10,24 +10,30 @@
             font-family: Arial, sans-serif;
             background-color: #121212;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            flex-direction: row;
+            height: 100vh;
             color: #fff;
         }
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 40px;
-            text-shadow: 0 0 10px #0073e6;
+        .title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            text-shadow: 0 0 25px #0073e6;
+            padding: 20px;
+            word-break: break-word;
         }
 
         .button-container {
+            flex: 1;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            flex-direction: column;
             justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+            gap: 20px;
         }
 
         .game-button {
@@ -36,23 +42,26 @@
             color: #fff;
             text-align: center;
             padding: 20px 40px;
-            font-size: 1.3em;
-            border-radius: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            border-radius: 40px;
             text-decoration: none;
             transition: all 0.3s ease;
-            min-width: 250px;
+            min-width: 300px;
+            width: 100%;
+            box-shadow: 0 0 10px #0073e6;
+            text-shadow: 0 0 12px #0073e6;
         }
 
         .game-button:hover {
             transform: scale(1.1);
             background-color: #0073e6;
             color: #fff;
-            box-shadow: 0 0 15px #0073e6;
+            box-shadow: 0 0 20px #0073e6;
         }
     </style>
 </head>
 <body>
-    <h1>Select Your Game</h1>
     <div class="button-container">
         <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
         <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
@@ -63,5 +72,6 @@
         <a href="https://Choseven.github.io/Chatroom" class="game-button">Chatroom</a>
         <a href="https://Choseven.github.io/SecondChatroom" class="game-button">Second Chatroom</a>
     </div>
+    <div class="title">Select Your Game</div>
 </body>
 </html>
