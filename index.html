@@ -13,6 +13,7 @@
             flex-direction: row;
             height: 100vh;
             color: #fff;
+            overflow: hidden;
         }
 
         .title {
@@ -33,6 +34,7 @@
             align-items: center;
             padding: 40px;
             gap: 20px;
+            position: relative;
         }
 
         .game-button, .group-button {
@@ -54,7 +56,7 @@
         }
 
         .game-button:hover, .group-button:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             background-color: #0073e6;
             box-shadow: 0 0 20px #0073e6;
         }
@@ -66,21 +68,31 @@
         }
 
         .scuffed-group {
-            display: none;
+            overflow: hidden;
+            display: flex;
             flex-direction: column;
             gap: 15px;
-            animation: expand 0.3s ease forwards;
             width: 100%;
         }
 
-        @keyframes expand {
-            from {
-                opacity: 0;
-                transform: scaleY(0.8);
-            }
+        .scuffed-group a {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.95);
+            animation: none;
+        }
+
+        .scuffed-group.reveal a {
+            animation: showItem 0.4s ease forwards;
+        }
+
+        .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
+        .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
+        .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
+
+        @keyframes showItem {
             to {
                 opacity: 1;
-                transform: scaleY(1);
+                transform: translateY(0) scale(1);
             }
         }
     </style>
@@ -102,16 +114,22 @@
     <div class="title">Select Your Game</div>
 
     <script>
+        const group = document.getElementById('scuffed-group');
+        const toggleSymbol = document.getElementById('group-toggle');
+        let expanded = false;
+
         function toggleGroup() {
-            const group = document.getElementById('scuffed-group');
-            const toggleSymbol = document.getElementById('group-toggle');
-            if (group.style.display === 'none' || group.style.display === '') {
-                group.style.display = 'flex';
-                group.style.animation = 'expand 0.3s ease forwards';
-                toggleSymbol.textContent = '−';
+            expanded = !expanded;
+            toggleSymbol.textContent = expanded ? '−' : '+';
+
+            if (expanded) {
+                group.classList.add('reveal');
             } else {
-                group.style.display = 'none';
-                toggleSymbol.textContent = '+';
+                group.classList.remove('reveal');
+                Array.from(group.children).forEach(btn => {
+                    btn.style.opacity = 0;
+                    btn.style.transform = 'translateY(-10px) scale(0.95)';
+                });
             }
         }
     </script>
