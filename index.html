@@ -30,7 +30,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             padding: 40px;
             gap: 20px;
         }
@@ -50,6 +50,7 @@
             box-shadow: 0 0 10px #0073e6;
             text-shadow: 0 0 12px #0073e6;
             text-align: center;
+            position: relative;
         }
 
         .game-button:hover, .group-button:hover {
@@ -58,18 +59,29 @@
             box-shadow: 0 0 20px #0073e6;
         }
 
-        .group-button {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
+        .group-button span {
+            position: absolute;
+            right: 30px;
+            font-size: 1.3em;
         }
 
         .scuffed-group {
             display: none;
             flex-direction: column;
             gap: 15px;
-            margin-left: 20px;
+            animation: expand 0.3s ease forwards;
+            width: 100%;
+        }
+
+        @keyframes expand {
+            from {
+                opacity: 0;
+                transform: scaleY(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scaleY(1);
+            }
         }
     </style>
 </head>
@@ -77,20 +89,16 @@
     <div class="button-container">
         <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
         <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
+        <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
 
-        <div class="group-button" onclick="toggleGroup()">
-            Scuffed <span id="group-toggle">+</span>
-        </div>
+        <div class="group-button" onclick="toggleGroup()">Scuffed<span id="group-toggle">+</span></div>
         <div class="scuffed-group" id="scuffed-group">
             <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
-            <a href="https://Choseven.github.io/SecondChatroom" class="game-button">Second Chatroom</a>
-            <a href="https://Choseven.github.io/Chatroom" class="game-button">Chatroom</a>
             <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
             <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
         </div>
-
-        <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
     </div>
+
     <div class="title">Select Your Game</div>
 
     <script>
@@ -99,6 +107,7 @@
             const toggleSymbol = document.getElementById('group-toggle');
             if (group.style.display === 'none' || group.style.display === '') {
                 group.style.display = 'flex';
+                group.style.animation = 'expand 0.3s ease forwards';
                 toggleSymbol.textContent = '−';
             } else {
                 group.style.display = 'none';
