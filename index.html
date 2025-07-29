@@ -26,6 +26,16 @@
       transition: transform 0.08s ease;
     }
 
+    /* Hide custom cursor when needed */
+    .hide-custom-cursor .custom-cursor {
+      display: none;
+    }
+
+    /* Show system pointer on interactive elements */
+    a, .group-button {
+      cursor: pointer;
+    }
+
     /* === BACKGROUND PARTICLES CANVAS === */
     canvas#bg {
       position: fixed;
@@ -269,6 +279,17 @@
     document.addEventListener('mousemove', e => {
       cursor.style.left = e.clientX + 'px';
       cursor.style.top = e.clientY + 'px';
+    });
+
+    // Hide custom cursor on hover for links and group button
+    const hoverTargets = document.querySelectorAll('a, .group-button');
+    hoverTargets.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        document.body.classList.add('hide-custom-cursor');
+      });
+      el.addEventListener('mouseleave', () => {
+        document.body.classList.remove('hide-custom-cursor');
+      });
     });
   </script>
 </body>
