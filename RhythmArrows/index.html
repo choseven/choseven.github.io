@@ -1,112 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="pragma" content="no-cache">
-    <title>LOGAN</title>
 
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background: black;
-        }
+    <!-- Custom PreHead code is injected here -->
+    
 
-        #game-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 0;
-        }
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name ="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta charset="utf-8"/>
 
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            margin: 0;
-            padding: 0;
-            image-rendering: pixelated;
-            -ms-touch-action: none;
-            touch-action: none;
-        }
+        <!-- Builtin injector for disabling cache -->
+        <meta http-equiv="pragma" content="no-cache"/>
 
-        #start-message {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #ccc;
-            font-family: sans-serif;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            user-select: none;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+        <!-- Set the title bar of the page -->
+        <title>LOGAN</title>
 
-    <div id="game-container">
-        <canvas id="canvas"></canvas>
-    </div>
+        <!-- Custom PreStyle code is injected here -->
+        
 
-    <div id="start-message">Click anywhere to start in fullscreen</div>
-
-    <!-- Load your game script -->
-    <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
-
-    <script>
-        const canvas = document.getElementById("canvas");
-        const container = document.getElementById("game-container");
-        const message = document.getElementById("start-message");
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        function enterFullscreen() {
-            message.style.display = "none";
-
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container.webkitRequestFullscreen) {
-                container.webkitRequestFullscreen();
-            } else if (container.mozRequestFullScreen) {
-                container.mozRequestFullScreen();
-            } else if (container.msRequestFullscreen) {
-                container.msRequestFullscreen();
+        <!-- Set the background colour of the document -->
+        <style>
+            body {
+                background: #0;
+                color: #cccccc;
+                margin: 0px;
+                padding: 0px;
+                border: 0px;
             }
 
-            resizeCanvas();
-            GameMaker_Init(); // GameMaker function
-        }
-
-        window.onload = function () {
-            resizeCanvas();
-            message.addEventListener("click", enterFullscreen, { once: true });
-        };
-
-        window.addEventListener("resize", () => {
-            if (document.fullscreenElement === container ||
-                document.webkitFullscreenElement === container ||
-                document.mozFullScreenElement === container) {
-                resizeCanvas();
+            canvas {
+                image-rendering: optimizeSpeed;
+                -webkit-interpolation-mode: nearest-neighbor;
+                -ms-touch-action: none;
+                touch-action: none;
+                margin: 0px;
+                padding: 0px;
+                border: 0px;
             }
-        });
-    </script>
-</body>
+            :-webkit-full-screen #canvas {
+                width: 100%;
+                height: 100%;
+            }
+            :-webkit-full-screen {
+                width: 100%;
+                height: 100%;
+            }
+            
+            /* Custom Runner Styles */
+            div.gm4html5_div_class {
+                margin: 0px;
+                padding: 0px;
+                border: 0px;
+            }
+            div.gm4html5_login {
+                padding: 20px;
+                position: absolute;
+                border: solid 2px #000000;
+                background-color: #404040;
+                color:#00ff00;
+                border-radius: 15px;
+                box-shadow: #101010 20px 20px 40px;
+            }
+            div.gm4html5_cancel_button {
+                float: right;
+            }
+            div.gm4html5_login_button {
+                float: left;
+            }
+            div.gm4html5_login_header {
+                text-align: center;
+            }
+            /* END - Custom Runner Styles */
+            
+        </style>
+
+        <!-- Custom PostStyle code is injected here -->
+        
+
+        <!-- Builtin injector for injecting flurry analytics code -->
+        
+    </head>
+
+    <!-- Custom PostHead code is injected here -->
+    
+
+    <!-- Custom PreBody code is injected here -->
+    
+
+    <body>
+        <div class="gm4html5_div_class" id="gm4html5_div_id">
+            
+            <!-- Builtin injector for splash screen -->
+            
+
+            <!-- Create the canvas element the game draws to -->
+            <canvas id="canvas" width="1280" height="720" >
+                <p>Your browser doesn't support HTML5 canvas.</p>
+            </canvas>
+        </div>
+
+        <!-- Run the game code -->
+        <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
+
+        <!-- Builtin injector for injecting runner path -->
+        
+
+        <script>window.onload = GameMaker_Init;</script>
+
+        <!-- Builtin injector for injecting google analytics code -->
+        
+
+    </body>
+
+    <!-- Custom PostBody code is injected here -->
+    
 </html>
