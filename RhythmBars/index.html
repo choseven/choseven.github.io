@@ -10,17 +10,20 @@
     <title>Rhythm Game New</title>
 
     <style>
-        body {
-            background: #000000;
-            color: #cccccc;
+        html, body {
+            width: 100%;
+            height: 100%;
             margin: 0;
             padding: 0;
-            border: 0;
             overflow: hidden;
+            background: #000;
+            color: #cccccc;
         }
 
         canvas {
             display: block;
+            width: 100vw;
+            height: 100vh;
             image-rendering: optimizeSpeed;
             -webkit-interpolation-mode: nearest-neighbor;
             -ms-touch-action: none;
@@ -30,8 +33,12 @@
             border: 0;
         }
 
-        :fullscreen canvas,
-        :-webkit-full-screen canvas {
+        :-webkit-full-screen #canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        :-webkit-full-screen {
             width: 100%;
             height: 100%;
         }
@@ -63,68 +70,68 @@
         div.gm4html5_login_header {
             text-align: center;
         }
+
+        #fullscreen-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: sans-serif;
+            background: rgba(0,0,0,0.7);
+            padding: 20px 30px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+            z-index: 999;
+        }
     </style>
 </head>
 
 <body>
     <div class="gm4html5_div_class" id="gm4html5_div_id">
-        <canvas id="canvas" width="640" height="360">
+        <canvas id="canvas" width="1280" height="720">
             <p>Your browser doesn't support HTML5 canvas.</p>
         </canvas>
     </div>
 
-    <!-- Game script -->
+    <div id="fullscreen-msg">Click anywhere to enter fullscreen</div>
+
+    <!-- Your game file -->
     <script type="text/javascript" src="html5game/Rhythm Game New.js?cachebust=728147722"></script>
 
     <script>
-    function resizeCanvasToDisplaySize(canvas) {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        if (canvas.width !== width || canvas.height !== height) {
-            canvas.width = width;
-            canvas.height = height;
-        }
-
-        // Notify GameMaker to update its internal resolution
-        if (typeof window.gm4html5_resize === "function") {
-            window.gm4html5_resize();
-        }
-    }
-
-    function goFullscreen(canvas) {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            if (canvas.requestFullscreen) {
-                canvas.requestFullscreen();
-            } else if (canvas.webkitRequestFullscreen) {
-                canvas.webkitRequestFullscreen();
-            } else if (canvas.msRequestFullscreen) {
-                canvas.msRequestFullscreen();
+        function requestFullScreen(element) {
+            const fs = element.requestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+            if (fs) {
+                return fs.call(element);
+            } else {
+                return Promise.reject("Fullscreen API not supported");
             }
         }
-    }
 
-    function handleInteraction() {
-        const canvas = document.getElementById("canvas");
-        goFullscreen(canvas);
-        resizeCanvasToDisplaySize(canvas);
-    }
+        function tryFullscreenAndStartGame() {
+            const canvas = document.getElementById('canvas');
+            requestFullScreen(canvas)
+                .then(() => {
+                    document.getElementById('fullscreen-msg').style.display = 'none';
+                    GameMaker_Init();
+                })
+                .catch(() => {
+                    document.getElementById('fullscreen-msg').style.display = 'block';
+                    GameMaker_Init(); // Start game even if fullscreen is blocked
+                });
+        }
 
-    window.onload = function () {
-        GameMaker_Init();
+        window.onload = tryFullscreenAndStartGame;
 
-        const canvas = document.getElementById("canvas");
-
-        resizeCanvasToDisplaySize(canvas);
-
-        window.addEventListener("resize", () => {
-            resizeCanvasToDisplaySize(canvas);
+        // Retry fullscreen on any user interaction
+        document.body.addEventListener('click', function () {
+            const canvas = document.getElementById('canvas');
+            requestFullScreen(canvas).then(() => {
+                document.getElementById('fullscreen-msg').style.display = 'none';
+            });
         });
-
-        document.addEventListener("click", handleInteraction);
-        document.addEventListener("touchstart", handleInteraction);
-    };
-</script>
-
+    </script>
 </body>
 </html>
