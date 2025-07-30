@@ -77,6 +77,25 @@
 
     <!-- Game script -->
     <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
+    <script>
+    function requestFullScreen(element) {
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) { // Firefox
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE/Edge
+            element.msRequestFullscreen();
+        }
+    }
+
+    window.onload = function () {
+        const canvas = document.getElementById('canvas');
+        requestFullScreen(canvas); // Try to enter fullscreen
+        GameMaker_Init();         // Then start the game
+    };
+</script>
 
     <!-- Game start -->
     <script>
