@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta charset="utf-8" />
-
-    <meta http-equiv="pragma" content="no-cache" />
-
+    <meta charset="utf-8"/>
+    <meta http-equiv="pragma" content="no-cache"/>
     <title>Rhythm Game New</title>
 
     <style>
         body {
-            background: #000;
+            background: #000000;
             color: #cccccc;
             margin: 0;
             padding: 0;
@@ -31,22 +28,14 @@
             border: 0;
         }
 
-        :-webkit-full-screen #canvas {
+        :-webkit-full-screen #canvas,
+        :-webkit-full-screen,
+        :fullscreen #canvas,
+        :fullscreen {
             width: 100%;
             height: 100%;
         }
 
-        :-webkit-full-screen {
-            width: 100%;
-            height: 100%;
-        }
-
-        canvas:fullscreen {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Custom Runner Styles */
         div.gm4html5_div_class {
             margin: 0;
             padding: 0;
@@ -84,33 +73,31 @@
         </canvas>
     </div>
 
-    <!-- Game script -->
     <script type="text/javascript" src="html5game/Rhythm Game New.js?cachebust=728147722"></script>
 
-    <!-- Game and fullscreen initialization -->
     <script>
-        window.onload = function () {
-            // Initialize the game
-            if (typeof GameMaker_Init === 'function') {
-                GameMaker_Init();
+        function goFullscreen() {
+            const canvas = document.getElementById("canvas");
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.msRequestFullscreen) {
+                canvas.msRequestFullscreen();
             }
+        }
 
-            // Request fullscreen on first user click
-            document.body.addEventListener("click", function () {
-                const canvas = document.getElementById("canvas");
+        function initFullscreenOnce() {
+            goFullscreen();
+            document.removeEventListener('click', initFullscreenOnce);
+            document.removeEventListener('touchstart', initFullscreenOnce);
+        }
 
-                if (canvas.requestFullscreen) {
-                    canvas.requestFullscreen();
-                } else if (canvas.webkitRequestFullscreen) {
-                    canvas.webkitRequestFullscreen();
-                } else if (canvas.mozRequestFullScreen) {
-                    canvas.mozRequestFullScreen();
-                } else if (canvas.msRequestFullscreen) {
-                    canvas.msRequestFullscreen();
-                }
-            }, { once: true });
+        window.onload = function() {
+            GameMaker_Init();
+            document.addEventListener('click', initFullscreenOnce);
+            document.addEventListener('touchstart', initFullscreenOnce);
         };
     </script>
 </body>
-
 </html>
