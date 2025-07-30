@@ -77,19 +77,23 @@
     <script type="text/javascript" src="html5game/Rhythm Game New.js?cachebust=728147722"></script>
 
     <script>
-        function resizeCanvasToDisplaySize(canvas) {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
+    function resizeCanvasToDisplaySize(canvas) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
 
-            if (canvas.width !== width || canvas.height !== height) {
-                canvas.width = width;
-                canvas.height = height;
-            }
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
         }
 
-        function goFullscreen(canvas) {
-            if (document.fullscreenElement || document.webkitFullscreenElement) return;
+        // Notify GameMaker to update its internal resolution
+        if (typeof window.gm4html5_resize === "function") {
+            window.gm4html5_resize();
+        }
+    }
 
+    function goFullscreen(canvas) {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (canvas.requestFullscreen) {
                 canvas.requestFullscreen();
             } else if (canvas.webkitRequestFullscreen) {
@@ -98,30 +102,29 @@
                 canvas.msRequestFullscreen();
             }
         }
+    }
 
-        function handleInteraction() {
-            const canvas = document.getElementById("canvas");
-            goFullscreen(canvas);
+    function handleInteraction() {
+        const canvas = document.getElementById("canvas");
+        goFullscreen(canvas);
+        resizeCanvasToDisplaySize(canvas);
+    }
+
+    window.onload = function () {
+        GameMaker_Init();
+
+        const canvas = document.getElementById("canvas");
+
+        resizeCanvasToDisplaySize(canvas);
+
+        window.addEventListener("resize", () => {
             resizeCanvasToDisplaySize(canvas);
-        }
+        });
 
-        window.onload = function () {
-            GameMaker_Init();
+        document.addEventListener("click", handleInteraction);
+        document.addEventListener("touchstart", handleInteraction);
+    };
+</script>
 
-            const canvas = document.getElementById("canvas");
-
-            // Resize once on load
-            resizeCanvasToDisplaySize(canvas);
-
-            // Resize on window resize
-            window.addEventListener("resize", () => {
-                resizeCanvasToDisplaySize(canvas);
-            });
-
-            // Fullscreen and resize on every click or tap
-            document.addEventListener("click", handleInteraction);
-            document.addEventListener("touchstart", handleInteraction);
-        };
-    </script>
 </body>
 </html>
