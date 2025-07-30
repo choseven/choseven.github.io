@@ -1,51 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta charset="utf-8"/>
-    <meta http-equiv="pragma" content="no-cache"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="pragma" content="no-cache">
     <title>LOGAN</title>
 
     <style>
-        /* Make html and body fill entire viewport, no margin/padding */
         html, body {
             margin: 0;
             padding: 0;
-            border: 0;
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background: #000;
+            background: black;
         }
 
-        /* Container div fills screen exactly and is fixed so it won't shift */
-        .gm4html5_div_class {
+        #game-container {
             position: fixed;
             top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            margin: 0; padding: 0; border: 0;
-            background: #000;
+            width: 100%;
+            height: 100%;
+            background: black;
             z-index: 0;
         }
 
-        /* Canvas fills container exactly */
         canvas {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
             height: 100%;
+            display: block;
+            margin: 0;
+            padding: 0;
             image-rendering: pixelated;
             -ms-touch-action: none;
             touch-action: none;
-            margin: 0; padding: 0; border: 0;
-            display: block;
         }
 
-        /* Start message overlays entire screen */
         #start-message {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -55,38 +50,37 @@
             font-size: 24px;
             color: #ccc;
             font-family: sans-serif;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 9999;
             user-select: none;
             cursor: pointer;
         }
     </style>
 </head>
-
 <body>
-    <div class="gm4html5_div_class" id="gm4html5_div_id">
-        <canvas id="canvas" width="1280" height="720">
-            <p>Your browser doesn't support HTML5 canvas.</p>
-        </canvas>
+
+    <div id="game-container">
+        <canvas id="canvas"></canvas>
     </div>
 
     <div id="start-message">Click anywhere to start in fullscreen</div>
 
-    <!-- Game script -->
+    <!-- Load your game script -->
     <script type="text/javascript" src="html5game/RhythmGameSave.js?cachebust=1961073477"></script>
 
     <script>
-        window.onload = function () {
-            document.body.addEventListener('click', enterFullscreen, { once: true });
-        };
+        const canvas = document.getElementById("canvas");
+        const container = document.getElementById("game-container");
+        const message = document.getElementById("start-message");
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
         function enterFullscreen() {
-            const canvas = document.getElementById("canvas");
-            const message = document.getElementById("start-message");
-            if (message) message.style.display = "none";
+            message.style.display = "none";
 
-            // Request fullscreen on the container div for best effect
-            const container = document.getElementById("gm4html5_div_id");
             if (container.requestFullscreen) {
                 container.requestFullscreen();
             } else if (container.webkitRequestFullscreen) {
@@ -97,29 +91,20 @@
                 container.msRequestFullscreen();
             }
 
-            resizeCanvasToFullscreen(canvas);
-
-            GameMaker_Init();
+            resizeCanvas();
+            GameMaker_Init(); // GameMaker function
         }
 
-        function resizeCanvasToFullscreen(canvas) {
-            // Set canvas resolution to window size (for sharpness)
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            // CSS size handled by position:absolute + width/height 100%
-        }
+        window.onload = function () {
+            resizeCanvas();
+            message.addEventListener("click", enterFullscreen, { once: true });
+        };
 
-        window.addEventListener('resize', () => {
-            const canvas = document.getElementById("canvas");
-            const container = document.getElementById("gm4html5_div_id");
-            if (
-                document.fullscreenElement === container ||
-                document.fullscreenElement === document.body ||
-                document.webkitFullscreenElement === container
-            ) {
-                resizeCanvasToFullscreen(canvas);
+        window.addEventListener("resize", () => {
+            if (document.fullscreenElement === container ||
+                document.webkitFullscreenElement === container ||
+                document.mozFullScreenElement === container) {
+                resizeCanvas();
             }
         });
     </script>
