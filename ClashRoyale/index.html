@@ -283,6 +283,8 @@
             <div class="info-note">
                 <strong>How to find a player tag:</strong>
                 Open Clash Royale → Tap your profile → Copy the tag that starts with #
+                <br><br>
+                <strong>Note:</strong> This tool uses the official Clash Royale API through a proxy service to bypass IP restrictions.
             </div>
 
             <form class="search-form" id="searchForm">
@@ -306,9 +308,10 @@
 
     <script>
         // API Configuration
-        const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjdkNDg4MTdmLTZiYzAtNGFjZC1iODBlLTZmMTk4NmZjODY1NyIsImlhdCI6MTc1Nzk5NDM4MSwic3ViIjoiZGV2ZWxvcGVyL2JkNzhmN2M4LWQ0NDgtYTI3OS02MTk4LTJmNmI3NTU0ZGJmNiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIyNTUuMjU1LjAuMCIsIjI2LjAuMC4xIl0sInR5cGUiOiJjbGllbnQifV19.NgZkQWwZdHiR279jWf-pYrGfgFbuwabT4ucgEB9XedstDC2Nbfc-SQjACmG7jgnx6ocsL-4n6-WXiuKscfgyhw';
-        const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
-        const API_BASE_URL = 'https://api.clashroyale.com/v1/players/';
+        const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjdkNDQ4MTdmLTZiYzAtNGFjZC1iODBlLTZmMTk4NmZjODY1NyIsImlhdCI6MTc1Nzk5NDM4MSwic3ViIjoiZGV2ZWxvcGVyL2JkNzhmN2M4LWQ0NDgtYTI3OS02MTk4LTJmNmI3NTU0ZGJmNiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIyNTUuMjU1LjAuMCIsIjI2LjAuMC4xIl0sInR5cGUiOiJjbGllbnQifV19.NgZkQWwZdHiR279jWf-pYrGfgFbuwabT4ucgEB9XedstDC2Nbfc-SQjACmG7jgnx6ocsL-4n6-WXiuKscfgyhw';
+        
+        // Use RoyaleAPI proxy service (whitelisted IP: 45.79.218.79)
+        const PROXY_API_BASE_URL = 'https://proxy.royaleapi.dev/v1/players/';
 
         // DOM Elements
         const searchForm = document.getElementById('searchForm');
@@ -348,34 +351,18 @@
             hidePlayerInfo();
 
             try {
-                // Try direct API call first
-                let response;
-                let playerData;
-                
-                try {
-                    // Direct API call
-                    response = await fetch(`${API_BASE_URL}%23${encodeURIComponent(playerTag)}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${API_KEY}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                } catch (corsError) {
-                    console.log('CORS error, trying proxy...');
-                    // If CORS fails, try with proxy
-                    response = await fetch(`${CORS_PROXY}${API_BASE_URL}%23${encodeURIComponent(playerTag)}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${API_KEY}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                }
+                // Use RoyaleAPI proxy service
+                const response = await fetch(`${PROXY_API_BASE_URL}%23${encodeURIComponent(playerTag)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                 if (!response.ok) {
                     if (response.status === 403) {
-                        throw new Error('API access forbidden - please check API key configuration');
+                        throw new Error('API access forbidden - please check API key configuration or IP whitelist');
                     } else if (response.status === 404) {
                         throw new Error(`Player #${playerTag} not found. Please check the player tag.`);
                     } else if (response.status === 429) {
@@ -385,13 +372,13 @@
                     }
                 }
 
-                playerData = await response.json();
+                const playerData = await response.json();
                 displayPlayerInfo(playerData);
 
             } catch (error) {
                 console.error('Error fetching player data:', error);
                 if (error.message.includes('CORS') || error.message.includes('NetworkError')) {
-                    showError('Network error: Unable to connect to the API. This might be due to CORS restrictions. Try hosting this page on a web server or contact the administrator.');
+                    showError('Network error: Unable to connect to the API. Please try again or contact the administrator.');
                 } else {
                     showError(error.message);
                 }
