@@ -51,6 +51,33 @@
             padding: 40px;
         }
 
+        .search-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
         .search-form {
             display: flex;
             gap: 15px;
@@ -144,6 +171,69 @@
             margin: 20px 0;
             color: #c33;
             text-align: center;
+        }
+
+        .search-results {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e8ecf4;
+        }
+
+        .player-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .player-result:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .player-result:last-child {
+            margin-bottom: 0;
+        }
+
+        .player-result-info {
+            flex: 1;
+        }
+
+        .player-result-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .player-result-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .select-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .select-btn:hover {
+            background: #5a67d8;
         }
 
         .player-info {
@@ -269,6 +359,12 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+
+            .player-result {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -276,21 +372,27 @@
     <div class="container">
         <div class="header">
             <h1>👑 Clash Royale Player Lookup</h1>
-            <p>Search for any player's stats and information</p>
+            <p>Search by username or player tag</p>
         </div>
         
         <div class="search-section">
             <div class="info-note">
-                <strong>How to find a player tag:</strong>
-                Open Clash Royale → Tap your profile → Copy the tag that starts with #
+                <strong>New Feature:</strong> You can now search by username! Select "Username Search" to find players by their display name, or use "Tag Search" for direct tag lookup.
                 <br><br>
-                <strong>Note:</strong> This tool uses the official Clash Royale API through a proxy service to bypass IP restrictions.
+                <strong>Username Search:</strong> Enter the player's display name (case-sensitive)
+                <br>
+                <strong>Tag Search:</strong> Enter the player tag that starts with # (e.g., #2PP)
+            </div>
+
+            <div class="search-tabs">
+                <button class="tab-btn active" data-tab="username">👤 Username Search</button>
+                <button class="tab-btn" data-tab="tag">🏷️ Tag Search</button>
             </div>
 
             <form class="search-form" id="searchForm">
                 <div class="input-group">
-                    <label for="playerTag">Player Tag:</label>
-                    <input type="text" id="playerTag" placeholder="#PLAYERTAG (e.g., #2PP)" required>
+                    <label for="searchInput" id="searchLabel">Player Username:</label>
+                    <input type="text" id="searchInput" placeholder="Enter username (e.g., John123)" required>
                 </div>
                 <button type="submit" class="search-btn" id="searchBtn">🔍 Search Player</button>
             </form>
@@ -302,6 +404,11 @@
 
             <div id="error" class="error" style="display: none;"></div>
 
+            <div id="searchResults" class="search-results" style="display: none;">
+                <h3>Search Results:</h3>
+                <div id="playerList"></div>
+            </div>
+
             <div id="playerInfo" class="player-info" style="display: none;"></div>
         </div>
     </div>
@@ -310,49 +417,168 @@
         // API Configuration
         const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY4NjU5ZjBiLTdkNDgtNDJlYy1iOGM1LWNkM2RhMmNlNDU3NCIsImlhdCI6MTc1Nzk5NTQyMSwic3ViIjoiZGV2ZWxvcGVyL2JkNzhmN2M4LWQ0NDgtYTI3OS02MTk4LTJmNmI3NTU0ZGJmNiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI0NS43OS4yMTguNzkiLCIwLjAuMC4wIl0sInR5cGUiOiJjbGllbnQifV19.pkdgKQp3MsU6-1pg34oNkYL2LaHQpAJcirEkxUFMa2hq7tLvvwYBThPZ8GznDU-ft-qMl1G51YRN5Bd7h8wJmw';
         
-        // Use RoyaleAPI proxy service (whitelisted IP: 45.79.218.79)
-        const PROXY_API_BASE_URL = 'https://proxy.royaleapi.dev/v1/players/';
+        // API URLs
+        const PLAYER_API_BASE_URL = 'https://proxy.royaleapi.dev/v1/players/';
+        const SEARCH_API_BASE_URL = 'https://api.royaleapi.com/player/search';
 
         // DOM Elements
         const searchForm = document.getElementById('searchForm');
         const loadingDiv = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
         const playerInfoDiv = document.getElementById('playerInfo');
+        const searchResultsDiv = document.getElementById('searchResults');
+        const playerListDiv = document.getElementById('playerList');
         const searchBtn = document.getElementById('searchBtn');
-        const playerTagInput = document.getElementById('playerTag');
+        const searchInput = document.getElementById('searchInput');
+        const searchLabel = document.getElementById('searchLabel');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        let currentSearchMode = 'username';
 
         // Event Listeners
         searchForm.addEventListener('submit', handleSearch);
         
-        // Add some example tags for testing
-        playerTagInput.addEventListener('focus', function() {
-            if (!this.value) {
-                this.placeholder = '#2PP (example)';
-            }
+        // Tab switching
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                switchTab(tab);
+            });
         });
+
+        function switchTab(tab) {
+            currentSearchMode = tab;
+            
+            // Update tab appearance
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update form
+            if (tab === 'username') {
+                searchLabel.textContent = 'Player Username:';
+                searchInput.placeholder = 'Enter username (e.g., John123)';
+                searchInput.value = '';
+            } else {
+                searchLabel.textContent = 'Player Tag:';
+                searchInput.placeholder = '#PLAYERTAG (e.g., #2PP)';
+                searchInput.value = '';
+            }
+
+            // Hide results
+            hideSearchResults();
+            hidePlayerInfo();
+            hideError();
+        }
 
         async function handleSearch(e) {
             e.preventDefault();
             
-            const playerTag = playerTagInput.value.trim();
-            if (!playerTag) {
-                showError('Please enter a player tag');
+            const searchValue = searchInput.value.trim();
+            if (!searchValue) {
+                showError('Please enter a search value');
                 return;
             }
 
-            // Format player tag - remove # if present, then add it back
-            const cleanTag = playerTag.replace('#', '');
-            await searchPlayer(cleanTag);
+            if (currentSearchMode === 'username') {
+                await searchByUsername(searchValue);
+            } else {
+                const cleanTag = searchValue.replace('#', '');
+                await searchPlayerByTag(cleanTag);
+            }
         }
 
-        async function searchPlayer(playerTag) {
+        async function searchByUsername(username) {
+            showLoading(true);
+            hideError();
+            hideSearchResults();
+            hidePlayerInfo();
+
+            try {
+                // Using RoyaleAPI search endpoint
+                const response = await fetch(`${SEARCH_API_BASE_URL}?name=${encodeURIComponent(username)}&limit=20`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('API access forbidden - please check API key configuration');
+                    } else if (response.status === 404) {
+                        throw new Error(`No players found with username "${username}"`);
+                    } else if (response.status === 429) {
+                        throw new Error('Too many requests. Please wait a moment and try again.');
+                    } else {
+                        throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+                    }
+                }
+
+                const searchData = await response.json();
+                
+                if (!searchData || searchData.length === 0) {
+                    throw new Error(`No players found with username "${username}"`);
+                }
+
+                displaySearchResults(searchData);
+
+            } catch (error) {
+                console.error('Error searching by username:', error);
+                if (error.message.includes('CORS') || error.message.includes('NetworkError')) {
+                    showError('Network error: Unable to connect to the API. Trying alternative method...');
+                    // Fallback: suggest manual tag search
+                    showError('Username search is currently unavailable. Please try using the Tag Search method instead.');
+                } else {
+                    showError(error.message);
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displaySearchResults(players) {
+            let html = '';
+            
+            players.forEach((player, index) => {
+                const arena = player.arena ? player.arena.name : 'Unknown Arena';
+                const trophies = player.trophies || 0;
+                
+                html += `
+                    <div class="player-result" onclick="selectPlayer('${player.tag}')">
+                        <div class="player-result-info">
+                            <div class="player-result-name">${escapeHtml(player.name)}</div>
+                            <div class="player-result-details">
+                                #${player.tag} • ${arena} • ${formatNumber(trophies)} 🏆
+                            </div>
+                        </div>
+                        <button class="select-btn" onclick="event.stopPropagation(); selectPlayer('${player.tag}')">
+                            Select
+                        </button>
+                    </div>
+                `;
+            });
+
+            playerListDiv.innerHTML = html;
+            searchResultsDiv.style.display = 'block';
+        }
+
+        async function selectPlayer(playerTag) {
+            await searchPlayerByTag(playerTag);
+            hideSearchResults();
+        }
+
+        async function searchPlayerByTag(playerTag) {
             showLoading(true);
             hideError();
             hidePlayerInfo();
 
             try {
-                // Use RoyaleAPI proxy service
-                const response = await fetch(`${PROXY_API_BASE_URL}%23${encodeURIComponent(playerTag)}`, {
+                const response = await fetch(`${PLAYER_API_BASE_URL}%23${encodeURIComponent(playerTag)}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${API_KEY}`,
@@ -389,7 +615,6 @@
 
         function displayPlayerInfo(player) {
             const arena = player.arena ? player.arena.name : 'Unknown';
-            const arenaId = player.arena ? player.arena.id : 'N/A';
             
             let clanSection = '';
             if (player.clan) {
@@ -540,16 +765,14 @@
             playerInfoDiv.style.display = 'none';
         }
 
+        function hideSearchResults() {
+            searchResultsDiv.style.display = 'none';
+        }
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-
-        // Enable CORS proxy if needed
-        function enableCorsProxy() {
-            // This function can be called if the direct API calls fail
-            console.log('Enabling CORS proxy for API requests');
         }
     </script>
 </body>
