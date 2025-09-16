@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash Royale Player Lookup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 40px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: end;
+            min-width: 120px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c33;
+            text-align: center;
+        }
+
+        .player-info {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e8ecf4;
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .player-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .player-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .api-note {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #1565c0;
+        }
+
+        .api-note strong {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+        }
+
+        .container {
+            margin: 10px;
+        }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👑 Clash Royale Player Lookup</h1>
+            <p>Search for player information using their player tag</p>
+        </div>
+        
+        <div class="search-section">
+            <div class="api-note">
+                <strong>Ready to Search!</strong>
+                Just enter a player tag below to look up their Clash Royale stats.
+                <br>Player tags can be found in-game in the player profile.
+            </div>
+
+            <form class="search-form" id="searchForm">
+                <div class="input-group">
+                    <label for="playerTag">Player Tag:</label>
+                    <input type="text" id="playerTag" placeholder="#PLAYERTAG" required>
+                </div>
+                <button type="submit" class="search-btn" id="searchBtn">Search Player</button>
+            </form>
+
+            <div id="loading" class="loading" style="display: none;">
+                <span class="spinner"></span>
+                Searching for player...
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+
+            <div id="playerInfo" class="player-info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const playerInfoDiv = document.getElementById('playerInfo');
+        const searchBtn = document.getElementById('searchBtn');
+
+        // Your API key - replace this with your actual API key
+        const apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImYxYjJkNDYzLTAyYjMtNDkxNS1hNWM3LTY0ZWJkZTU0YThiZSIsImlhdCI6MTc1Nzk5MzkyNywic3ViIjoiZGV2ZWxvcGVyL2JkNzhmN2M4LWQ0NDgtYTI3OS02MTk4LTJmNmI3NTU0ZGJmNiIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI5Ny45NC45LjIwMSJdLCJ0eXBlIjoiY2xpZW50In1dfQ.GB2eqdlfqhbMYe1GaADydHXiS0CjUYr120ogphuQg6PuC_66kwAAcAyCdfmORFiy63fdjSMhTwptvSIxsZgnZw';
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const playerTag = document.getElementById('playerTag').value.trim();
+
+            if (!playerTag) {
+                showError('Please enter a player tag');
+                return;
+            }
+
+            if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+                showError('API key not configured. Please contact the site administrator.');
+                return;
+            }
+
+            // Format player tag
+            const formattedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
+            
+            await searchPlayer(formattedTag);
+        });
+
+        async function searchPlayer(playerTag) {
+            showLoading(true);
+            hideError();
+            hidePlayerInfo();
+
+            try {
+                // Clash Royale API endpoint
+                const url = `https://api.clashroyale.com/v1/players/%23${encodeURIComponent(playerTag)}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Invalid API key or IP not authorized');
+                    } else if (response.status === 404) {
+                        throw new Error('Player not found');
+                    } else {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+                }
+
+                const playerData = await response.json();
+                displayPlayerInfo(playerData);
+
+            } catch (error) {
+                console.error('Error fetching player data:', error);
+                showError(error.message || 'Failed to fetch player data. Please check your API key and player tag.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayPlayerInfo(player) {
+            const html = `
+                <div class="player-header">
+                    <div>
+                        <h2 class="player-name">${escapeHtml(player.name)}</h2>
+                        <span class="player-tag">#${player.tag}</span>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${player.expLevel || 'N/A'}</div>
+                        <div class="stat-label">Experience Level</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.trophies || 'N/A'}</div>
+                        <div class="stat-label">Trophies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.bestTrophies || 'N/A'}</div>
+                        <div class="stat-label">Best Trophies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.wins || 'N/A'}</div>
+                        <div class="stat-label">Wins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.losses || 'N/A'}</div>
+                        <div class="stat-label">Losses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.arenaID || 'N/A'}</div>
+                        <div class="stat-label">Arena</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.starPoints || 'N/A'}</div>
+                        <div class="stat-label">Star Points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.donations || 'N/A'}</div>
+                        <div class="stat-label">Donations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.donationsReceived || 'N/A'}</div>
+                        <div class="stat-label">Donations Received</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.totalDonations || 'N/A'}</div>
+                        <div class="stat-label">Total Donations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.warDayWins || 'N/A'}</div>
+                        <div class="stat-label">War Day Wins</div>
+                    </div>
+                    ${player.clan ? `
+                    <div class="stat-card">
+                        <div class="stat-value">${escapeHtml(player.clan.name)}</div>
+                        <div class="stat-label">Clan</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${player.clan.role || 'N/A'}</div>
+                        <div class="stat-label">Clan Role</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            playerInfoDiv.innerHTML = html;
+            playerInfoDiv.style.display = 'block';
+        }
+
+        function showLoading(show) {
+            loadingDiv.style.display = show ? 'block' : 'none';
+            searchBtn.disabled = show;
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            errorDiv.style.display = 'none';
+        }
+
+        function hidePlayerInfo() {
+            playerInfoDiv.style.display = 'none';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+
+    </script>
+</body>
+</html>
