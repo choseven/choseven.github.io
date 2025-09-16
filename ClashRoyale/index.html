@@ -59,100 +59,9 @@
             align-items: end;
         }
 
-        .suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 0 0 12px 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .suggestion-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .suggestion-item:hover {
-            background: #f8f9fa;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .suggestion-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .suggestion-tag {
-            color: #667eea;
-            font-size: 0.9rem;
-        }
-
-        .search-history {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e8ecf4;
-        }
-
-        .search-history h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .history-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .history-item {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 1px solid #dee2e6;
-            border-radius: 20px;
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-        }
-
-        .history-item:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .clear-history-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .clear-history-btn:hover {
-            background: #c82333;
-        }
-
         .input-group {
-            position: relative;
+            flex: 1;
+            min-width: 300px;
         }
 
         label {
@@ -380,18 +289,11 @@
 
             <form class="search-form" id="searchForm">
                 <div class="input-group">
-                    <label for="playerTag">Player Tag or Search History:</label>
-                    <input type="text" id="playerTag" placeholder="#PLAYERTAG or player name from history" required autocomplete="off">
-                    <div id="suggestions" class="suggestions" style="display: none;"></div>
+                    <label for="playerTag">Player Tag:</label>
+                    <input type="text" id="playerTag" placeholder="#PLAYERTAG (e.g., #2PP)" required>
                 </div>
                 <button type="submit" class="search-btn" id="searchBtn">🔍 Search Player</button>
             </form>
-
-            <div id="searchHistory" class="search-history" style="display: none;">
-                <h3>🕒 Recent Searches</h3>
-                <div id="historyList" class="history-list"></div>
-                <button id="clearHistory" class="clear-history-btn">Clear History</button>
-            </div>
 
             <div id="loading" class="loading" style="display: none;">
                 <span class="spinner"></span>
@@ -418,96 +320,24 @@
         const playerInfoDiv = document.getElementById('playerInfo');
         const searchBtn = document.getElementById('searchBtn');
         const playerTagInput = document.getElementById('playerTag');
-        const suggestionsDiv = document.getElementById('suggestions');
-        const searchHistoryDiv = document.getElementById('searchHistory');
-        const historyListDiv = document.getElementById('historyList');
-        const clearHistoryBtn = document.getElementById('clearHistory');
-
-        // Search history storage
-        let searchHistory = [];
 
         // Event Listeners
         searchForm.addEventListener('submit', handleSearch);
-        playerTagInput.addEventListener('input', handleInput);
-        playerTagInput.addEventListener('focus', showSuggestions);
-        playerTagInput.addEventListener('blur', hideSuggestions);
-        clearHistoryBtn.addEventListener('click', clearSearchHistory);
         
-        // Load search history on page load
-        loadSearchHistory();
-
-        function handleInput(e) {
-            const value = e.target.value.trim().toLowerCase();
-            if (value.length > 0 && !value.startsWith('#')) {
-                showFilteredSuggestions(value);
-            } else {
-                hideSuggestions();
+        // Add some example tags for testing
+        playerTagInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = '#2PP (example)';
             }
-        }
-
-        function showFilteredSuggestions(searchTerm) {
-            const filtered = searchHistory.filter(item => 
-                item.name.toLowerCase().includes(searchTerm)
-            );
-            
-            if (filtered.length > 0) {
-                displaySuggestions(filtered);
-            } else {
-                hideSuggestions();
-            }
-        }
-
-        function displaySuggestions(items) {
-            suggestionsDiv.innerHTML = items.map(item => `
-                <div class="suggestion-item" data-tag="${item.tag}">
-                    <span class="suggestion-name">${escapeHtml(item.name)}</span>
-                    <span class="suggestion-tag">#${item.tag}</span>
-                </div>
-            `).join('');
-            
-            // Add click listeners to suggestions
-            suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
-                item.addEventListener('mousedown', (e) => {
-                    e.preventDefault(); // Prevent blur event
-                    const tag = e.currentTarget.dataset.tag;
-                    playerTagInput.value = `#${tag}`;
-                    hideSuggestions();
-                    handleSearch(e);
-                });
-            });
-            
-            suggestionsDiv.style.display = 'block';
-        }
-
-        function showSuggestions() {
-            if (searchHistory.length > 0 && !playerTagInput.value.startsWith('#')) {
-                displaySuggestions(searchHistory.slice(-5)); // Show last 5
-            }
-        }
-
-        function hideSuggestions() {
-            setTimeout(() => {
-                suggestionsDiv.style.display = 'none';
-            }, 150);
-        }
+        });
 
         async function handleSearch(e) {
             e.preventDefault();
             
-            let playerTag = playerTagInput.value.trim();
+            const playerTag = playerTagInput.value.trim();
             if (!playerTag) {
-                showError('Please enter a player tag or select from history');
+                showError('Please enter a player tag');
                 return;
-            }
-
-            // Check if it's a suggestion from history
-            const historyItem = searchHistory.find(item => 
-                item.name.toLowerCase() === playerTag.toLowerCase()
-            );
-            
-            if (historyItem) {
-                playerTag = `#${historyItem.tag}`;
-                playerTagInput.value = playerTag;
             }
 
             // Format player tag - remove # if present, then add it back
@@ -543,10 +373,6 @@
                 }
 
                 const playerData = await response.json();
-                
-                // Add to search history
-                addToSearchHistory(playerData.name, playerTag);
-                
                 displayPlayerInfo(playerData);
 
             } catch (error) {
@@ -718,66 +544,6 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-
-        // Search History Functions
-        function addToSearchHistory(playerName, playerTag) {
-            // Remove existing entry if it exists
-            searchHistory = searchHistory.filter(item => item.tag !== playerTag);
-            
-            // Add new entry to the beginning
-            searchHistory.unshift({
-                name: playerName,
-                tag: playerTag,
-                timestamp: Date.now()
-            });
-            
-            // Keep only last 10 searches
-            if (searchHistory.length > 10) {
-                searchHistory = searchHistory.slice(0, 10);
-            }
-            
-            saveSearchHistory();
-            displaySearchHistory();
-        }
-
-        function loadSearchHistory() {
-            // Note: Using in-memory storage instead of localStorage as per requirements
-            displaySearchHistory();
-        }
-
-        function saveSearchHistory() {
-            // Note: Using in-memory storage instead of localStorage as per requirements
-            // In a real implementation, you'd save to localStorage here
-        }
-
-        function displaySearchHistory() {
-            if (searchHistory.length === 0) {
-                searchHistoryDiv.style.display = 'none';
-                return;
-            }
-
-            historyListDiv.innerHTML = searchHistory.map(item => `
-                <div class="history-item" data-tag="${item.tag}">
-                    ${escapeHtml(item.name)} (#${item.tag})
-                </div>
-            `).join('');
-
-            // Add click listeners to history items
-            historyListDiv.querySelectorAll('.history-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const tag = item.dataset.tag;
-                    playerTagInput.value = `#${tag}`;
-                    handleSearch({ preventDefault: () => {} });
-                });
-            });
-
-            searchHistoryDiv.style.display = 'block';
-        }
-
-        function clearSearchHistory() {
-            searchHistory = [];
-            searchHistoryDiv.style.display = 'none';
         }
 
         // Enable CORS proxy if needed
