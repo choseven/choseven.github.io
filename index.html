@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+.group-button {
+      position: relative;
+    }<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -9,10 +11,10 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       height: 100%;
       cursor: default;
-      background: #121212;
+      background: #0a0a0a;
       color: white;
     }
 
@@ -24,15 +26,22 @@
       width: 100vw;
       height: 100vh;
       background: radial-gradient(
-        circle at 60% 50%,
-        rgba(255, 215, 0, 0.25) 0%,
-        rgba(255, 215, 0, 0.15) 30%,
-        rgba(255, 215, 0, 0.07) 60%,
-        rgba(255, 215, 0, 0) 100%
+        ellipse at 70% 30%,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(240, 240, 240, 0.1) 25%,
+        rgba(200, 200, 200, 0.08) 50%,
+        rgba(150, 150, 150, 0.05) 75%,
+        rgba(0, 0, 0, 0) 100%
       );
-      filter: blur(140px);
-      z-index: -0.5;
+      filter: blur(120px);
+      z-index: -1;
       pointer-events: none;
+      animation: gradientShift 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes gradientShift {
+      0% { transform: translateX(-20px) translateY(-10px) scale(1); }
+      100% { transform: translateX(20px) translateY(10px) scale(1.1); }
     }
 
     canvas#bg {
@@ -41,68 +50,193 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 9999; /* bring to front */
-      pointer-events: none; /* allow clicks through */
+      z-index: 1;
+      pointer-events: none;
     }
 
-    body {
-      display: flex;
-      flex-direction: row;
+    .main-container {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-areas: 
+        "title"
+        "buttons";
+      grid-template-rows: 1fr 2fr;
       height: 100vh;
+      padding: 2vh;
+      box-sizing: border-box;
+      gap: 2vh;
+    }
+
+    @media (min-width: 768px) and (min-height: 600px) {
+      .main-container {
+        grid-template-areas: "buttons title";
+        grid-template-columns: 1.2fr 1fr;
+        grid-template-rows: 1fr;
+      }
     }
 
     .title {
-      flex: 1;
+      grid-area: title;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 6em;
-      text-shadow: 0 0 30px #ffd700;
-      padding: 20px;
+      font-size: clamp(2rem, 8vw, 6rem);
+      font-weight: 900;
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.3),
+        0 0 20px rgba(255, 255, 255, 0.2);
+      background: linear-gradient(45deg, #ffffff, #f0f0f0, #ffffff);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textGlow 3s ease-in-out infinite alternate;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    @keyframes textGlow {
+      0% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+      }
+      100% { 
+        background-position: 100% 50%;
+        filter: brightness(1.2);
+      }
     }
 
     .button-container {
-      flex: 1;
+      grid-area: buttons;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      gap: 20px;
-      position: relative;
+      gap: clamp(0.8rem, 2vh, 1.5rem);
+      padding: 2vh;
+      max-height: 100%;
+      overflow-y: auto;
     }
 
     .game-button, .group-button {
-      background-color: #1e1e1e;
-      border: 2px solid #ffd700;
+      background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.9) 0%, 
+        rgba(45, 45, 45, 0.8) 50%, 
+        rgba(30, 30, 30, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid transparent;
+      background-clip: padding-box;
       color: #fff;
-      padding: 20px 40px;
-      font-size: 2em;
-      font-weight: bold;
-      border-radius: 40px;
+      padding: clamp(0.8rem, 2.5vh, 1.5rem) clamp(1.5rem, 4vw, 3rem);
+      font-size: clamp(1rem, 2.5vw, 1.8rem);
+      font-weight: 600;
+      border-radius: 8px;
       text-decoration: none;
-      transition: all 0.3s ease;
-      width: 80%;
-      box-shadow: 0 0 10px #ffd700;
-      text-shadow: 0 0 12px #ffd700;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      width: min(90%, 400px);
+      max-width: 400px;
+      box-shadow: 
+        0 8px 32px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
       text-align: center;
       position: relative;
       cursor: pointer;
       user-select: none;
+      overflow: hidden;
+    }
+
+    .game-button::before, .group-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.15), 
+        transparent);
+      transition: left 0.6s ease;
+    }
+
+    .game-button:hover::before, .group-button:hover::before {
+      left: 100%;
     }
 
     .game-button:hover, .group-button:hover {
-      transform: scale(1.05);
-      background-color: #ffd700;
-      box-shadow: 0 0 20px #ffd700;
-      color: #121212;
+      transform: translateY(-3px) scale(1.02);
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        rgba(255, 255, 255, 0.15) 100%);
+      box-shadow: 
+        0 15px 40px rgba(255, 255, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    .game-button:active, .group-button:active {
+      transform: translateY(-1px) scale(0.98);
+      transition: all 0.1s ease;
+    }
+
+    .featured-button {
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(240, 240, 240, 0.15) 50%, 
+        rgba(255, 255, 255, 0.2) 100%);
+      box-shadow: 
+        0 8px 32px rgba(255, 255, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      animation: featuredPulse 3s ease-in-out infinite;
+    }
+
+    .featured-button:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.3) 0%, 
+        rgba(240, 240, 240, 0.2) 50%, 
+        rgba(255, 255, 255, 0.3) 100%);
+      box-shadow: 
+        0 15px 40px rgba(255, 255, 255, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes featuredPulse {
+      0%, 100% { 
+        box-shadow: 
+          0 8px 32px rgba(255, 255, 255, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      50% { 
+        box-shadow: 
+          0 12px 40px rgba(255, 255, 255, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .group-button {
+      position: relative;
     }
 
     .group-button span {
       position: absolute;
-      right: 30px;
-      font-size: 1.3em;
+      right: clamp(1rem, 3vw, 2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5em;
+      font-weight: bold;
       user-select: none;
+      transition: transform 0.3s ease;
+    }
+
+    .group-button.expanded span {
+      transform: translateY(-50%) rotate(45deg);
     }
 
     .scuffed-group {
@@ -111,37 +245,54 @@
       height: 0;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      width: 80%;
+      gap: clamp(0.5rem, 1.5vh, 1rem);
+      width: min(90%, 400px);
+      max-width: 400px;
       align-items: center;
     }
 
     .scuffed-group.reveal {
-      animation: groupExpand 0.4s ease forwards;
+      animation: groupExpand 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     }
 
     .scuffed-group.collapse {
-      animation: groupCollapse 0.4s ease forwards;
+      animation: groupCollapse 0.4s ease-in forwards;
     }
 
-    .scuffed-group.reveal a {
-      animation: groupItemReveal 0.4s ease forwards;
+    .scuffed-group.reveal .game-button {
+      animation: groupItemReveal 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       opacity: 0;
-      transform: translateY(-20px) scale(0.9);
+      transform: translateY(-30px) scale(0.8);
     }
 
-    .scuffed-group.reveal a:nth-child(1) { animation-delay: 0.05s; }
-    .scuffed-group.reveal a:nth-child(2) { animation-delay: 0.15s; }
-    .scuffed-group.reveal a:nth-child(3) { animation-delay: 0.25s; }
+    .scuffed-group.reveal .game-button:nth-child(1) { animation-delay: 0.1s; }
+    .scuffed-group.reveal .game-button:nth-child(2) { animation-delay: 0.2s; }
+    .scuffed-group.reveal .game-button:nth-child(3) { animation-delay: 0.3s; }
 
     @keyframes groupExpand {
-      from { height: 0; visibility: visible; }
-      to { height: 300px; visibility: visible; }
+      from { 
+        height: 0; 
+        visibility: visible; 
+        opacity: 0;
+      }
+      to { 
+        height: auto; 
+        visibility: visible; 
+        opacity: 1;
+      }
     }
 
     @keyframes groupCollapse {
-      from { height: 300px; visibility: visible; }
-      to { height: 0; visibility: hidden; }
+      from { 
+        height: auto; 
+        visibility: visible; 
+        opacity: 1;
+      }
+      to { 
+        height: 0; 
+        visibility: hidden; 
+        opacity: 0;
+      }
     }
 
     @keyframes groupItemReveal {
@@ -150,65 +301,54 @@
         transform: translateY(0) scale(1);
       }
     }
+
+    /* Mobile optimizations */
+    @media (max-width: 767px) {
+      .title {
+        padding: 1rem;
+      }
+      
+      .button-container {
+        padding: 1rem;
+      }
+      
+      .main-container {
+        padding: 1vh;
+        gap: 1vh;
+      }
+    }
+
+    /* High DPI displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .title {
+        text-shadow: 
+          0 0 5px rgba(255, 255, 255, 0.3),
+          0 0 10px rgba(255, 255, 255, 0.2);
+      }
+    }
   </style>
 </head>
 <body>
   <canvas id="bg"></canvas>
 
-  <div class="button-container">
-    <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
-    <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars</a>
-    <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
-
-    <div class="group-button" onclick="toggleGroup()">Scuffed<span id="group-toggle">+</span></div>
-    <div class="scuffed-group" id="scuffed-group">
-      <a href="https://Choseven.github.io/RhythmScuffed" class="game-button">Rhythm Scuffed</a>
-      <a href="https://Choseven.github.io/Keys" class="game-button">Keys</a>
-      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="game-button">Douglas</a>
+  <div class="main-container">
+    <div class="button-container">
+      <a href="https://choseven.github.io/BlockBlast" class="game-button featured-button">Block Blast!</a>
+      <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
+      <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
+      <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars <small style="opacity: 0.7; font-size: 0.7em;">(work in progress)</small></a>
     </div>
+
+    <div class="title">Select Your Game</div>
   </div>
 
-  <div class="title">Select Your Game</div>
-
   <script>
-    const group = document.getElementById('scuffed-group');
-    const toggleSymbol = document.getElementById('group-toggle');
-    let expanded = false;
-
-    function toggleGroup() {
-      expanded = !expanded;
-      toggleSymbol.textContent = expanded ? '−' : '+';
-
-      if (expanded) {
-        group.classList.remove('collapse');
-        group.style.visibility = 'visible';
-        group.classList.add('reveal');
-
-        [...group.children].forEach(btn => {
-          btn.style.animation = '';
-          void btn.offsetWidth;
-          btn.style.animation = 'groupItemReveal 0.4s ease forwards';
-        });
-      } else {
-        group.classList.remove('reveal');
-        group.classList.add('collapse');
-
-        [...group.children].forEach(btn => {
-          btn.style.animation = 'groupItemReveal 0.2s ease reverse';
-        });
-
-        setTimeout(() => {
-          group.classList.remove('collapse');
-          group.style.visibility = 'hidden';
-        }, 400);
-      }
-    }
-
-    // Particle background
+    // Enhanced particle background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
     let particles = [];
     let mouse = { x: -9999, y: -9999 };
+    let animationId;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -216,55 +356,102 @@
     }
 
     function createParticles(count) {
+      particles = [];
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.2,
-          speedY: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.5 + 0.3
+          radius: Math.random() * 3 + 0.5,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.6 + 0.2,
+          color: 'rgba(255, 255, 255',
+          pulseSpeed: Math.random() * 0.02 + 0.01,
+          pulsePhase: Math.random() * Math.PI * 2
         });
       }
     }
 
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of particles) {
+      
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        
+        // Mouse interaction
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const force = dist < 100 ? (100 - dist) / 100 : 0;
+        const force = dist < 120 ? (120 - dist) / 120 : 0;
 
         if (force > 0) {
           const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 1.5;
-          p.y += Math.sin(angle) * force * 1.5;
+          p.x += Math.cos(angle) * force * 2;
+          p.y += Math.sin(angle) * force * 2;
         }
 
+        // Normal movement
         p.x += p.speedX;
         p.y += p.speedY;
 
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        // Wrap around edges
+        if (p.x < -10) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -10;
+        if (p.y < -10) p.y = canvas.height + 10;
+        if (p.y > canvas.height + 10) p.y = -10;
 
+        // Pulsing effect
+        p.pulsePhase += p.pulseSpeed;
+        const pulseFactor = Math.sin(p.pulsePhase) * 0.3 + 0.7;
+        const currentOpacity = p.opacity * pulseFactor;
+
+        // Draw particle
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.7)';
-        ctx.shadowBlur = 8;
+        ctx.arc(p.x, p.y, p.radius * pulseFactor, 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color}, ${currentOpacity})`;
+        ctx.shadowColor = `${p.color}, 0.8)`;
+        ctx.shadowBlur = 15 * pulseFactor;
         ctx.fill();
+
+        // Connect nearby particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx2 = p.x - p2.x;
+          const dy2 = p.y - p2.y;
+          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+          
+          if (dist2 < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${(100 - dist2) / 500})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
       }
-      requestAnimationFrame(drawParticles);
+      
+      animationId = requestAnimationFrame(drawParticles);
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    function handleResize() {
+      resizeCanvas();
+      createParticles(Math.min(120, Math.max(60, Math.floor((canvas.width * canvas.height) / 8000))));
+    }
+
+    window.addEventListener('resize', handleResize);
 
     canvas.addEventListener('mousemove', e => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
     });
 
     canvas.addEventListener('mouseleave', () => {
@@ -272,9 +459,21 @@
       mouse.y = -9999;
     });
 
-    resizeCanvas();
-    createParticles(150);
+    canvas.addEventListener('touchend', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    // Initialize
+    handleResize();
     drawParticles();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    });
   </script>
 </body>
 </html>
