@@ -218,6 +218,53 @@
       }
     }
 
+    /* Undertale-themed buttons */
+    .undertale-red {
+      background: linear-gradient(135deg, 
+        rgba(255, 50, 50, 0.15) 0%, 
+        rgba(255, 30, 30, 0.1) 50%, 
+        rgba(255, 50, 50, 0.15) 100%);
+      box-shadow: 
+        0 8px 32px rgba(255, 50, 50, 0.15),
+        inset 0 1px 0 rgba(255, 100, 100, 0.2);
+      border: 2px solid rgba(255, 80, 80, 0.3);
+    }
+
+    .undertale-red:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 60, 60, 0.25) 0%, 
+        rgba(255, 40, 40, 0.2) 50%, 
+        rgba(255, 60, 60, 0.25) 100%);
+      box-shadow: 
+        0 15px 40px rgba(255, 60, 60, 0.25),
+        inset 0 1px 0 rgba(255, 120, 120, 0.3);
+      border: 2px solid rgba(255, 100, 100, 0.5);
+      text-shadow: 0 0 15px rgba(255, 80, 80, 0.6);
+    }
+
+    .undertale-yellow {
+      background: linear-gradient(135deg, 
+        rgba(255, 220, 50, 0.15) 0%, 
+        rgba(255, 200, 30, 0.1) 50%, 
+        rgba(255, 220, 50, 0.15) 100%);
+      box-shadow: 
+        0 8px 32px rgba(255, 220, 50, 0.15),
+        inset 0 1px 0 rgba(255, 230, 100, 0.2);
+      border: 2px solid rgba(255, 220, 80, 0.3);
+    }
+
+    .undertale-yellow:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 230, 60, 0.25) 0%, 
+        rgba(255, 210, 40, 0.2) 50%, 
+        rgba(255, 230, 60, 0.25) 100%);
+      box-shadow: 
+        0 15px 40px rgba(255, 230, 60, 0.25),
+        inset 0 1px 0 rgba(255, 240, 120, 0.3);
+      border: 2px solid rgba(255, 230, 100, 0.5);
+      text-shadow: 0 0 15px rgba(255, 220, 80, 0.6);
+    }
+
     .group-button {
       position: relative;
     }
@@ -237,9 +284,9 @@
       transform: translateY(-50%) rotate(45deg);
     }
 
-    .scuffed-group {
+    .scuffed-group, .undertale-group {
       visibility: hidden;
-      overflow: hidden;
+      overflow: visible;
       height: 0;
       display: flex;
       flex-direction: column;
@@ -247,57 +294,41 @@
       width: min(90%, 400px);
       max-width: 400px;
       align-items: center;
+      padding: 0 1rem;
+      transition: all 0.3s ease;
     }
 
-    .scuffed-group.reveal {
-      animation: groupExpand 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    .scuffed-group.reveal, .undertale-group.reveal {
+      visibility: visible;
+      height: auto;
+      opacity: 1;
     }
 
-    .scuffed-group.collapse {
-      animation: groupCollapse 0.4s ease-in forwards;
-    }
-
-    .scuffed-group.reveal .game-button {
-      animation: groupItemReveal 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    .scuffed-group.collapse, .undertale-group.collapse {
+      visibility: hidden;
+      height: 0;
       opacity: 0;
-      transform: translateY(-30px) scale(0.8);
     }
 
-    .scuffed-group.reveal .game-button:nth-child(1) { animation-delay: 0.1s; }
-    .scuffed-group.reveal .game-button:nth-child(2) { animation-delay: 0.2s; }
-    .scuffed-group.reveal .game-button:nth-child(3) { animation-delay: 0.3s; }
-
-    @keyframes groupExpand {
-      from { 
-        height: 0; 
-        visibility: visible; 
-        opacity: 0;
-      }
-      to { 
-        height: auto; 
-        visibility: visible; 
-        opacity: 1;
-      }
+    .scuffed-group .game-button, .undertale-group .game-button {
+      opacity: 0;
+      transform: translateY(-15px);
+      transition: all 0.3s ease;
     }
 
-    @keyframes groupCollapse {
-      from { 
-        height: auto; 
-        visibility: visible; 
-        opacity: 1;
-      }
-      to { 
-        height: 0; 
-        visibility: hidden; 
-        opacity: 0;
-      }
+    .scuffed-group.reveal .game-button, .undertale-group.reveal .game-button {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    @keyframes groupItemReveal {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+    .scuffed-group.reveal .game-button:nth-child(1), .undertale-group.reveal .game-button:nth-child(1) { 
+      transition-delay: 0.1s; 
+    }
+    .scuffed-group.reveal .game-button:nth-child(2), .undertale-group.reveal .game-button:nth-child(2) { 
+      transition-delay: 0.15s; 
+    }
+    .scuffed-group.reveal .game-button:nth-child(3), .undertale-group.reveal .game-button:nth-child(3) { 
+      transition-delay: 0.2s; 
     }
 
     /* Mobile optimizations */
@@ -335,12 +366,44 @@
       <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
       <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
       <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars <small style="opacity: 0.7; font-size: 0.7em;">(work in progress)</small></a>
+      
+      <!-- Undertale Section -->
+      <div class="group-button" id="undertaleToggle" onclick="toggleUndertaleGroup()">
+        Undertale <small style="opacity: 0.7; font-size: 0.7em;">Ported By Genizy</small>
+        <span>+</span>
+      </div>
+      <div class="undertale-group" id="undertaleGroup">
+        <a href="https://choseven.github.io/Undertale" class="game-button undertale-red">Undertale</a>
+        <a href="https://choseven.github.io/UndertaleYellow" class="game-button undertale-yellow">Undertale Yellow</a>
+      </div>
     </div>
 
     <div class="title">Select Your Game</div>
   </div>
 
   <script>
+    // Undertale group toggle functionality
+    let undertaleExpanded = false;
+
+    function toggleUndertaleGroup() {
+      const toggle = document.getElementById('undertaleToggle');
+      const group = document.getElementById('undertaleGroup');
+      
+      if (undertaleExpanded) {
+        // Collapse
+        group.classList.remove('reveal');
+        group.classList.add('collapse');
+        toggle.classList.remove('expanded');
+        undertaleExpanded = false;
+      } else {
+        // Expand
+        group.classList.remove('collapse');
+        group.classList.add('reveal');
+        toggle.classList.add('expanded');
+        undertaleExpanded = true;
+      }
+    }
+
     // Enhanced particle background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
