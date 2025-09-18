@@ -55,31 +55,30 @@
     .main-container {
       position: relative;
       z-index: 2;
-      display: grid;
-      grid-template-areas: 
-        "title"
-        "buttons";
-      grid-template-rows: 1fr 2fr;
+      display: flex;
+      flex-direction: column;
       height: 100vh;
-      padding: 2vh;
+      padding: 1rem;
       box-sizing: border-box;
-      gap: 2vh;
     }
 
+    /* Mobile-first approach */
     @media (min-width: 768px) and (min-height: 600px) {
       .main-container {
+        display: grid;
         grid-template-areas: "buttons title";
         grid-template-columns: 1.2fr 1fr;
         grid-template-rows: 1fr;
+        gap: 2rem;
+        padding: 2vh;
       }
     }
 
     .title {
-      grid-area: title;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(2rem, 8vw, 6rem);
+      font-size: clamp(1.8rem, 6vw, 4rem);
       font-weight: 900;
       text-shadow: 
         0 0 10px rgba(255, 255, 255, 0.3),
@@ -92,6 +91,16 @@
       animation: textGlow 3s ease-in-out infinite alternate;
       text-align: center;
       line-height: 1.2;
+      padding: 1rem;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) and (min-height: 600px) {
+      .title {
+        grid-area: title;
+        font-size: clamp(2rem, 5vw, 6rem);
+        padding: 2rem;
+      }
     }
 
     @keyframes textGlow {
@@ -106,17 +115,27 @@
     }
 
     .button-container {
-      grid-area: buttons;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: clamp(0.8rem, 2vh, 1.5rem);
-      padding: 2vh;
-      max-height: 100%;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      flex: 1;
       overflow-y: auto;
+      min-height: 0;
     }
 
+    @media (min-width: 768px) and (min-height: 600px) {
+      .button-container {
+        grid-area: buttons;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 2vh;
+      }
+    }
+
+    /* Improved button styles with consistent sizing */
     .game-button, .group-button {
       background: linear-gradient(135deg, 
         rgba(30, 30, 30, 0.9) 0%, 
@@ -126,14 +145,15 @@
       border: 2px solid transparent;
       background-clip: padding-box;
       color: #fff;
-      padding: clamp(0.8rem, 2.5vh, 1.5rem) clamp(1.5rem, 4vw, 3rem);
-      font-size: clamp(1rem, 2.5vw, 1.8rem);
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
       font-weight: 600;
       border-radius: 8px;
       text-decoration: none;
       transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      width: min(90%, 400px);
-      max-width: 400px;
+      width: 100%;
+      max-width: 350px;
+      min-height: 48px;
       box-shadow: 
         0 8px 32px rgba(255, 255, 255, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -142,6 +162,35 @@
       cursor: pointer;
       user-select: none;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    /* Responsive font sizing */
+    @media (min-width: 480px) {
+      .game-button, .group-button {
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        max-width: 380px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .game-button, .group-button {
+        font-size: 1.25rem;
+        padding: 1.125rem 2.5rem;
+        max-width: 400px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .game-button, .group-button {
+        font-size: 1.4rem;
+        padding: 1.25rem 3rem;
+      }
     }
 
     .game-button::before, .group-button::before {
@@ -265,37 +314,78 @@
       text-shadow: 0 0 15px rgba(255, 220, 80, 0.6);
     }
 
-    .group-button {
-      position: relative;
+    /* Button content structure for consistent text styling */
+    .button-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
     }
 
-    .group-button span {
+    .main-text {
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* Improved group button with better text positioning */
+    .group-button {
+      position: relative;
+      justify-content: center;
+    }
+
+    .group-button .button-content {
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .group-button .expand-icon {
       position: absolute;
-      right: clamp(1rem, 3vw, 2rem);
+      right: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 1.5em;
+      font-size: 1.2em;
       font-weight: bold;
       user-select: none;
       transition: transform 0.3s ease;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .group-button.expanded span {
+    .group-button.expanded .expand-icon {
       transform: translateY(-50%) rotate(45deg);
     }
 
     .scuffed-group, .undertale-group {
       visibility: hidden;
-      overflow: visible;
+      overflow: hidden;
       height: 0;
       display: flex;
       flex-direction: column;
-      gap: clamp(0.5rem, 1.5vh, 1rem);
-      width: min(90%, 400px);
-      max-width: 400px;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 350px;
       align-items: center;
-      padding: 0 1rem;
       transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    @media (min-width: 480px) {
+      .scuffed-group, .undertale-group {
+        max-width: 380px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .scuffed-group, .undertale-group {
+        gap: 1rem;
+        max-width: 400px;
+      }
     }
 
     .scuffed-group.reveal, .undertale-group.reveal {
@@ -331,19 +421,54 @@
       transition-delay: 0.2s; 
     }
 
-    /* Mobile optimizations */
-    @media (max-width: 767px) {
+    /* Small text styling - consistent for all descriptions */
+    .small-text {
+      opacity: 0.7;
+      font-size: 0.7em;
+      font-weight: 400;
+      margin-top: 0.25rem;
+      line-height: 1.1;
+    }
+
+    @media (max-width: 479px) {
+      .small-text {
+        font-size: 0.65em;
+        margin-top: 0.2rem;
+      }
+    }
+
+    /* Very small screen optimizations */
+    @media (max-height: 600px) {
       .title {
-        padding: 1rem;
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+        padding: 0.5rem;
       }
       
       .button-container {
-        padding: 1rem;
+        gap: 0.5rem;
+        padding: 0.25rem;
+      }
+      
+      .game-button, .group-button {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+        min-height: 44px;
       }
       
       .main-container {
-        padding: 1vh;
-        gap: 1vh;
+        padding: 0.5rem;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .game-button, .group-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        max-width: 280px;
+      }
+      
+      .title {
+        font-size: clamp(1.4rem, 5vw, 2rem);
       }
     }
 
@@ -361,24 +486,32 @@
   <canvas id="bg"></canvas>
 
   <div class="main-container">
+    <div class="title">Select Your Game</div>
+    
     <div class="button-container">
       <a href="https://choseven.github.io/BlockBlast" class="game-button featured-button">Block Blast!</a>
       <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
       <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
-      <a href="https://Choseven.github.io/RhythmBars" class="game-button">Rhythm Bars <small style="opacity: 0.7; font-size: 0.7em;">(work in progress)</small></a>
+      <a href="https://Choseven.github.io/RhythmBars" class="game-button">
+        <div class="button-content">
+          <div class="main-text">Rhythm Bars</div>
+          <div class="small-text">(work in progress)</div>
+        </div>
+      </a>
       
       <!-- Undertale Section -->
       <div class="group-button" id="undertaleToggle" onclick="toggleUndertaleGroup()">
-        Undertale <small style="opacity: 0.7; font-size: 0.7em;">Ported By Genizy</small>
-        <span>+</span>
+        <div class="button-content">
+          <div class="main-text">Undertale</div>
+          <div class="small-text">Ported By Genizy</div>
+        </div>
+        <span class="expand-icon">+</span>
       </div>
       <div class="undertale-group" id="undertaleGroup">
         <a href="https://choseven.github.io/Undertale" class="game-button undertale-red">Undertale</a>
         <a href="https://choseven.github.io/UndertaleYellow" class="game-button undertale-yellow">Undertale Yellow</a>
       </div>
     </div>
-
-    <div class="title">Select Your Game</div>
   </div>
 
   <script>
