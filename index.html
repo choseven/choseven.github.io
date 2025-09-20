@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Game Select</title>
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100%;
-      cursor: default;
-      background: #0a0a0a;
-      color: white;
+      box-sizing: border-box;
     }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0a0a;
+      color: white;
+      cursor: default;
+    }
+
+    /* Animated background gradient */
     body::before {
       content: '';
       position: fixed;
@@ -25,15 +30,14 @@
       height: 100vh;
       background: radial-gradient(
         ellipse at 70% 30%,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(240, 240, 240, 0.1) 25%,
-        rgba(200, 200, 200, 0.08) 50%,
-        rgba(150, 150, 150, 0.05) 75%,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(240, 240, 240, 0.08) 25%,
+        rgba(200, 200, 200, 0.06) 50%,
+        rgba(150, 150, 150, 0.04) 75%,
         rgba(0, 0, 0, 0) 100%
       );
       filter: blur(120px);
       z-index: -1;
-      pointer-events: none;
       animation: gradientShift 8s ease-in-out infinite alternate;
     }
 
@@ -42,7 +46,8 @@
       100% { transform: translateX(20px) translateY(10px) scale(1.1); }
     }
 
-    canvas#bg {
+    /* Background canvas for particles */
+    #bg {
       position: fixed;
       top: 0;
       left: 0;
@@ -52,34 +57,38 @@
       pointer-events: none;
     }
 
+    /* Main container - responsive layout */
     .main-container {
       position: relative;
       z-index: 2;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      padding: 1rem;
-      box-sizing: border-box;
+      min-height: 100vh;
+      padding: clamp(0.5rem, 2vw, 2rem);
+      gap: clamp(1rem, 3vh, 2rem);
     }
 
-    /* Mobile-first approach */
+    /* Desktop layout */
     @media (min-width: 768px) and (min-height: 600px) {
       .main-container {
         display: grid;
         grid-template-areas: "buttons title";
         grid-template-columns: 1.2fr 1fr;
         grid-template-rows: 1fr;
-        gap: 2rem;
-        padding: 2vh;
+        gap: clamp(1rem, 3vw, 3rem);
+        align-items: center;
       }
     }
 
+    /* Title styling */
     .title {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.8rem, 6vw, 4rem);
+      font-size: clamp(1.5rem, 5vw, 4rem);
       font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
       text-shadow: 
         0 0 10px rgba(255, 255, 255, 0.3),
         0 0 20px rgba(255, 255, 255, 0.2);
@@ -89,17 +98,14 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       animation: textGlow 3s ease-in-out infinite alternate;
-      text-align: center;
-      line-height: 1.2;
-      padding: 1rem;
-      flex-shrink: 0;
+      order: -1;
     }
 
     @media (min-width: 768px) and (min-height: 600px) {
       .title {
         grid-area: title;
-        font-size: clamp(2rem, 5vw, 6rem);
-        padding: 2rem;
+        font-size: clamp(2rem, 4vw, 5rem);
+        order: initial;
       }
     }
 
@@ -114,28 +120,26 @@
       }
     }
 
+    /* Button container */
     .button-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      gap: 0.75rem;
-      padding: 0.5rem;
+      justify-content: center;
+      gap: clamp(0.5rem, 1.5vh, 1rem);
       flex: 1;
       overflow-y: auto;
-      min-height: 0;
+      padding: clamp(0.25rem, 1vh, 1rem);
     }
 
     @media (min-width: 768px) and (min-height: 600px) {
       .button-container {
         grid-area: buttons;
-        justify-content: center;
-        gap: 1.25rem;
-        padding: 2vh;
+        gap: clamp(0.75rem, 2vh, 1.25rem);
       }
     }
 
-    /* Improved button styles with consistent sizing */
+    /* Base button styles */
     .game-button, .group-button {
       background: linear-gradient(135deg, 
         rgba(30, 30, 30, 0.9) 0%, 
@@ -143,16 +147,14 @@
         rgba(30, 30, 30, 0.9) 100%);
       backdrop-filter: blur(20px);
       border: 2px solid transparent;
-      background-clip: padding-box;
       color: #fff;
-      padding: 0.875rem 1.5rem;
-      font-size: 1rem;
+      padding: clamp(0.75rem, 2vh, 1.25rem) clamp(1.5rem, 4vw, 3rem);
+      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
       font-weight: 600;
       border-radius: 8px;
       text-decoration: none;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       width: 100%;
-      max-width: 350px;
+      max-width: min(90vw, 400px);
       min-height: 48px;
       box-shadow: 
         0 8px 32px rgba(255, 255, 255, 0.05),
@@ -165,34 +167,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-sizing: border-box;
-      flex-shrink: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    /* Responsive font sizing */
-    @media (min-width: 480px) {
-      .game-button, .group-button {
-        font-size: 1.1rem;
-        padding: 1rem 2rem;
-        max-width: 380px;
-      }
-    }
-
-    @media (min-width: 768px) {
-      .game-button, .group-button {
-        font-size: 1.25rem;
-        padding: 1.125rem 2.5rem;
-        max-width: 400px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .game-button, .group-button {
-        font-size: 1.4rem;
-        padding: 1.25rem 3rem;
-      }
-    }
-
+    /* Hover shine effect */
     .game-button::before, .group-button::before {
       content: '';
       position: absolute;
@@ -212,7 +190,7 @@
     }
 
     .game-button:hover, .group-button:hover {
-      transform: translateY(-3px) scale(1.02);
+      transform: translateY(-2px) scale(1.02);
       background: linear-gradient(135deg, 
         rgba(255, 255, 255, 0.15) 0%, 
         rgba(255, 255, 255, 0.1) 50%, 
@@ -221,7 +199,6 @@
         0 15px 40px rgba(255, 255, 255, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
       border: 2px solid rgba(255, 255, 255, 0.3);
-      color: #fff;
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
     }
 
@@ -230,6 +207,7 @@
       transition: all 0.1s ease;
     }
 
+    /* Featured button */
     .featured-button {
       background: linear-gradient(135deg, 
         rgba(255, 255, 255, 0.2) 0%, 
@@ -251,7 +229,6 @@
         0 15px 40px rgba(255, 255, 255, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
       border: 2px solid rgba(255, 255, 255, 0.5);
-      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
     }
 
     @keyframes featuredPulse {
@@ -267,54 +244,22 @@
       }
     }
 
-    /* Undertale group button split design */
+    /* Themed buttons */
     .undertale-split {
       background: linear-gradient(180deg, 
         rgba(255, 50, 50, 0.15) 0%, 
         rgba(255, 50, 50, 0.15) 50%, 
         rgba(255, 220, 50, 0.15) 50%, 
         rgba(255, 220, 50, 0.15) 100%);
-      box-shadow: 
-        0 8px 32px rgba(255, 135, 50, 0.15),
-        inset 0 1px 0 rgba(255, 135, 100, 0.2);
       border: 2px solid rgba(255, 135, 80, 0.3);
     }
 
-    .undertale-split:hover {
-      background: linear-gradient(180deg, 
-        rgba(255, 60, 60, 0.25) 0%, 
-        rgba(255, 60, 60, 0.25) 50%, 
-        rgba(255, 230, 60, 0.25) 50%, 
-        rgba(255, 230, 60, 0.25) 100%);
-      box-shadow: 
-        0 15px 40px rgba(255, 145, 60, 0.25),
-        inset 0 1px 0 rgba(255, 145, 120, 0.3);
-      border: 2px solid rgba(255, 145, 100, 0.5);
-      text-shadow: 0 0 15px rgba(255, 145, 80, 0.6);
-    }
-
-    /* Undertale-themed buttons */
     .undertale-red {
       background: linear-gradient(135deg, 
         rgba(255, 50, 50, 0.15) 0%, 
         rgba(255, 30, 30, 0.1) 50%, 
         rgba(255, 50, 50, 0.15) 100%);
-      box-shadow: 
-        0 8px 32px rgba(255, 50, 50, 0.15),
-        inset 0 1px 0 rgba(255, 100, 100, 0.2);
       border: 2px solid rgba(255, 80, 80, 0.3);
-    }
-
-    .undertale-red:hover {
-      background: linear-gradient(135deg, 
-        rgba(255, 60, 60, 0.25) 0%, 
-        rgba(255, 40, 40, 0.2) 50%, 
-        rgba(255, 60, 60, 0.25) 100%);
-      box-shadow: 
-        0 15px 40px rgba(255, 60, 60, 0.25),
-        inset 0 1px 0 rgba(255, 120, 120, 0.3);
-      border: 2px solid rgba(255, 100, 100, 0.5);
-      text-shadow: 0 0 15px rgba(255, 80, 80, 0.6);
     }
 
     .undertale-yellow {
@@ -322,49 +267,35 @@
         rgba(255, 220, 50, 0.15) 0%, 
         rgba(255, 200, 30, 0.1) 50%, 
         rgba(255, 220, 50, 0.15) 100%);
-      box-shadow: 
-        0 8px 32px rgba(255, 220, 50, 0.15),
-        inset 0 1px 0 rgba(255, 230, 100, 0.2);
       border: 2px solid rgba(255, 220, 80, 0.3);
     }
 
-    .undertale-yellow:hover {
+    .deltarune-blue {
       background: linear-gradient(135deg, 
-        rgba(255, 230, 60, 0.25) 0%, 
-        rgba(255, 210, 40, 0.2) 50%, 
-        rgba(255, 230, 60, 0.25) 100%);
-      box-shadow: 
-        0 15px 40px rgba(255, 230, 60, 0.25),
-        inset 0 1px 0 rgba(255, 240, 120, 0.3);
-      border: 2px solid rgba(255, 230, 100, 0.5);
-      text-shadow: 0 0 15px rgba(255, 220, 80, 0.6);
+        rgba(30, 60, 150, 0.2) 0%, 
+        rgba(20, 40, 120, 0.15) 50%, 
+        rgba(30, 60, 150, 0.2) 100%);
+      border: 2px solid rgba(60, 100, 180, 0.4);
     }
 
-    /* Hollow Knight-themed button */
+    .deltarune-blue:hover {
+      background: linear-gradient(135deg, 
+        rgba(40, 70, 160, 0.3) 0%, 
+        rgba(30, 50, 130, 0.25) 50%, 
+        rgba(40, 70, 160, 0.3) 100%);
+      border: 2px solid rgba(70, 110, 190, 0.6);
+      text-shadow: 0 0 15px rgba(60, 100, 180, 0.6);
+    }
+
     .hollow-knight-blue {
       background: linear-gradient(135deg, 
         rgba(90, 200, 255, 0.15) 0%, 
         rgba(70, 180, 235, 0.1) 50%, 
         rgba(90, 200, 255, 0.15) 100%);
-      box-shadow: 
-        0 8px 32px rgba(90, 200, 255, 0.15),
-        inset 0 1px 0 rgba(130, 220, 255, 0.2);
       border: 2px solid rgba(110, 210, 255, 0.3);
     }
 
-    .hollow-knight-blue:hover {
-      background: linear-gradient(135deg, 
-        rgba(100, 210, 255, 0.25) 0%, 
-        rgba(80, 190, 245, 0.2) 50%, 
-        rgba(100, 210, 255, 0.25) 100%);
-      box-shadow: 
-        0 15px 40px rgba(100, 210, 255, 0.25),
-        inset 0 1px 0 rgba(140, 230, 255, 0.3);
-      border: 2px solid rgba(120, 220, 255, 0.5);
-      text-shadow: 0 0 15px rgba(110, 210, 255, 0.6);
-    }
-
-    /* Button content structure for consistent text styling */
+    /* Button content */
     .button-content {
       display: flex;
       flex-direction: column;
@@ -379,26 +310,26 @@
       line-height: 1.2;
     }
 
-    /* Improved group button with better text positioning */
+    .small-text {
+      opacity: 0.7;
+      font-size: 0.7em;
+      font-weight: 400;
+      margin-top: 0.25rem;
+      line-height: 1.1;
+    }
+
+    /* Group button expand icon */
     .group-button {
-      position: relative;
       justify-content: center;
     }
 
-    .group-button .button-content {
-      width: 100%;
-      position: relative;
-      z-index: 1;
-    }
-
-    .group-button .expand-icon {
+    .expand-icon {
       position: absolute;
-      right: 1rem;
+      right: clamp(0.75rem, 2vw, 1rem);
       top: 50%;
       transform: translateY(-50%);
       font-size: 1.2em;
       font-weight: bold;
-      user-select: none;
       transition: transform 0.3s ease;
       width: 1.5rem;
       height: 1.5rem;
@@ -411,123 +342,71 @@
       transform: translateY(-50%) rotate(45deg);
     }
 
-    .scuffed-group, .undertale-group {
+    /* Collapsible groups */
+    .game-group {
       visibility: hidden;
       overflow: hidden;
       height: 0;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: clamp(0.5rem, 1vh, 0.75rem);
       width: 100%;
-      max-width: 350px;
+      max-width: min(90vw, 400px);
       align-items: center;
       transition: all 0.3s ease;
       opacity: 0;
     }
 
-    @media (min-width: 480px) {
-      .scuffed-group, .undertale-group {
-        max-width: 380px;
-      }
-    }
-
-    @media (min-width: 768px) {
-      .scuffed-group, .undertale-group {
-        gap: 1rem;
-        max-width: 400px;
-      }
-    }
-
-    .scuffed-group.reveal, .undertale-group.reveal {
+    .game-group.reveal {
       visibility: visible;
       height: auto;
       opacity: 1;
     }
 
-    .scuffed-group.collapse, .undertale-group.collapse {
-      visibility: hidden;
-      height: 0;
-      opacity: 0;
-    }
-
-    .scuffed-group .game-button, .undertale-group .game-button {
+    .game-group .game-button {
       opacity: 0;
       transform: translateY(-15px);
       transition: all 0.3s ease;
     }
 
-    .scuffed-group.reveal .game-button, .undertale-group.reveal .game-button {
+    .game-group.reveal .game-button {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .scuffed-group.reveal .game-button:nth-child(1), .undertale-group.reveal .game-button:nth-child(1) { 
-      transition-delay: 0.1s; 
-    }
-    .scuffed-group.reveal .game-button:nth-child(2), .undertale-group.reveal .game-button:nth-child(2) { 
-      transition-delay: 0.15s; 
-    }
-    .scuffed-group.reveal .game-button:nth-child(3), .undertale-group.reveal .game-button:nth-child(3) { 
-      transition-delay: 0.2s; 
-    }
+    .game-group.reveal .game-button:nth-child(1) { transition-delay: 0.1s; }
+    .game-group.reveal .game-button:nth-child(2) { transition-delay: 0.15s; }
+    .game-group.reveal .game-button:nth-child(3) { transition-delay: 0.2s; }
 
-    /* Small text styling - consistent for all descriptions */
-    .small-text {
-      opacity: 0.7;
-      font-size: 0.7em;
-      font-weight: 400;
-      margin-top: 0.25rem;
-      line-height: 1.1;
-    }
-
-    @media (max-width: 479px) {
-      .small-text {
-        font-size: 0.65em;
-        margin-top: 0.2rem;
-      }
-    }
-
-    /* Very small screen optimizations */
-    @media (max-height: 600px) {
+    /* Responsive optimizations */
+    @media (max-height: 500px) {
       .title {
-        font-size: clamp(1.5rem, 5vw, 2.5rem);
-        padding: 0.5rem;
+        font-size: clamp(1.2rem, 4vw, 2rem);
       }
       
       .button-container {
-        gap: 0.5rem;
-        padding: 0.25rem;
+        gap: clamp(0.25rem, 0.5vh, 0.5rem);
       }
       
       .game-button, .group-button {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.95rem;
-        min-height: 44px;
-      }
-      
-      .main-container {
-        padding: 0.5rem;
+        padding: clamp(0.5rem, 1vh, 0.75rem) clamp(1rem, 3vw, 2rem);
+        font-size: clamp(0.8rem, 2vw, 1rem);
+        min-height: 40px;
       }
     }
 
     @media (max-width: 320px) {
       .game-button, .group-button {
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
-        max-width: 280px;
-      }
-      
-      .title {
-        font-size: clamp(1.4rem, 5vw, 2rem);
+        max-width: 95vw;
+        font-size: clamp(0.75rem, 2.5vw, 0.9rem);
       }
     }
 
-    /* High DPI displays */
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-      .title {
-        text-shadow: 
-          0 0 5px rgba(255, 255, 255, 0.3),
-          0 0 10px rgba(255, 255, 255, 0.2);
+    /* Ultra-wide screen support */
+    @media (min-width: 1400px) {
+      .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
       }
     }
   </style>
@@ -558,15 +437,16 @@
         </div>
         <span class="expand-icon">+</span>
       </div>
-      <div class="undertale-group" id="undertaleGroup">
+      <div class="game-group" id="undertaleGroup">
         <a href="https://choseven.github.io/Undertale" class="game-button undertale-red">Undertale</a>
         <a href="https://choseven.github.io/UndertaleYellow" class="game-button undertale-yellow">Undertale Yellow</a>
+        <a href="https://choseven.github.io/Deltarune" class="game-button deltarune-blue">Deltarune</a>
       </div>
     </div>
   </div>
 
   <script>
-    // Undertale group toggle functionality
+    // Group toggle functionality
     let undertaleExpanded = false;
 
     function toggleUndertaleGroup() {
@@ -574,21 +454,17 @@
       const group = document.getElementById('undertaleGroup');
       
       if (undertaleExpanded) {
-        // Collapse
         group.classList.remove('reveal');
-        group.classList.add('collapse');
         toggle.classList.remove('expanded');
         undertaleExpanded = false;
       } else {
-        // Expand
-        group.classList.remove('collapse');
         group.classList.add('reveal');
         toggle.classList.add('expanded');
         undertaleExpanded = true;
       }
     }
 
-    // Enhanced particle background
+    // Particle background system
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -600,17 +476,18 @@
       canvas.height = window.innerHeight;
     }
 
-    function createParticles(count) {
+    function createParticles() {
+      const density = Math.min(120, Math.max(40, Math.floor((canvas.width * canvas.height) / 10000)));
       particles = [];
-      for (let i = 0; i < count; i++) {
+      
+      for (let i = 0; i < density; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 3 + 0.5,
+          radius: Math.random() * 2.5 + 0.5,
           speedX: (Math.random() - 0.5) * 0.3,
           speedY: (Math.random() - 0.5) * 0.3,
-          opacity: Math.random() * 0.6 + 0.2,
-          color: 'rgba(255, 255, 255',
+          opacity: Math.random() * 0.5 + 0.2,
           pulseSpeed: Math.random() * 0.02 + 0.01,
           pulsePhase: Math.random() * Math.PI * 2
         });
@@ -620,32 +497,30 @@
     function drawParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        
+      particles.forEach((p, i) => {
         // Mouse interaction
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const force = dist < 120 ? (120 - dist) / 120 : 0;
-
-        if (force > 0) {
+        
+        if (dist < 100) {
+          const force = (100 - dist) / 100;
           const angle = Math.atan2(dy, dx);
-          p.x += Math.cos(angle) * force * 2;
-          p.y += Math.sin(angle) * force * 2;
+          p.x += Math.cos(angle) * force * 1.5;
+          p.y += Math.sin(angle) * force * 1.5;
         }
 
-        // Normal movement
+        // Movement
         p.x += p.speedX;
         p.y += p.speedY;
 
-        // Wrap around edges
+        // Boundary wrapping
         if (p.x < -10) p.x = canvas.width + 10;
         if (p.x > canvas.width + 10) p.x = -10;
         if (p.y < -10) p.y = canvas.height + 10;
         if (p.y > canvas.height + 10) p.y = -10;
 
-        // Pulsing effect
+        // Pulsing animation
         p.pulsePhase += p.pulseSpeed;
         const pulseFactor = Math.sin(p.pulsePhase) * 0.3 + 0.7;
         const currentOpacity = p.opacity * pulseFactor;
@@ -653,9 +528,9 @@
         // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius * pulseFactor, 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color}, ${currentOpacity})`;
-        ctx.shadowColor = `${p.color}, 0.8)`;
-        ctx.shadowBlur = 15 * pulseFactor;
+        ctx.fillStyle = `rgba(255, 255, 255, ${currentOpacity})`;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 10 * pulseFactor;
         ctx.fill();
 
         // Connect nearby particles
@@ -665,25 +540,26 @@
           const dy2 = p.y - p2.y;
           const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
           
-          if (dist2 < 100) {
+          if (dist2 < 80) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${(100 - dist2) / 500})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${(80 - dist2) / 400})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
-      }
+      });
       
       animationId = requestAnimationFrame(drawParticles);
     }
 
     function handleResize() {
       resizeCanvas();
-      createParticles(Math.min(120, Math.max(60, Math.floor((canvas.width * canvas.height) / 8000))));
+      createParticles();
     }
 
+    // Event listeners
     window.addEventListener('resize', handleResize);
 
     canvas.addEventListener('mousemove', e => {
@@ -713,7 +589,7 @@
     handleResize();
     drawParticles();
 
-    // Cleanup on page unload
+    // Cleanup
     window.addEventListener('beforeunload', () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
