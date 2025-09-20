@@ -13,7 +13,7 @@
 
     html, body {
       height: 100%;
-      overflow: hidden;
+      overflow-x: hidden;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #0a0a0a;
       color: white;
@@ -66,10 +66,11 @@
       min-height: 100vh;
       padding: clamp(0.5rem, 2vw, 2rem);
       gap: clamp(1rem, 3vh, 2rem);
+      overflow-y: auto;
     }
 
     /* Desktop layout */
-    @media (min-width: 768px) and (min-height: 600px) {
+    @media (min-width: 768px) and (min-height: 700px) {
       .main-container {
         display: grid;
         grid-template-areas: "buttons title";
@@ -77,6 +78,7 @@
         grid-template-rows: 1fr;
         gap: clamp(1rem, 3vw, 3rem);
         align-items: center;
+        overflow: hidden;
       }
     }
 
@@ -101,7 +103,7 @@
       order: -1;
     }
 
-    @media (min-width: 768px) and (min-height: 600px) {
+    @media (min-width: 768px) and (min-height: 700px) {
       .title {
         grid-area: title;
         font-size: clamp(2rem, 4vw, 5rem);
@@ -125,17 +127,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: clamp(0.5rem, 1.5vh, 1rem);
       flex: 1;
       overflow-y: auto;
       padding: clamp(0.25rem, 1vh, 1rem);
+      min-height: 0;
     }
 
-    @media (min-width: 768px) and (min-height: 600px) {
+    @media (min-width: 768px) and (min-height: 700px) {
       .button-container {
         grid-area: buttons;
         gap: clamp(0.75rem, 2vh, 1.25rem);
+        justify-content: center;
+        overflow-y: auto;
+        max-height: 100vh;
       }
     }
 
@@ -379,19 +385,26 @@
     .game-group.reveal .game-button:nth-child(3) { transition-delay: 0.2s; }
 
     /* Responsive optimizations */
-    @media (max-height: 500px) {
+    @media (max-height: 600px) {
       .title {
         font-size: clamp(1.2rem, 4vw, 2rem);
+        padding: clamp(0.25rem, 1vh, 0.5rem);
       }
       
       .button-container {
-        gap: clamp(0.25rem, 0.5vh, 0.5rem);
+        gap: clamp(0.25rem, 0.8vh, 0.5rem);
+        padding: clamp(0.25rem, 0.5vh, 0.5rem);
       }
       
       .game-button, .group-button {
-        padding: clamp(0.5rem, 1vh, 0.75rem) clamp(1rem, 3vw, 2rem);
+        padding: clamp(0.5rem, 1.2vh, 0.75rem) clamp(1rem, 3vw, 2rem);
         font-size: clamp(0.8rem, 2vw, 1rem);
         min-height: 40px;
+      }
+
+      .main-container {
+        gap: clamp(0.5rem, 1vh, 1rem);
+        padding: clamp(0.25rem, 1vw, 1rem);
       }
     }
 
