@@ -59,7 +59,7 @@
     .anniversary-button {
       position: fixed;
       top: 50px;
-      right: 20px;
+      right: 10px;
       width: 100px;
       height: 100px;
       background: linear-gradient(135deg, 
@@ -81,15 +81,11 @@
       font-weight: 700;
       text-align: center;
       line-height: 1.1;
-      box-shadow: 
-        0 8px 32px rgba(255, 215, 0, 0.3),
-        inset 0 2px 0 rgba(255, 255, 255, 0.3);
       transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       z-index: 1001;
       cursor: pointer;
       user-select: none;
       text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-      animation: anniversaryPulse 4s ease-in-out infinite;
     }
 
     .anniversary-button:hover {
@@ -100,9 +96,6 @@
         rgba(255, 245, 80, 1) 50%,
         rgba(255, 215, 0, 0.95) 75%,
         rgba(255, 235, 59, 1) 100%);
-      box-shadow: 
-        0 12px 40px rgba(255, 215, 0, 0.4),
-        inset 0 2px 0 rgba(255, 255, 255, 0.4);
       border-color: rgba(255, 235, 59, 0.8);
     }
 
@@ -111,26 +104,13 @@
       transition: all 0.1s ease;
     }
 
-    @keyframes anniversaryPulse {
-      0%, 100% { 
-        box-shadow: 
-          0 8px 32px rgba(255, 215, 0, 0.3),
-          inset 0 2px 0 rgba(255, 255, 255, 0.3);
-      }
-      50% { 
-        box-shadow: 
-          0 12px 40px rgba(255, 215, 0, 0.5),
-          inset 0 2px 0 rgba(255, 255, 255, 0.4);
-      }
-    }
-
     /* Mobile adjustments for anniversary button */
     @media (max-width: 768px) {
       .anniversary-button {
         width: 85px;
         height: 85px;
         top: 45px;
-        right: 15px;
+        right: 5px;
         font-size: 9px;
       }
     }
@@ -140,7 +120,7 @@
         width: 75px;
         height: 75px;
         top: 45px;
-        right: 10px;
+        right: 5px;
         font-size: 8px;
       }
     }
@@ -273,7 +253,7 @@
       }
     }
 
-    /* Base button styles */
+    /* Base button styles - NO GLOW */
     .game-button, .group-button {
       background: linear-gradient(135deg, 
         rgba(30, 30, 30, 0.9) 0%, 
@@ -290,9 +270,6 @@
       width: 100%;
       max-width: min(90vw, 400px);
       min-height: 48px;
-      box-shadow: 
-        0 8px 32px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
       text-align: center;
       position: relative;
       cursor: pointer;
@@ -325,9 +302,6 @@
 
     .game-button:hover, .group-button:hover {
       transform: translateY(-2px) scale(1.02);
-      box-shadow: 
-        0 15px 40px rgba(255, 255, 255, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
       border: 2px solid rgba(255, 255, 255, 0.3);
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
     }
@@ -343,11 +317,7 @@
         rgba(255, 255, 255, 0.2) 0%, 
         rgba(240, 240, 240, 0.15) 50%, 
         rgba(255, 255, 255, 0.2) 100%);
-      box-shadow: 
-        0 8px 32px rgba(255, 255, 255, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
       border: 2px solid rgba(255, 255, 255, 0.3);
-      animation: featuredPulse 3s ease-in-out infinite;
     }
 
     .featured-button::before {
@@ -362,23 +332,7 @@
         rgba(255, 255, 255, 0.3) 0%, 
         rgba(240, 240, 240, 0.2) 50%, 
         rgba(255, 255, 255, 0.3) 100%);
-      box-shadow: 
-        0 15px 40px rgba(255, 255, 255, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
       border: 2px solid rgba(255, 255, 255, 0.5);
-    }
-
-    @keyframes featuredPulse {
-      0%, 100% { 
-        box-shadow: 
-          0 8px 32px rgba(255, 255, 255, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      }
-      50% { 
-        box-shadow: 
-          0 12px 40px rgba(255, 255, 255, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      }
     }
 
     /* Themed buttons */
