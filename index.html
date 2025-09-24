@@ -55,6 +55,96 @@
       100% { transform: translateX(-100%); }
     }
 
+    /* Undertale 10th Anniversary Button */
+    .anniversary-button {
+      position: fixed;
+      top: 50px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.9) 0%,
+        rgba(255, 193, 7, 0.85) 25%,
+        rgba(255, 235, 59, 0.9) 50%,
+        rgba(255, 193, 7, 0.85) 75%,
+        rgba(255, 215, 0, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      border-radius: 12px;
+      color: rgba(0, 0, 0, 0.9);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.1;
+      box-shadow: 
+        0 8px 32px rgba(255, 215, 0, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1001;
+      cursor: pointer;
+      user-select: none;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+      animation: anniversaryPulse 4s ease-in-out infinite;
+    }
+
+    .anniversary-button:hover {
+      transform: scale(1.05) translateY(-2px);
+      background: linear-gradient(135deg, 
+        rgba(255, 235, 59, 1) 0%,
+        rgba(255, 215, 0, 0.95) 25%,
+        rgba(255, 245, 80, 1) 50%,
+        rgba(255, 215, 0, 0.95) 75%,
+        rgba(255, 235, 59, 1) 100%);
+      box-shadow: 
+        0 12px 40px rgba(255, 215, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 235, 59, 0.8);
+    }
+
+    .anniversary-button:active {
+      transform: scale(1.02) translateY(-1px);
+      transition: all 0.1s ease;
+    }
+
+    @keyframes anniversaryPulse {
+      0%, 100% { 
+        box-shadow: 
+          0 8px 32px rgba(255, 215, 0, 0.3),
+          inset 0 2px 0 rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        box-shadow: 
+          0 12px 40px rgba(255, 215, 0, 0.5),
+          inset 0 2px 0 rgba(255, 255, 255, 0.4);
+      }
+    }
+
+    /* Mobile adjustments for anniversary button */
+    @media (max-width: 768px) {
+      .anniversary-button {
+        width: 85px;
+        height: 85px;
+        top: 45px;
+        right: 15px;
+        font-size: 9px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .anniversary-button {
+        width: 75px;
+        height: 75px;
+        top: 45px;
+        right: 10px;
+        font-size: 8px;
+      }
+    }
+
     /* Animated background gradient */
     body::before {
       content: '';
@@ -103,6 +193,7 @@
       padding: clamp(0.5rem, 2vw, 2rem);
       gap: clamp(1rem, 3vh, 2rem);
       overflow-y: auto;
+      padding-right: clamp(1rem, 2vw, 2rem); /* Extra padding for anniversary button */
     }
 
     /* Desktop layout */
@@ -115,6 +206,7 @@
         gap: clamp(1rem, 3vw, 3rem);
         align-items: center;
         overflow: hidden;
+        padding-right: clamp(2rem, 4vw, 4rem); /* More padding on desktop */
       }
     }
 
@@ -517,6 +609,7 @@
       .main-container {
         gap: clamp(0.5rem, 1vh, 1rem);
         padding: clamp(0.25rem, 1vw, 1rem);
+        padding-right: clamp(0.5rem, 1vw, 1.5rem);
       }
     }
 
@@ -528,6 +621,10 @@
       
       .news-content {
         font-size: 12px;
+      }
+      
+      .main-container {
+        padding-right: clamp(0.25rem, 1vw, 1rem);
       }
     }
 
@@ -549,6 +646,11 @@
       Please be aware these are original game versions with existing bugs and limitations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All credit goes to the original developers and creators&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This collection was compiled for easy access&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enjoy the games but expect some technical issues&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </div>
   </div>
+
+  <!-- Undertale 10th Anniversary Button -->
+  <a href="https://ut10-battle.undertale.com/" class="anniversary-button">
+    UNDERTALE<br>10TH<br>ANNIVERSARY
+  </a>
 
   <canvas id="bg"></canvas>
 
