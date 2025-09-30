@@ -360,8 +360,9 @@
 
         window.Module = Module;
 
-        // Load runner.js after Module is set up
+                  // Load runner.js after Module is set up
         var script = document.createElement('script');
+        script.async = true;
         script.src = 'runner.js';
         document.body.appendChild(script);
       }
