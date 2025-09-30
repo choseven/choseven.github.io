@@ -338,7 +338,7 @@
       } // end doJSExceptionHandler
 
       // CATBOX.MOE INTEGRATION - Intercept game.unx requests
-      window.gameUnxUrl = "https://files.catbox.moe/y8y4x9.unx";
+      window.gameUnxUrl = "https://cors-anywhere.herokuapp.com/https://files.catbox.moe/y8y4x9.unx";
 
       const originalFetch = window.fetch;
       window.fetch = async function (...args) {
