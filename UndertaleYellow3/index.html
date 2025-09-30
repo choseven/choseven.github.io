@@ -190,6 +190,31 @@
    </script>
 
     <script type="text/javascript">
+      // CRITICAL: Set up catbox intercept BEFORE anything else loads
+      window.gameUnxUrl = "https://files.catbox.moe/y8y4x9.unx";
+
+      const _savedFetch = window.fetch;
+      window.fetch = async function (...args) {
+          let [url, options] = args;
+          if (typeof url === 'string' && url.includes("game.unx")) {
+              console.log("fetch intercepted:", url, "-> using catbox.moe");
+              url = window.gameUnxUrl;
+          } else if (url instanceof Request && url.url.includes("game.unx")) {
+              console.log("fetch request intercepted:", url.url, "-> using catbox.moe");
+              url = new Request(window.gameUnxUrl, url);
+          }
+          return _savedFetch.call(this, url, options);
+      };
+
+      const _savedXHROpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+          if (typeof url === 'string' && url.includes("game.unx")) {
+              console.log("XHR intercepted:", url, "-> using catbox.moe");
+              url = window.gameUnxUrl;
+          }
+          return _savedXHROpen.call(this, method, url, ...rest);
+      };
+
       const CHANGE_ASPECT_RATIO = true;
 
       var statusElement = document.getElementById("status");
