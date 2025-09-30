@@ -59,18 +59,18 @@
         min-height: 100vh;
         min-height: -webkit-fill-available;
         min-height: fill-available;
-        min-height: 100vh; /* Otherwise contents can be covered by an address bar in Safari on iOS 15 */
+        min-height: 100vh;
         min-width: 100vw;
         background: radial-gradient(
           56.63% 56.63% at 50% 43.37%,
           transparent 0%,
           transparent 100%
         );
-		background-color: black;
+        background-color: black;
         display: flex;
         flex-direction: column;
         overflow-x: hidden;
-		place-items: center;
+        place-items: center;
       }
 
       body.scrollingDisabled {
@@ -84,10 +84,9 @@
 
       div.emscripten {
         text-align: center;
-		font-family: "Lucida Console", Monaco, monospace;
+        font-family: "Lucida Console", Monaco, monospace;
       }
 
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.emscripten {
         display: none;
         background-color: black;
@@ -96,12 +95,12 @@
         -webkit-transition: opacity 5s ease-in;
         opacity: 0;
         filter: blur(0) grayscale(0);
-        image-rendering: optimizeSpeed;             /* Older versions of FF          */
-        image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
-        image-rendering: -webkit-optimize-contrast; /* Safari                        */
-        image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
-        image-rendering: pixelated;                 /* Awesome future-browsers       */
-        -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: -o-crisp-edges;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
       }
 
       canvas.active {
@@ -173,13 +172,12 @@
         padding: 5px;
       }
 
-      /* Determines the style of the background of the progress bar */
       progress[value]::-webkit-progress-bar {
         background-color: #8492a6;
         height: 10px;
         border-radius: 15px;
       }
-      /* Determines the style of the completed part of the progress bar */
+
       progress[value]::-webkit-progress-value {
         background-image: -webkit-linear-gradient(left, #719900, #bdff00);
         height: 10px;
@@ -216,8 +214,8 @@
         cursor: pointer;
         background-color: black;
         color: white;
-		outline-color: #20c20e;
-		outline-style: dashed;
+        outline-color: #20c20e;
+        outline-style: dashed;
         font-family: "Lucida Console", Monaco, monospace;
       }
 
@@ -359,68 +357,41 @@
       </div>
     </div>
     <script>
-      function mergeFiles(fileParts) {
-          return new Promise((resolve, reject) => {
-              let buffers = [];
-  
-              function fetchPart(index) {
-                  if (index >= fileParts.length) {
-                      let mergedBlob = new Blob(buffers);
-                      let mergedFileUrl = URL.createObjectURL(mergedBlob);
-                      resolve(mergedFileUrl);
-                      return;
-                  }
-                  fetch(fileParts[index]).then((response) => response.arrayBuffer()).then((data) => {
-                      buffers.push(data);
-                      fetchPart(index + 1);
-                  }).catch(reject);
-              }
-              fetchPart(0);
-          });
-      }
-  
-      function getParts(file, start, end) {
-          let parts = [];
-          for (let i = start; i <= end; i++) {
-              parts.push(file + ".part" + i);
+      // Direct URL to your catbox.moe hosted game.unx
+      window.gameUnxUrl = "https://files.catbox.moe/y8y4x9.unx";
+
+      // Intercept fetch requests for game.unx
+      const originalFetch = window.fetch;
+      window.fetch = async function (...args) {
+          let [url, options] = args;
+          if (typeof url === 'string' && url.includes("game.unx")) {
+              console.log("fetch intercepted:", url, "-> using catbox.moe");
+              url = window.gameUnxUrl;
+          } else if (url instanceof Request && url.url.includes("game.unx")) {
+              console.log("fetch request intercepted:", url.url, "-> using catbox.moe");
+              url = new Request(window.gameUnxUrl, url);
           }
-          return parts;
-      }
-  
-      mergeFiles(getParts("game.unx", 1, 12)).then(async url => {
-          window.gameUnxUrl = url;
-  
-          const originalFetch = window.fetch;
-          window.fetch = async function (...args) {
-              let [url, options] = args;
-              if (typeof url === 'string' && url.includes("game.unx")) {
-                  console.log("fetch:", url);
-                  url = window.gameUnxUrl;
-              } else if (url instanceof Request && url.url.includes("game.unx")) {
-                  console.log("fetch request:", url.url);
-                  url = new Request(window.gameUnxUrl, url);
-              }
-              return originalFetch.call(this, url, options);
-          };
-  
-          const originalOpen = XMLHttpRequest.prototype.open;
-          XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-              if (url.includes("game.unx")) {
-                  console.log("XHR:", url);
-                  url = window.gameUnxUrl;
-              }
-              return originalOpen.call(this, method, url, ...rest);
-          };
-          let index = document.createElement("script");
-          index.src = "index.js";
-          document.body.appendChild(index);
-  
-          let runner = document.createElement("script");
-          runner.src = "runner.js";
-          document.body.appendChild(runner);
-      }).catch(error => {
-          console.error("Failed to merge files:", error);
-      });
-  </script>      
+          return originalFetch.call(this, url, options);
+      };
+
+      // Intercept XMLHttpRequest for game.unx
+      const originalOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+          if (url.includes("game.unx")) {
+              console.log("XHR intercepted:", url, "-> using catbox.moe");
+              url = window.gameUnxUrl;
+          }
+          return originalOpen.call(this, method, url, ...rest);
+      };
+
+      // Load the game scripts
+      let index = document.createElement("script");
+      index.src = "index.js";
+      document.body.appendChild(index);
+
+      let runner = document.createElement("script");
+      runner.src = "runner.js";
+      document.body.appendChild(runner);
+    </script>      
   </body>
 </html>
