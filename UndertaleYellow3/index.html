@@ -177,16 +177,41 @@
       <progress value="0" max="100" id="progress" hidden="1"></progress>
     </div>
 
-    <!-- CRITICAL: Define ad stubs FIRST before any other scripts -->
+    <!-- CRITICAL: Define ALL ad-related stubs FIRST before any other scripts -->
     <script type="text/javascript">
-      // Pre-define ad functions before ANY other scripts load
+      // Pre-define ALL possible ad function variants to prevent errors
       window.g_mAdLoadCallback = function() { 
         console.log("g_mAdLoadCallback stub called"); 
       };
       
+      window.g_pMAdLoadCallback = function() { 
+        console.log("g_pMAdLoadCallback stub called"); 
+      };
+      
+      window.triggerAdPrefix = function() {
+        console.log("triggerAdPrefix stub called");
+        return 0;
+      };
+      
+      window.triggerAdPostfix = function() {
+        console.log("triggerAdPostfix stub called");
+      };
+      
+      window.triggerPaymentPrefix = function() {
+        console.log("triggerPaymentPrefix stub called");
+        return 0;
+      };
+      
+      window.triggerPaymentPostfix = function() {
+        console.log("triggerPaymentPostfix stub called");
+      };
+      
+      window.doGMLCallback = function() {
+        console.log("doGMLCallback stub called", arguments);
+      };
+      
       window.adBreak = function(config) { 
         console.log("adBreak stub called", config);
-        // Immediately call callbacks to simulate ad completion
         if (config) {
           if (config.beforeAd) config.beforeAd();
           if (config.afterAd) config.afterAd();
@@ -198,13 +223,12 @@
         console.log("adConfig stub called", config); 
       };
 
-      function triggerAd(adId, _callback_beforeAd, _callback_afterAd, _callback_adDismissed, _callback_adViewed, _callback_adbreakDone) {
+      window.triggerAd = function(adId, _callback_beforeAd, _callback_afterAd, _callback_adDismissed, _callback_adViewed, _callback_adbreakDone) {
         console.log("triggerAd stub called for:", adId);
-        // Immediately call the callbacks to simulate ad completion
         if (typeof _callback_beforeAd === 'function') _callback_beforeAd();
         if (typeof _callback_afterAd === 'function') _callback_afterAd();
         if (typeof _callback_adbreakDone === 'function') _callback_adbreakDone();
-      }
+      };
     </script>
 
     <script type="text/javascript">
