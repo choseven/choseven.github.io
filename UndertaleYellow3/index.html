@@ -177,28 +177,37 @@
       <progress value="0" max="100" id="progress" hidden="1"></progress>
     </div>
 
+    <!-- CRITICAL: Define ad stubs FIRST before any other scripts -->
     <script type="text/javascript">
-      // Stub functions for ad system - MUST BE FIRST!
-      window.g_mAdLoadCallback = function() {
-        console.log("Ad system disabled - g_mAdLoadCallback called");
+      // Pre-define ad functions before ANY other scripts load
+      window.g_mAdLoadCallback = function() { 
+        console.log("g_mAdLoadCallback stub called"); 
       };
-
-      window.adBreak = function() {
-        console.log("Ad system disabled - adBreak called");
+      
+      window.adBreak = function(config) { 
+        console.log("adBreak stub called", config);
+        // Immediately call callbacks to simulate ad completion
+        if (config) {
+          if (config.beforeAd) config.beforeAd();
+          if (config.afterAd) config.afterAd();
+          if (config.adBreakDone) config.adBreakDone({ breakType: 'noAdPreroll', breakName: config.name || 'disabled' });
+        }
       };
-
-      window.adConfig = function() {
-        console.log("Ad system disabled - adConfig called");
+      
+      window.adConfig = function(config) { 
+        console.log("adConfig stub called", config); 
       };
 
       function triggerAd(adId, _callback_beforeAd, _callback_afterAd, _callback_adDismissed, _callback_adViewed, _callback_adbreakDone) {
-        console.log("Ad system disabled - triggerAd called for:", adId);
+        console.log("triggerAd stub called for:", adId);
         // Immediately call the callbacks to simulate ad completion
         if (typeof _callback_beforeAd === 'function') _callback_beforeAd();
         if (typeof _callback_afterAd === 'function') _callback_afterAd();
         if (typeof _callback_adbreakDone === 'function') _callback_adbreakDone();
       }
+    </script>
 
+    <script type="text/javascript">
       const CHANGE_ASPECT_RATIO = true;
 
       var statusElement = document.getElementById("status");
