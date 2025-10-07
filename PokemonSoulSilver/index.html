@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <!-- HTML file auto generated using EmulatorJS codehelper -->
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div style="width:100%; height:100%; max-width:100%;">
+    <head>
+        <!-- HTML file auto generated using EmulatorJS codehelper -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pokémon SoulSilver (NDS)</title>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #fef37c;
+                overflow: hidden;
+            }
+            #game {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
         <div id="game"></div>
-    </div>
 
-    <script>
-        EJS_player = "#game";
-        EJS_core = "nds";
-        EJS_gameName = "Pokemon Soul Silver";
-        EJS_color = "#c0c0c0";
-        EJS_startOnLoaded = true;
-        EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-        
-        // External ROM hosted on Catbox
-        EJS_gameUrl = "https://corsproxy.io/?https://files.catbox.moe/5bnm7h.nds";
+        <script>
+            EJS_player = "#game";
+            EJS_core = "nds";
+            EJS_gameName = "Pokémon HeartGold";
+            EJS_color = "#fef37c";
+            EJS_startOnLoaded = true;
+            EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+            EJS_gameUrl = "https://files.catbox.moe/5bnm7h.nds";
+            EJS_biosUrl = "biosnds9.rom";
+        </script>
 
-
-        // Local BIOS file (must be in the same folder)
-        EJS_biosUrl = "biosnds9.rom";
-    </script>
-
-    <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
-</body>
+        <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+    </body>
 </html>
