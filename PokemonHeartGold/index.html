@@ -1,96 +1,27 @@
-<!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pokémon HeartGold (NDS)</title>
+        <!--HTML file auto generated using EmulatorJS codehelper-->
         <style>
             body, html {
                 margin: 0;
                 padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #fef37c;
-                overflow: hidden;
-            }
-            #game {
-                width: 100%;
-                height: 100%;
-            }
-            #loading {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(0,0,0,0.85);
-                color: white;
-                padding: 30px 40px;
-                border-radius: 15px;
-                text-align: center;
-                font-family: 'Arial', sans-serif;
-                z-index: 1000;
-            }
-            .spinner {
-                border: 4px solid rgba(255,255,255,0.3);
-                border-top: 4px solid #fef37c;
-                border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 20px;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            #loading h3 {
-                margin: 0 0 10px 0;
-                font-size: 24px;
-            }
-            #loading p {
-                margin: 5px 0;
-                opacity: 0.8;
             }
         </style>
     </head>
     <body>
-        <div id="game"></div>
-        <div id="loading">
-            <div class="spinner"></div>
-            <h3>Loading Pokémon HeartGold</h3>
-            <p>Downloading from Archive.org...</p>
-            <p style="font-size: 12px;">This may take 1-2 minutes</p>
+        <div style="width:100%;height:100%;max-width:100%">
+            <div id="game"></div>
         </div>
-
         <script>
-            // EmulatorJS Configuration
             EJS_player = "#game";
             EJS_core = "nds";
-            EJS_gameName = "Pokémon HeartGold";
-            EJS_color = "#fef37c";
+            EJS_gameName = "Pokemon Heart Gold";
+            EJS_color = "#ffff00";
             EJS_startOnLoaded = true;
             EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-            
-            // Archive.org ROM URL - No proxy needed!
-            EJS_gameUrl = "https://archive.org/download/pokemon-heart-gold-version-usa_202510/Pokemon%20-%20HeartGold%20Version%20%28USA%29.nds";
-            
-            // No BIOS required - emulator will handle it
-            
-            // Hide loading screen when emulator is ready
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    const loadingEl = document.getElementById('loading');
-                    if (loadingEl) {
-                        loadingEl.style.transition = 'opacity 0.5s';
-                        loadingEl.style.opacity = '0';
-                        setTimeout(function() {
-                            loadingEl.style.display = 'none';
-                        }, 500);
-                    }
-                }, 3000);
-            });
+            EJS_gameUrl = "https://files.catbox.moe/ewolab.nds";  // updated link to ROM file
+            EJS_biosUrl = "biosnds9.rom";
         </script>
-
         <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
     </body>
 </html>
