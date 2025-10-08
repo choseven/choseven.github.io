@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow-bg {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.3;
+            transition: all 1.5s ease;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 8px;
+        }
+
+        .character-showcase {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .character {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .character img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.9);
+            transition: filter 0.4s;
+        }
+
+        .character:hover img {
+            filter: brightness(1.1);
+        }
+
+        .character::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .character:hover {
+            transform: scale(1.15) translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .character:hover::before {
+            opacity: 1;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .char-heart {
+            border-color: rgba(255, 0, 0, 0.3);
+        }
+
+        .char-heart:hover {
+            border-color: rgba(255, 0, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+        }
+
+        .char-spade {
+            border-color: rgba(138, 43, 226, 0.3);
+        }
+
+        .char-spade:hover {
+            border-color: rgba(138, 43, 226, 0.6);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+        }
+
+        .char-knight {
+            border-color: rgba(230, 230, 230, 0.3);
+        }
+
+        .char-knight:hover {
+            border-color: rgba(230, 230, 230, 0.6);
+            box-shadow: 0 10px 30px rgba(230, 230, 230, 0.3);
+        }
+
+        .char-pokeball {
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+
+        .char-pokeball:hover {
+            border-color: rgba(255, 68, 68, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.4);
+        }
+
+        .char-snake {
+            border-color: rgba(0, 255, 0, 0.3);
+        }
+
+        .char-snake:hover {
+            border-color: rgba(0, 255, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #fff;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .tab.active {
+            color: #fff;
+        }
+
+        .tab.active::after {
+            width: 100%;
+        }
+
+        .tab:hover {
+            color: #aaa;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .game-button {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            font-size: 1em;
+            font-weight: 500;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-button:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .game-button:hover::before {
+            opacity: 1;
+        }
+
+        .game-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Subtle game-specific accents */
+        .game-button[href*="Undertale"]:not([href*="10th"]):hover {
+            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.2);
+        }
+
+        .game-button[href*="Deltarune"]:hover {
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.2);
+        }
+
+        .game-button[href*="BlockBlast"]:hover {
+            box-shadow: 0 8px 30px rgba(255, 165, 0, 0.2);
+        }
+
+        .game-button[href*="HollowKnight"]:hover {
+            box-shadow: 0 8px 30px rgba(230, 230, 230, 0.15);
+        }
+
+        .game-button[href*="LastBreath"]:hover {
+            box-shadow: 0 8px 30px rgba(0, 162, 255, 0.2);
+        }
+
+        .game-button[href*="PokemonEmerald"]:hover {
+            box-shadow: 0 8px 30px rgba(0, 200, 100, 0.2);
+        }
+
+        .game-button[href*="PokemonFireRed"]:hover {
+            box-shadow: 0 8px 30px rgba(255, 69, 0, 0.2);
+        }
+
+        .game-button[href*="PokemonHeartGold"]:hover {
+            box-shadow: 0 8px 30px rgba(218, 165, 32, 0.2);
+        }
+
+        .game-button[href*="PokemonLeafGreen"]:hover {
+            box-shadow: 0 8px 30px rgba(50, 205, 50, 0.2);
+        }
+
+        .game-button[href*="PokemonPlatinum"]:hover {
+            box-shadow: 0 8px 30px rgba(192, 192, 192, 0.2);
+        }
+
+        .game-button[href*="PokemonRed"]:not([href*="Fire"]):hover {
+            box-shadow: 0 8px 30px rgba(220, 20, 60, 0.2);
+        }
+
+        .game-button[href*="PokemonRuby"]:hover {
+            box-shadow: 0 8px 30px rgba(178, 34, 34, 0.2);
+        }
+
+        .game-button[href*="PokemonSapphire"]:hover {
+            box-shadow: 0 8px 30px rgba(30, 144, 255, 0.2);
+        }
+
+        .game-button[href*="PokemonSoulSilver"]:hover {
+            box-shadow: 0 8px 30px rgba(169, 169, 169, 0.2);
+        }
+
+        .game-button[href*="Snake"]:hover {
+            box-shadow: 0 8px 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .game-button[href*="10thAnniversary"]:hover {
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+                letter-spacing: 4px;
+            }
+
+            .header-section {
+                margin-bottom: 35px;
+            }
+
+            .character-showcase {
+                gap: 20px;
+            }
+
+            .character {
+                width: 60px;
+                height: 60px;
+                font-size: 2em;
+            }
+
+            .tabs {
+                gap: 15px;
+            }
+
+            .tab {
+                font-size: 0.95em;
+                padding: 8px 15px;
+            }
+
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-button {
+                padding: 25px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg" id="glowBg"></div>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>SELECT</h1>
+            <div class="character-showcase">
+                <a href="https://choseven.github.io/Undertale" class="character char-heart">
+                    <img src="undertaleheart.png" alt="Undertale">
+                </a>
+                <a href="https://choseven.github.io/Deltarune" class="character char-spade">
+                    <img src="deltarune icon.png" alt="Deltarune">
+                </a>
+                <a href="https://choseven.github.io/HollowKnight" class="character char-knight">
+                    <img src="Hollow knight icon.png" alt="Hollow Knight">
+                </a>
+                <a href="https://choseven.github.io/PokemonEmerald" class="character char-pokeball">
+                    <img src="pokeballpng.png" alt="Pokemon">
+                </a>
+                <a href="https://choseven.github.io/BlockBlast" class="character char-snake">
+                    <img src="block blast png(1).png" alt="Block Blast">
+                </a>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="all">ALL</button>
+            <button class="tab" data-tab="indie">INDIE</button>
+            <button class="tab" data-tab="pokemon">POKEMON</button>
+            <button class="tab" data-tab="classic">CLASSIC</button>
+        </div>
+
+        <div class="tab-content active" id="all">
+            <div class="game-grid">
+                <a href="https://choseven.github.io/Undertale" class="game-button">Undertale</a>
+                <a href="https://choseven.github.io/Deltarune" class="game-button">Deltarune</a>
+                <a href="https://choseven.github.io/BlockBlast" class="game-button">Block Blast</a>
+                <a href="https://choseven.github.io/HollowKnight" class="game-button">Hollow Knight</a>
+                <a href="https://choseven.github.io/LastBreath" class="game-button">Last Breath</a>
+                <a href="https://choseven.github.io/PokemonEmerald" class="game-button">Pokemon Emerald</a>
+                <a href="https://choseven.github.io/PokemonFireRed" class="game-button">Pokemon Fire Red</a>
+                <a href="https://choseven.github.io/PokemonHeartGold" class="game-button">Pokemon Heart Gold</a>
+                <a href="https://choseven.github.io/PokemonLeafGreen" class="game-button">Pokemon Leaf Green</a>
+                <a href="https://choseven.github.io/PokemonPlatinum" class="game-button">Pokemon Platinum</a>
+                <a href="https://choseven.github.io/PokemonRed" class="game-button">Pokemon Red</a>
+                <a href="https://choseven.github.io/PokemonRuby" class="game-button">Pokemon Ruby</a>
+                <a href="https://choseven.github.io/PokemonSapphire" class="game-button">Pokemon Sapphire</a>
+                <a href="https://choseven.github.io/PokemonSoulSilver" class="game-button">Pokemon Soul Silver</a>
+                <a href="https://choseven.github.io/Snake" class="game-button">Snake</a>
+                <a href="https://choseven.github.io/10thAnniversaryUndertale" class="game-button">10th Anniversary Undertale</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="indie">
+            <div class="game-grid">
+                <a href="https://choseven.github.io/Undertale" class="game-button">Undertale</a>
+                <a href="https://choseven.github.io/Deltarune" class="game-button">Deltarune</a>
+                <a href="https://choseven.github.io/HollowKnight" class="game-button">Hollow Knight</a>
+                <a href="https://choseven.github.io/LastBreath" class="game-button">Last Breath</a>
+                <a href="https://choseven.github.io/10thAnniversaryUndertale" class="game-button">10th Anniversary Undertale</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="pokemon">
+            <div class="game-grid">
+                <a href="https://choseven.github.io/PokemonEmerald" class="game-button">Pokemon Emerald</a>
+                <a href="https://choseven.github.io/PokemonFireRed" class="game-button">Pokemon Fire Red</a>
+                <a href="https://choseven.github.io/PokemonHeartGold" class="game-button">Pokemon Heart Gold</a>
+                <a href="https://choseven.github.io/PokemonLeafGreen" class="game-button">Pokemon Leaf Green</a>
+                <a href="https://choseven.github.io/PokemonPlatinum" class="game-button">Pokemon Platinum</a>
+                <a href="https://choseven.github.io/PokemonRed" class="game-button">Pokemon Red</a>
+                <a href="https://choseven.github.io/PokemonRuby" class="game-button">Pokemon Ruby</a>
+                <a href="https://choseven.github.io/PokemonSapphire" class="game-button">Pokemon Sapphire</a>
+                <a href="https://choseven.github.io/PokemonSoulSilver" class="game-button">Pokemon Soul Silver</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="classic">
+            <div class="game-grid">
+                <a href="https://choseven.github.io/BlockBlast" class="game-button">Block Blast</a>
+                <a href="https://choseven.github.io/Snake" class="game-button">Snake</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const glowBg = document.getElementById('glowBg');
+        const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'];
+        let colorIndex = 0;
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const targetTab = tab.getAttribute('data-tab');
+                document.getElementById(targetTab).classList.add('active');
+
+                colorIndex = (colorIndex + 1) % colors.length;
+                glowBg.style.background = `radial-gradient(circle, ${colors[colorIndex]}, transparent)`;
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            glowBg.style.left = (x - 300) + 'px';
+            glowBg.style.top = (y - 300) + 'px';
+        });
+
+        glowBg.style.background = `radial-gradient(circle, ${colors[0]}, transparent)`;
+        glowBg.style.left = '50%';
+        glowBg.style.top = '50%';
+        glowBg.style.transform = 'translate(-50%, -50%)';
+    </script>
+</body>
+</html>
