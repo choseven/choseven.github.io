@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Select</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0a0a;
+      color: white;
+      cursor: default;
+    }
+
+    /* Scrolling news bar */
+    .news-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(135deg, 
+        rgba(40, 40, 40, 0.95) 0%, 
+        rgba(60, 60, 60, 0.95) 50%, 
+        rgba(40, 40, 40, 0.95) 100%);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .news-content {
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      animation: scroll 25s linear infinite;
+      padding-left: 100%;
+      line-height: 1.2;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Undertale 10th Anniversary Button */
+    .anniversary-button {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.9) 0%,
+        rgba(255, 193, 7, 0.85) 25%,
+        rgba(255, 235, 59, 0.9) 50%,
+        rgba(255, 193, 7, 0.85) 75%,
+        rgba(255, 215, 0, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      border-radius: 12px;
+      color: rgba(0, 0, 0, 0.9);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.1;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1001;
+      cursor: pointer;
+      user-select: none;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+    }
+
+    .anniversary-button:hover {
+      transform: scale(1.05) translateY(-2px);
+      background: linear-gradient(135deg, 
+        rgba(255, 235, 59, 1) 0%,
+        rgba(255, 215, 0, 0.95) 25%,
+        rgba(255, 245, 80, 1) 50%,
+        rgba(255, 215, 0, 0.95) 75%,
+        rgba(255, 235, 59, 1) 100%);
+      border-color: rgba(255, 235, 59, 0.8);
+    }
+
+    .anniversary-button:active {
+      transform: scale(1.02) translateY(-1px);
+      transition: all 0.1s ease;
+    }
+
+    /* Mobile adjustments for anniversary button */
+    @media (max-width: 768px) {
+      .anniversary-button {
+        width: 85px;
+        height: 85px;
+        top: 45px;
+        right: 5px;
+        font-size: 9px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .anniversary-button {
+        width: 75px;
+        height: 75px;
+        top: 45px;
+        right: 5px;
+        font-size: 8px;
+      }
+    }
+
+    /* Animated background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 40px; /* Account for news bar */
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - 40px);
+      background: radial-gradient(
+        ellipse at 70% 30%,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(240, 240, 240, 0.08) 25%,
+        rgba(200, 200, 200, 0.06) 50%,
+        rgba(150, 150, 150, 0.04) 75%,
+        rgba(0, 0, 0, 0) 100%
+      );
+      filter: blur(120px);
+      z-index: -1;
+      animation: gradientShift 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes gradientShift {
+      0% { transform: translateX(-20px) translateY(-10px) scale(1); }
+      100% { transform: translateX(20px) translateY(10px) scale(1.1); }
+    }
+
+    /* Background canvas for particles */
+    #bg {
+      position: fixed;
+      top: 40px; /* Account for news bar */
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - 40px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Main container - responsive layout */
+    .main-container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 40px); /* Account for news bar */
+      margin-top: 40px; /* Account for news bar */
+      padding: clamp(0.5rem, 2vw, 2rem);
+      gap: clamp(1rem, 3vh, 2rem);
+      overflow-y: auto;
+      padding-right: clamp(1rem, 2vw, 2rem); /* Extra padding for anniversary button */
+    }
+
+    /* Desktop layout */
+    @media (min-width: 768px) and (min-height: 700px) {
+      .main-container {
+        display: grid;
+        grid-template-areas: "buttons title";
+        grid-template-columns: 1.2fr 1fr;
+        grid-template-rows: 1fr;
+        gap: clamp(1rem, 3vw, 3rem);
+        align-items: center;
+        overflow: hidden;
+        padding-right: clamp(2rem, 4vw, 4rem); /* More padding on desktop */
+      }
+    }
+
+    /* Title styling */
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.5rem, 5vw, 4rem);
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.3),
+        0 0 20px rgba(255, 255, 255, 0.2);
+      background: linear-gradient(45deg, #ffffff, #f0f0f0, #ffffff);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textGlow 3s ease-in-out infinite alternate;
+      order: -1;
+    }
+
+    @media (min-width: 768px) and (min-height: 700px) {
+      .title {
+        grid-area: title;
+        font-size: clamp(2rem, 4vw, 5rem);
+        order: initial;
+      }
+    }
+
+    @keyframes textGlow {
+      0% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+      }
+      100% { 
+        background-position: 100% 50%;
+        filter: brightness(1.2);
+      }
+    }
+
+    /* Button container */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: clamp(0.5rem, 1.5vh, 1rem);
+      flex: 1;
+      overflow-y: auto;
+      padding: clamp(0.25rem, 1vh, 1rem);
+      min-height: 0;
+    }
+
+    @media (min-width: 768px) and (min-height: 700px) {
+      .button-container {
+        grid-area: buttons;
+        gap: clamp(0.75rem, 2vh, 1.25rem);
+        justify-content: center;
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+    }
+
+    /* Base button styles - NO GLOW */
+    .game-button, .group-button {
+      background: linear-gradient(135deg, 
+        rgba(30, 30, 30, 0.9) 0%, 
+        rgba(45, 45, 45, 0.8) 50%, 
+        rgba(30, 30, 30, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid transparent;
+      color: #fff;
+      padding: clamp(0.75rem, 2vh, 1.25rem) clamp(1.5rem, 4vw, 3rem);
+      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      width: 100%;
+      max-width: min(90vw, 400px);
+      min-height: 48px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Hover shine effect */
+    .game-button::before, .group-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.15), 
+        transparent);
+      transition: left 0.6s ease;
+    }
+
+    .game-button:hover::before, .group-button:hover::before {
+      left: 100%;
+    }
+
+    .game-button:hover, .group-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    .game-button:active, .group-button:active {
+      transform: translateY(-1px) scale(0.98);
+      transition: all 0.1s ease;
+    }
+
+    /* Featured button */
+    .featured-button {
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(240, 240, 240, 0.15) 50%, 
+        rgba(255, 255, 255, 0.2) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .featured-button::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.25), 
+        transparent);
+    }
+
+    .featured-button:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.3) 0%, 
+        rgba(240, 240, 240, 0.2) 50%, 
+        rgba(255, 255, 255, 0.3) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* Themed buttons */
+    .undertale-split {
+      background: linear-gradient(180deg, 
+        rgba(255, 50, 50, 0.15) 0%, 
+        rgba(255, 50, 50, 0.15) 50%, 
+        rgba(255, 220, 50, 0.15) 50%, 
+        rgba(255, 220, 50, 0.15) 100%);
+      border: 2px solid rgba(255, 135, 80, 0.3);
+    }
+
+    .undertale-split::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 135, 80, 0.25), 
+        transparent);
+    }
+
+    .undertale-split:hover {
+      background: linear-gradient(180deg, 
+        rgba(255, 50, 50, 0.25) 0%, 
+        rgba(255, 50, 50, 0.25) 50%, 
+        rgba(255, 220, 50, 0.25) 50%, 
+        rgba(255, 220, 50, 0.25) 100%);
+      border: 2px solid rgba(255, 135, 80, 0.5);
+      text-shadow: 0 0 15px rgba(255, 135, 80, 0.5);
+    }
+
+    .undertale-red {
+      background: linear-gradient(135deg, 
+        rgba(255, 50, 50, 0.15) 0%, 
+        rgba(255, 30, 30, 0.1) 50%, 
+        rgba(255, 50, 50, 0.15) 100%);
+      border: 2px solid rgba(255, 80, 80, 0.3);
+    }
+
+    .undertale-red::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 80, 80, 0.25), 
+        transparent);
+    }
+
+    .undertale-red:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 50, 50, 0.25) 0%, 
+        rgba(255, 30, 30, 0.2) 50%, 
+        rgba(255, 50, 50, 0.25) 100%);
+      border: 2px solid rgba(255, 80, 80, 0.5);
+      text-shadow: 0 0 15px rgba(255, 80, 80, 0.5);
+    }
+
+    .undertale-yellow {
+      background: linear-gradient(135deg, 
+        rgba(255, 220, 50, 0.15) 0%, 
+        rgba(255, 200, 30, 0.1) 50%, 
+        rgba(255, 220, 50, 0.15) 100%);
+      border: 2px solid rgba(255, 220, 80, 0.3);
+    }
+
+    .undertale-yellow::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 220, 80, 0.25), 
+        transparent);
+    }
+
+    .undertale-yellow:hover {
+      background: linear-gradient(135deg, 
+        rgba(255, 220, 50, 0.25) 0%, 
+        rgba(255, 200, 30, 0.2) 50%, 
+        rgba(255, 220, 50, 0.25) 100%);
+      border: 2px solid rgba(255, 220, 80, 0.5);
+      text-shadow: 0 0 15px rgba(255, 220, 80, 0.5);
+    }
+
+    .deltarune-blue {
+      background: linear-gradient(135deg, 
+        rgba(30, 60, 150, 0.2) 0%, 
+        rgba(20, 40, 120, 0.15) 50%, 
+        rgba(30, 60, 150, 0.2) 100%);
+      border: 2px solid rgba(60, 100, 180, 0.4);
+    }
+
+    .deltarune-blue::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(60, 100, 180, 0.3), 
+        transparent);
+    }
+
+    .deltarune-blue:hover {
+      background: linear-gradient(135deg, 
+        rgba(30, 60, 150, 0.3) 0%, 
+        rgba(20, 40, 120, 0.25) 50%, 
+        rgba(30, 60, 150, 0.3) 100%);
+      border: 2px solid rgba(60, 100, 180, 0.6);
+      text-shadow: 0 0 15px rgba(60, 100, 180, 0.6);
+    }
+
+    .hollow-knight-blue {
+      background: linear-gradient(135deg, 
+        rgba(90, 200, 255, 0.15) 0%, 
+        rgba(70, 180, 235, 0.1) 50%, 
+        rgba(90, 200, 255, 0.15) 100%);
+      border: 2px solid rgba(110, 210, 255, 0.3);
+      font-family: 'Perpetua', serif;
+    }
+
+    .hollow-knight-blue::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(110, 210, 255, 0.25), 
+        transparent);
+    }
+
+    .hollow-knight-blue:hover {
+      background: linear-gradient(135deg, 
+        rgba(90, 200, 255, 0.25) 0%, 
+        rgba(70, 180, 235, 0.2) 50%, 
+        rgba(90, 200, 255, 0.25) 100%);
+      border: 2px solid rgba(110, 210, 255, 0.5);
+      text-shadow: 0 0 15px rgba(110, 210, 255, 0.5);
+    }
+
+    /* Button content */
+    .button-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    .main-text {
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .small-text {
+      opacity: 0.7;
+      font-size: 0.7em;
+      font-weight: 400;
+      margin-top: 0.25rem;
+      line-height: 1.1;
+    }
+
+    /* Group button expand icon */
+    .group-button {
+      justify-content: center;
+    }
+
+    .expand-icon {
+      position: absolute;
+      right: clamp(0.75rem, 2vw, 1rem);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2em;
+      font-weight: bold;
+      transition: transform 0.3s ease;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .group-button.expanded .expand-icon {
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    /* Collapsible groups */
+    .game-group {
+      visibility: hidden;
+      overflow: hidden;
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.5rem, 1vh, 0.75rem);
+      width: 100%;
+      max-width: min(90vw, 400px);
+      align-items: center;
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    .game-group.reveal {
+      visibility: visible;
+      height: auto;
+      opacity: 1;
+    }
+
+    .game-group .game-button {
+      opacity: 0;
+      transform: translateY(-15px);
+      transition: all 0.3s ease;
+    }
+
+    .game-group.reveal .game-button {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .game-group.reveal .game-button:nth-child(1) { transition-delay: 0.1s; }
+    .game-group.reveal .game-button:nth-child(2) { transition-delay: 0.15s; }
+    .game-group.reveal .game-button:nth-child(3) { transition-delay: 0.2s; }
+
+    /* Responsive optimizations */
+    @media (max-height: 600px) {
+      .title {
+        font-size: clamp(1.2rem, 4vw, 2rem);
+        padding: clamp(0.25rem, 1vh, 0.5rem);
+      }
+      
+      .button-container {
+        gap: clamp(0.25rem, 0.8vh, 0.5rem);
+        padding: clamp(0.25rem, 0.5vh, 0.5rem);
+      }
+      
+      .game-button, .group-button {
+        padding: clamp(0.5rem, 1.2vh, 0.75rem) clamp(1rem, 3vw, 2rem);
+        font-size: clamp(0.8rem, 2vw, 1rem);
+        min-height: 40px;
+      }
+
+      .main-container {
+        gap: clamp(0.5rem, 1vh, 1rem);
+        padding: clamp(0.25rem, 1vw, 1rem);
+        padding-right: clamp(0.5rem, 1vw, 1.5rem);
+      }
+    }
+
+    @media (max-width: 320px) {
+      .game-button, .group-button {
+        max-width: 95vw;
+        font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      }
+      
+      .news-content {
+        font-size: 12px;
+      }
+      
+      .main-container {
+        padding-right: clamp(0.25rem, 1vw, 1rem);
+      }
+    }
+
+    /* Ultra-wide screen support */
+    @media (min-width: 1400px) {
+      .main-container {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Scrolling news bar -->
+  <div class="news-bar">
+    <div class="news-content">
+      Please be aware these are original game versions with existing bugs and limitations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All credit goes to the original developers and creators&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This collection was compiled for easy access&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enjoy the games but expect some technical issues&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+  </div>
+
+  <!-- Undertale 10th Anniversary Button -->
+  <a href="https://ut10-battle.undertale.com/" class="anniversary-button">
+    UNDERTALE<br>10TH<br>ANNIVERSARY
+  </a>
+
+  <canvas id="bg"></canvas>
+
+  <div class="main-container">
+    <div class="title">Select Your Game</div>
+    
+    <div class="button-container">
+      <a href="https://choseven.github.io/BlockBlast" class="game-button featured-button">Block Blast!</a>
+      <a href="https://Choseven.github.io/Snake" class="game-button">Snake</a>
+      <a href="https://Choseven.github.io/RhythmArrows" class="game-button">Rhythm Arrows</a>
+      <a href="https://choseven.github.io/HollowKnight" class="game-button hollow-knight-blue">Hollow Knight</a>
+      
+      <!-- Undertale Section -->
+      <div class="group-button undertale-split" id="undertaleToggle" onclick="toggleUndertaleGroup()">
+        <div class="button-content">
+          <div class="main-text">Undertale</div>
+          <div class="small-text">Ported By Genizy</div>
+        </div>
+        <span class="expand-icon">+</span>
+      </div>
+      <div class="game-group" id="undertaleGroup">
+        <a href="https://choseven.github.io/Undertale" class="game-button undertale-red">Undertale</a>
+        <a href="https://choseven.github.io/UndertaleYellow" class="game-button undertale-yellow">Undertale Yellow</a>
+        <a href="https://choseven.github.io/Deltarune" class="game-button deltarune-blue">Deltarune</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Group toggle functionality
+    let undertaleExpanded = false;
+
+    function toggleUndertaleGroup() {
+      const toggle = document.getElementById('undertaleToggle');
+      const group = document.getElementById('undertaleGroup');
+      
+      if (undertaleExpanded) {
+        group.classList.remove('reveal');
+        toggle.classList.remove('expanded');
+        undertaleExpanded = false;
+      } else {
+        group.classList.add('reveal');
+        toggle.classList.add('expanded');
+        undertaleExpanded = true;
+      }
+    }
+
+    // Particle background system
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: -9999, y: -9999 };
+    let animationId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 40; // Account for news bar
+    }
+
+    function createParticles() {
+      const density = Math.min(120, Math.max(40, Math.floor((canvas.width * canvas.height) / 10000)));
+      particles = [];
+      
+      for (let i = 0; i < density; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2.5 + 0.5,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.5 + 0.2,
+          pulseSpeed: Math.random() * 0.02 + 0.01,
+          pulsePhase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, i) => {
+        // Mouse interaction (adjust for news bar offset)
+        const dx = p.x - mouse.x;
+        const dy = p.y - (mouse.y - 40);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 100) {
+          const force = (100 - dist) / 100;
+          const angle = Math.atan2(dy, dx);
+          p.x += Math.cos(angle) * force * 1.5;
+          p.y += Math.sin(angle) * force * 1.5;
+        }
+
+        // Movement
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        // Boundary wrapping
+        if (p.x < -10) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -10;
+        if (p.y < -10) p.y = canvas.height + 10;
+        if (p.y > canvas.height + 10) p.y = -10;
+
+        // Pulsing animation
+        p.pulsePhase += p.pulseSpeed;
+        const pulseFactor = Math.sin(p.pulsePhase) * 0.3 + 0.7;
+        const currentOpacity = p.opacity * pulseFactor;
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * pulseFactor, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${currentOpacity})`;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 10 * pulseFactor;
+        ctx.fill();
+
+        // Connect nearby particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx2 = p.x - p2.x;
+          const dy2 = p.y - p2.y;
+          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+          
+          if (dist2 < 80) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${(80 - dist2) / 400})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      });
+      
+      animationId = requestAnimationFrame(drawParticles);
+    }
+
+    function handleResize() {
+      resizeCanvas();
+      createParticles();
+    }
+
+    // Event listeners
+    window.addEventListener('resize', handleResize);
+
+    canvas.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    canvas.addEventListener('touchend', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    // Initialize
+    handleResize();
+    drawParticles();
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    });
+  </script>
+</body>
+</html>
