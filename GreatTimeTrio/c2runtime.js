@@ -25675,68 +25675,81 @@ cr.plugins_.NodeWebkit = function(runtime)
 	{
 		isNWjs = this.runtime.isNWjs;
 		var self = this;
-		if (isNWjs)
+		
+		// CRITICAL: Only run NW.js code if we're ACTUALLY in NW.js environment
+		if (isNWjs && typeof require !== 'undefined' && typeof process !== 'undefined' && process.versions && process.versions['node-webkit'])
 		{
-			path = require("path");
-			fs = require("fs");
-			os = require("os");
-			child_process = require("child_process");
-			process = window["process"] || nw["process"];
-			if (process["platform"] !== "win32")
-				slash = "/";
-			nw_appfolder = path["dirname"](process["execPath"]) + slash;
-			nw_userfolder = os["homedir"]() + slash;
-			gui = window["nwgui"];
-			nw_projectfilesfolder = process["mainModule"]["filename"];
-			var lastSlash = Math.max(nw_projectfilesfolder.lastIndexOf("/"), nw_projectfilesfolder.lastIndexOf("\\"));
-			if (lastSlash !== -1)
-				nw_projectfilesfolder = nw_projectfilesfolder.substr(0, lastSlash + 1);
-			window["ondrop"] = function (e)
-			{
-				e.preventDefault();
-				for (var i = 0; i < e["dataTransfer"]["files"].length; ++i)
+			try {
+				path = require("path");
+				fs = require("fs");
+				os = require("os");
+				child_process = require("child_process");
+				process = window["process"] || nw["process"];
+				if (process["platform"] !== "win32")
 				{
-					droppedfile = e["dataTransfer"]["files"][i]["path"];
-					self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFileDrop, self);
+					slash = "/";
+					nw_appfolder = path["dirname"](process["execPath"]) + slash;
+					nw_userfolder = os["homedir"]() + slash;
+					gui = window["nwgui"];
+					nw_projectfilesfolder = process["mainModule"]["filename"];
+					var lastSlash = Math.max(nw_projectfilesfolder.lastIndexOf("/"), nw_projectfilesfolder.lastIndexOf("\\"));
+					if (lastSlash !== -1)
+						nw_projectfilesfolder = nw_projectfilesfolder.substr(0, lastSlash + 1);
+					window["ondrop"] = function (e)
+					{
+						e.preventDefault();
+						for (var i = 0; i < e["dataTransfer"]["files"].length; ++i)
+						{
+							droppedfile = e["dataTransfer"]["files"][i]["path"];
+							self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFileDrop, self);
+						}
+						return false;
+					};
+					var openFileDialogElem = document.getElementById("c2nwOpenFileDialog");
+					openFileDialogElem["onchange"] = function (e) {
+						chosenpath = openFileDialogElem.value;
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnOpenDlg, self);
+						try {
+							openFileDialogElem.value = null;
+						}
+						catch (e) {}
+					};
+					openFileDialogElem["oncancel"] = function () {
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnOpenDlgCancel, self);
+					};
+					var chooseFolderDialogElem = document.getElementById("c2nwChooseFolderDialog");
+					chooseFolderDialogElem["onchange"] = function (e) {
+						chosenpath = chooseFolderDialogElem.value;
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFolderDlg, self);
+						try {
+							chooseFolderDialogElem.value = null;
+						}
+						catch (e) {}
+					};
+					chooseFolderDialogElem["oncancel"] = function () {
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFolderDlgCancel, self);
+					};
+					var saveDialogElem = document.getElementById("c2nwSaveDialog");
+					saveDialogElem["onchange"] = function (e) {
+						chosenpath = saveDialogElem.value;
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnSaveDlg, self);
+						try {
+							saveDialogElem.value = null;
+						}
+						catch (e) {}
+					};
+					saveDialogElem["oncancel"] = function () {
+						self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnSaveDlgCancel, self);
+					};
 				}
-				return false;
-			};
-			var openFileDialogElem = document.getElementById("c2nwOpenFileDialog");
-			openFileDialogElem["onchange"] = function (e) {
-				chosenpath = openFileDialogElem.value;
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnOpenDlg, self);
-				try {
-					openFileDialogElem.value = null;
-				}
-				catch (e) {}
-			};
-			openFileDialogElem["oncancel"] = function () {
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnOpenDlgCancel, self);
-			};
-			var chooseFolderDialogElem = document.getElementById("c2nwChooseFolderDialog");
-			chooseFolderDialogElem["onchange"] = function (e) {
-				chosenpath = chooseFolderDialogElem.value;
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFolderDlg, self);
-				try {
-					chooseFolderDialogElem.value = null;
-				}
-				catch (e) {}
-			};
-			chooseFolderDialogElem["oncancel"] = function () {
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnFolderDlgCancel, self);
-			};
-			var saveDialogElem = document.getElementById("c2nwSaveDialog");
-			saveDialogElem["onchange"] = function (e) {
-				chosenpath = saveDialogElem.value;
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnSaveDlg, self);
-				try {
-					saveDialogElem.value = null;
-				}
-				catch (e) {}
-			};
-			saveDialogElem["oncancel"] = function () {
-				self.runtime.trigger(cr.plugins_.NodeWebkit.prototype.cnds.OnSaveDlgCancel, self);
-			};
+			} catch(e) {
+				console.warn("NW.js initialization failed (running in browser):", e);
+				isNWjs = false;
+			}
+		} else {
+			// Browser environment - disable NW.js features
+			console.log("Running in browser mode - NW.js features disabled");
+			isNWjs = false;
 		}
 	};
 	instanceProto.onDestroy = function ()
