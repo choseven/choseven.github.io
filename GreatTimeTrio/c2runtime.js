@@ -25660,12 +25660,12 @@ cr.plugins_.NodeWebkit = function(runtime)
 (function ()
 {
 	var isNWjs = false;
-	var path = null;
-	var fs = null;
-	var os = null;
+	var path = window.path || null;
+	var fs = window.fs || null;
+	var os = window.os || null;
 	var gui = null;
 	var child_process = null;
-	var process = null;
+	var process = window.process || null;  // <-- Use global process instead
 	var nw_appfolder = "";
 	var nw_userfolder = "";
 	var nw_projectfilesfolder = "";
