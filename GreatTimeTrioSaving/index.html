@@ -119,14 +119,113 @@
                 }
             };
             
-            // FS module polyfill
-            var fsPolyfill = {
-                readFileSync: function() { return ''; },
-                writeFileSync: function() {},
-                existsSync: function() { return false; },
-                mkdirSync: function() {},
-                readdirSync: function() { return []; }
-            };
+// FS module polyfill - Converts file system saves to localStorage
+var fsPolyfill = {
+    // Write to "file" (actually localStorage)
+    writeFileSync: function(filepath, data, encoding) {
+        try {
+            var filename = filepath.split(/[/\\]/).pop(); // Get filename
+            var key = 'GTT_FileSystem_' + filename;
+            var valueToStore = (typeof data === 'string') ? data : JSON.stringify(data);
+            localStorage.setItem(key, valueToStore);
+            console.log('✅ File saved to localStorage:', filename, 'Data:', valueToStore);
+            return true;
+        } catch(e) {
+            console.error('❌ File save failed:', e);
+            return false;
+        }
+    },
+    
+    // Write to "file" asynchronously
+    writeFile: function(filepath, data, options, callback) {
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        try {
+            this.writeFileSync(filepath, data);
+            if (callback) callback(null);
+        } catch(e) {
+            if (callback) callback(e);
+        }
+    },
+    
+    // Read from "file" (actually localStorage)
+    readFileSync: function(filepath, encoding) {
+        try {
+            var filename = filepath.split(/[/\\]/).pop();
+            var key = 'GTT_FileSystem_' + filename;
+            var data = localStorage.getItem(key);
+            console.log('📖 File read from localStorage:', filename, 'Data:', data);
+            if (data === null) {
+                var err = new Error('File not found: ' + filename);
+                err.code = 'ENOENT';
+                throw err;
+            }
+            return data;
+        } catch(e) {
+            console.warn('📖 File read failed:', filepath, e.message);
+            throw e;
+        }
+    },
+    
+    // Read from "file" asynchronously
+    readFile: function(filepath, options, callback) {
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        try {
+            var data = this.readFileSync(filepath);
+            if (callback) callback(null, data);
+        } catch(e) {
+            if (callback) callback(e);
+        }
+    },
+    
+    // Check if "file" exists (check localStorage)
+    existsSync: function(filepath) {
+        try {
+            var filename = filepath.split(/[/\\]/).pop();
+            var key = 'GTT_FileSystem_' + filename;
+            var exists = localStorage.getItem(key) !== null;
+            console.log('🔍 File exists check:', filename, exists);
+            return exists;
+        } catch(e) {
+            return false;
+        }
+    },
+    
+    // Dummy implementations for other methods
+    mkdirSync: function() { 
+        console.log('📁 mkdir (ignored in browser)');
+        return true; 
+    },
+    readdirSync: function() { 
+        // Return list of all saved files
+        var files = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.startsWith('GTT_FileSystem_')) {
+                files.push(key.replace('GTT_FileSystem_', ''));
+            }
+        }
+        console.log('📁 readdir:', files);
+        return files;
+    },
+    
+    unlinkSync: function(filepath) {
+        try {
+            var filename = filepath.split(/[/\\]/).pop();
+            var key = 'GTT_FileSystem_' + filename;
+            localStorage.removeItem(key);
+            console.log('🗑️ File deleted:', filename);
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+};
             
             // OS module polyfill
             var osPolyfill = {
