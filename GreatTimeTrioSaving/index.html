@@ -1,0 +1,423 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Great Time Trio</title>
+    <link rel="icon" type="image/png" href="icon-128.png" />
+    
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        html, body {
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            touch-action: none;
+            -ms-touch-action: none;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            touch-action: none;
+            -ms-touch-action: none;
+            display: block;
+        }
+        #c2canvasdiv {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: #fff;
+            z-index: 1000;
+        }
+        #debugSaveBtn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        #debugSaveBtn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+ 
+<body>
+    <div id="loadingMessage">Loading Great Time Trio...</div>
+    
+    <!-- Debug button to check save data -->
+    <button id="debugSaveBtn">Check Saves</button>
+    
+    <!-- The canvas must be inside a div called c2canvasdiv -->
+    <div id="c2canvasdiv">
+        <!-- The canvas the project will render to -->
+        <canvas id="c2canvas" width="848" height="480"></canvas>
+    </div>
+   
+    <!-- Hidden file inputs for web file dialogs -->
+    <input style="display:none;" id="c2nwOpenFileDialog" type="file" />
+    <input style="display:none;" id="c2nwChooseFolderDialog" type="file" webkitdirectory />
+    <input style="display:none;" id="c2nwSaveDialog" type="file" />
+   
+    <!-- Construct 2 exported games require jQuery -->
+    <script src="jquery-3.4.1.min.js"></script>
+    
+    <script>
+        // ========================================
+        // CRITICAL: NW.js to Browser Compatibility Polyfill
+        // This MUST load before c2runtime.js
+        // ========================================
+        (function() {
+            'use strict';
+            
+            console.log('Initializing NW.js browser compatibility layer...');
+            
+            // Path module polyfill
+            var pathPolyfill = {
+                dirname: function(p) {
+                    if (!p || typeof p !== 'string') return '.';
+                    var idx = Math.max(p.lastIndexOf('/'), p.lastIndexOf('\\'));
+                    return idx === -1 ? '.' : p.substring(0, idx);
+                },
+                basename: function(p) {
+                    if (!p || typeof p !== 'string') return '';
+                    var idx = Math.max(p.lastIndexOf('/'), p.lastIndexOf('\\'));
+                    return p.substring(idx + 1);
+                },
+                join: function() {
+                    var parts = Array.prototype.slice.call(arguments);
+                    return parts.join('/').replace(/\/+/g, '/');
+                },
+                resolve: function() {
+                    return Array.prototype.slice.call(arguments).join('/');
+                },
+                extname: function(p) {
+                    if (!p || typeof p !== 'string') return '';
+                    var idx = p.lastIndexOf('.');
+                    return idx === -1 ? '' : p.substring(idx);
+                }
+            };
+            
+            // FS module polyfill
+            var fsPolyfill = {
+                readFileSync: function() { return ''; },
+                writeFileSync: function() {},
+                existsSync: function() { return false; },
+                mkdirSync: function() {},
+                readdirSync: function() { return []; }
+            };
+            
+            // OS module polyfill
+            var osPolyfill = {
+                platform: function() { return 'browser'; },
+                type: function() { return 'Browser'; },
+                homedir: function() { return '/'; }
+            };
+            
+            // Child process polyfill
+            var childProcessPolyfill = {
+                exec: function() {},
+                spawn: function() { return { on: function() {} }; }
+            };
+            
+            // CRITICAL: Process polyfill - Must exist before c2runtime.js loads
+            if (typeof window.process === 'undefined' || window.process === null) {
+                window.process = {
+                    platform: 'browser',
+                    versions: {
+                        node: false,
+                        'node-webkit': false,
+                        nw: false,
+                        chromium: false
+                    },
+                    env: {},
+                    execPath: '',
+                    mainModule: {
+                        filename: ''
+                    }
+                };
+            } else {
+                // Ensure versions exists even if process is defined
+                if (!window.process.versions || typeof window.process.versions !== 'object') {
+                    window.process.versions = {
+                        node: false,
+                        'node-webkit': false,
+                        nw: false,
+                        chromium: false
+                    };
+                }
+            }
+            
+            // Override require() globally
+            if (typeof window.require === 'undefined') {
+                window.require = function(module) {
+                    console.warn('require() polyfill handling module:', module);
+                    
+                    switch(module) {
+                        case 'path': return pathPolyfill;
+                        case 'fs': return fsPolyfill;
+                        case 'os': return osPolyfill;
+                        case 'child_process': return childProcessPolyfill;
+                        case 'nw.gui': 
+                            return {
+                                Window: {
+                                    get: function() {
+                                        return {
+                                            show: function() {},
+                                            showDevTools: function() {},
+                                            on: function() {}
+                                        };
+                                    }
+                                },
+                                Clipboard: {
+                                    get: function() {
+                                        return {
+                                            set: function() {},
+                                            get: function() { return ''; }
+                                        };
+                                    }
+                                }
+                            };
+                        default: 
+                            return {};
+                    }
+                };
+            }
+            
+            // NW.js object polyfill
+            if (typeof window.nw === 'undefined') {
+                window.nw = {
+                    require: window.require,
+                    App: { 
+                        quit: function() { console.log('nw.App.quit() called in browser (ignored)'); } 
+                    },
+                    Window: { 
+                        get: function() { 
+                            return {
+                                show: function() {},
+                                showDevTools: function() {},
+                                on: function() {}
+                            }; 
+                        } 
+                    },
+                    Shell: {},
+                    Clipboard: { 
+                        get: function() { 
+                            return { 
+                                set: function() {}, 
+                                get: function() { return ''; } 
+                            }; 
+                        } 
+                    }
+                };
+            }
+            
+            // Set NW.js detection flags to false
+            window.isNodeWebkit = false;
+            window.c2nodewebkit = false;
+            window.c2isNodeWebkit = false;
+            
+            // Create stub nwgui
+            window.nwgui = null;
+            
+            console.log('NW.js browser compatibility layer initialized successfully');
+            console.log('process.versions:', window.process.versions);
+            
+        })();
+        // ========================================
+        // End of NW.js Polyfill
+        // ========================================
+    </script>
+    
+    <script>
+        // ========================================
+        // Browser LocalStorage Bridge for Construct 2
+        // Enables save data persistence in the browser
+        // ========================================
+        (function() {
+            'use strict';
+            
+            console.log('Initializing browser storage for save data...');
+            
+            // Ensure localStorage is available
+            if (typeof Storage !== "undefined") {
+                console.log("LocalStorage is available - saves will persist!");
+                
+                // Create a namespace for your game to avoid conflicts
+                window.gttStorage = {
+                    save: function(key, value) {
+                        try {
+                            localStorage.setItem('GreatTimeTrio_' + key, JSON.stringify(value));
+                            console.log('Saved:', key, '=', value);
+                            return true;
+                        } catch(e) {
+                            console.error('Save failed:', e);
+                            return false;
+                        }
+                    },
+                    
+                    load: function(key, defaultValue) {
+                        try {
+                            var data = localStorage.getItem('GreatTimeTrio_' + key);
+                            if (data === null) {
+                                console.log('No saved data for:', key, '- using default:', defaultValue);
+                                return defaultValue;
+                            }
+                            var loaded = JSON.parse(data);
+                            console.log('Loaded:', key, '=', loaded);
+                            return loaded;
+                        } catch(e) {
+                            console.error('Load failed:', e);
+                            return defaultValue;
+                        }
+                    },
+                    
+                    remove: function(key) {
+                        try {
+                            localStorage.removeItem('GreatTimeTrio_' + key);
+                            console.log('Removed:', key);
+                            return true;
+                        } catch(e) {
+                            console.error('Remove failed:', e);
+                            return false;
+                        }
+                    },
+                    
+                    clear: function() {
+                        try {
+                            // Only clear Great Time Trio data
+                            var keysToRemove = [];
+                            for (var i = 0; i < localStorage.length; i++) {
+                                var key = localStorage.key(i);
+                                if (key && key.startsWith('GreatTimeTrio_')) {
+                                    keysToRemove.push(key);
+                                }
+                            }
+                            for (var j = 0; j < keysToRemove.length; j++) {
+                                localStorage.removeItem(keysToRemove[j]);
+                            }
+                            console.log('All save data cleared (' + keysToRemove.length + ' items)');
+                            return true;
+                        } catch(e) {
+                            console.error('Clear failed:', e);
+                            return false;
+                        }
+                    },
+                    
+                    listAll: function() {
+                        var saves = {};
+                        for (var i = 0; i < localStorage.length; i++) {
+                            var key = localStorage.key(i);
+                            if (key && key.startsWith('GreatTimeTrio_')) {
+                                var shortKey = key.replace('GreatTimeTrio_', '');
+                                saves[shortKey] = localStorage.getItem(key);
+                            }
+                        }
+                        return saves;
+                    }
+                };
+                
+                // Add keyboard shortcut to reset save data (Ctrl+Shift+R)
+                window.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+                        if (confirm('Reset all save data? This cannot be undone!')) {
+                            window.gttStorage.clear();
+                            alert('Save data cleared! Reloading...');
+                            location.reload();
+                        }
+                    }
+                });
+                
+            } else {
+                console.warn("LocalStorage not available - saves will not persist");
+                // Create dummy functions if localStorage isn't available
+                window.gttStorage = {
+                    save: function() { return false; },
+                    load: function(key, defaultValue) { return defaultValue; },
+                    remove: function() { return false; },
+                    clear: function() { return false; },
+                    listAll: function() { return {}; }
+                };
+            }
+            
+            console.log('Browser storage initialized');
+        })();
+        // ========================================
+        // End of Storage Bridge
+        // ========================================
+    </script>
+   
+    <!-- The runtime script - loads AFTER polyfills -->
+    <script src="c2runtime.js"></script>
+    
+    <script>
+        // Start the Construct 2 project running on window load
+        jQuery(document).ready(function () {
+            // Hide loading message
+            setTimeout(function() {
+                document.getElementById('loadingMessage').style.display = 'none';
+            }, 1000);
+            
+            // Create new runtime using the c2canvas
+            cr_createRuntime("c2canvas");
+        });
+       
+        // Pause and resume on page becoming visible/invisible
+        function onVisibilityChanged() {
+            if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden)
+                cr_setSuspended(true);
+            else
+                cr_setSuspended(false);
+        }
+       
+        document.addEventListener("visibilitychange", onVisibilityChanged, false);
+        document.addEventListener("mozvisibilitychange", onVisibilityChanged, false);
+        document.addEventListener("webkitvisibilitychange", onVisibilityChanged, false);
+        document.addEventListener("msvisibilitychange", onVisibilityChanged, false);
+        
+        // Handle canvas scaling for different screen sizes
+        window.addEventListener('resize', function() {
+            if (typeof cr_sizeCanvas !== 'undefined') {
+                cr_sizeCanvas(window.innerWidth, window.innerHeight);
+            }
+        });
+        
+        // Debug: Check save data button
+        document.getElementById('debugSaveBtn').addEventListener('click', function() {
+            console.log('=== SAVE DATA DEBUG ===');
+            console.log('All localStorage keys:');
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                console.log('  ' + key + ':', localStorage.getItem(key));
+            }
+            console.log('\nGreat Time Trio saves:');
+            var gttSaves = window.gttStorage.listAll();
+            console.log(gttSaves);
+            console.log('======================');
+            
+            alert('Check the browser console (F12) for save data details!');
+        });
+    </script>
+</body>
+</html>
