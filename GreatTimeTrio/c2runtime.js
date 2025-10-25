@@ -36,11 +36,29 @@ if (typeof nw === 'undefined') {
     window.nw = {};
 }
 
-// Polyfill for process object (Node.js)
+// Process polyfill
 if (typeof process === 'undefined') {
     window.process = {
         platform: 'browser',
-        versions: { node: false, nw: false }
+        versions: {
+            node: false,
+            'node-webkit': false,
+            nw: false,
+            chromium: false
+        },
+        env: {},
+        execPath: '',
+        mainModule: {
+            filename: ''
+        }
+    };
+} else if (process && !process.versions) {
+    // If process exists but versions doesn't, add it
+    process.versions = {
+        node: false,
+        'node-webkit': false,
+        nw: false,
+        chromium: false
     };
 }
 
