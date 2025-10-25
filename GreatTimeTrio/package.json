@@ -1,0 +1,15 @@
+{
+	"name": "great-time-trio",
+	"description": "Remake of the 2018 fan game Good Time Trio, with new sprites, battles, engine, extras, and more.",
+	"version": "3.0.0",
+	"main": "index.html",
+	"scripts": {
+		"start": "npx http-server -p 8080"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yourusername/great-time-trio"
+	},
+	"keywords": ["undertale", "fangame", "game"],
+	"license": "MIT"
+}

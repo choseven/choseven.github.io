@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Great Time Trio</title>
+    <link rel="icon" type="image/png" href="icon-128.png" />
+    
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        html, body {
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            touch-action: none;
+            -ms-touch-action: none;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            touch-action: none;
+            -ms-touch-action: none;
+            display: block;
+        }
+        #c2canvasdiv {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: #fff;
+            z-index: 1000;
+        }
+    </style>
+</head>
+ 
+<body>
+    <div id="loadingMessage">Loading Great Time Trio...</div>
+    
+    <!-- The canvas must be inside a div called c2canvasdiv -->
+    <div id="c2canvasdiv">
+        <!-- The canvas the project will render to -->
+        <canvas id="c2canvas" width="848" height="480"></canvas>
+    </div>
+   
+    <!-- Hidden file inputs for web file dialogs -->
+    <input style="display:none;" id="c2nwOpenFileDialog" type="file" />
+    <input style="display:none;" id="c2nwChooseFolderDialog" type="file" webkitdirectory />
+    <input style="display:none;" id="c2nwSaveDialog" type="file" />
+   
+    <!-- Construct 2 exported games require jQuery -->
+    <script src="jquery-3.4.1.min.js"></script>
+   
+    <!-- The runtime script -->
+    <script src="c2runtime.js"></script>
+    
+    <script>
+        // Disable NW.js flag for web version
+        window["c2nodewebkit"] = false;
+        
+        // Create stub objects for NW.js compatibility
+        window["nwgui"] = null;
+        
+        // Start the Construct 2 project running on window load
+        jQuery(document).ready(function () {
+            // Hide loading message
+            setTimeout(function() {
+                document.getElementById('loadingMessage').style.display = 'none';
+            }, 1000);
+            
+            // Create new runtime using the c2canvas
+            cr_createRuntime("c2canvas");
+        });
+       
+        // Pause and resume on page becoming visible/invisible
+        function onVisibilityChanged() {
+            if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden)
+                cr_setSuspended(true);
+            else
+                cr_setSuspended(false);
+        }
+       
+        document.addEventListener("visibilitychange", onVisibilityChanged, false);
+        document.addEventListener("mozvisibilitychange", onVisibilityChanged, false);
+        document.addEventListener("webkitvisibilitychange", onVisibilityChanged, false);
+        document.addEventListener("msvisibilitychange", onVisibilityChanged, false);
+        
+        // Handle canvas scaling for different screen sizes
+        window.addEventListener('resize', function() {
+            if (typeof cr_sizeCanvas !== 'undefined') {
+                cr_sizeCanvas(window.innerWidth, window.innerHeight);
+            }
+        });
+    </script>
+</body>
+</html>
