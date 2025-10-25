@@ -62,17 +62,41 @@
    
     <!-- Construct 2 exported games require jQuery -->
     <script src="jquery-3.4.1.min.js"></script>
-   
-    <!-- The runtime script -->
-    <script src="c2runtime.js"></script>
     
     <script>
-        // Disable NW.js flag for web version
+        // NW.js compatibility layer - MUST load before c2runtime.js
         window["c2nodewebkit"] = false;
+        window["c2isNodeWebkit"] = false;
+        
+        // Polyfill require() for NW.js compatibility
+        if (typeof require === 'undefined') {
+            window.require = function(module) {
+                console.warn('require() not available in browser, module:', module);
+                if (module === 'nw.gui') {
+                    return {
+                        Window: {
+                            get: function() {
+                                return {
+                                    show: function() {},
+                                    showDevTools: function() {},
+                                    on: function() {}
+                                };
+                            }
+                        }
+                    };
+                }
+                return {};
+            };
+        }
         
         // Create stub objects for NW.js compatibility
         window["nwgui"] = null;
-        
+    </script>
+   
+    <!-- The runtime script - loads AFTER polyfills -->
+    <script src="c2runtime.js"></script>
+    
+    <script>
         // Start the Construct 2 project running on window load
         jQuery(document).ready(function () {
             // Hide loading message
