@@ -33787,12 +33787,21 @@ cr.plugins_.nwk = function(runtime)
 	instanceProto.onCreate = function()
 	{
 		try{
-			this.IsNodeWebkit = process.versions['node-webkit'];
-			this.IsNodeWebkit = true;
-			this.gui = require('nw.gui');
-			this.win = this.gui.Window.get();
-			this.clipboard = this.gui.Clipboard.get();
-			this.listen();
+    		this.isNodeWebkit = (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) ? true : false;
+    
+    		// Only try to use NW.js features if actually in NW.js environment
+    		if (this.isNodeWebkit && typeof require !== 'undefined') {
+        		this.gui = require('nw.gui');
+        		this.win = this.gui.Window.get();
+        		this.clipboard = this.gui.Clipboard.get();
+        		this.listen();
+    		} else {
+        		// Browser fallback - set to false and create empty objects
+        		this.isNodeWebkit = false;
+        		this.gui = {};
+        		this.win = {};
+        		this.clipboard = {};
+    		}
 		}
 		catch(e){
 			this.IsNodeWebkit= false;
