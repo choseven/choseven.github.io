@@ -64,33 +64,170 @@
     <script src="jquery-3.4.1.min.js"></script>
     
     <script>
-        // NW.js compatibility layer - MUST load before c2runtime.js
-        window["c2nodewebkit"] = false;
-        window["c2isNodeWebkit"] = false;
-        
-        // Polyfill require() for NW.js compatibility
-        if (typeof require === 'undefined') {
-            window.require = function(module) {
-                console.warn('require() not available in browser, module:', module);
-                if (module === 'nw.gui') {
-                    return {
-                        Window: {
-                            get: function() {
-                                return {
-                                    show: function() {},
-                                    showDevTools: function() {},
-                                    on: function() {}
-                                };
-                            }
-                        }
+        // ========================================
+        // CRITICAL: NW.js to Browser Compatibility Polyfill
+        // This MUST load before c2runtime.js
+        // ========================================
+        (function() {
+            'use strict';
+            
+            console.log('Initializing NW.js browser compatibility layer...');
+            
+            // Path module polyfill
+            var pathPolyfill = {
+                dirname: function(p) {
+                    if (!p || typeof p !== 'string') return '.';
+                    var idx = Math.max(p.lastIndexOf('/'), p.lastIndexOf('\\'));
+                    return idx === -1 ? '.' : p.substring(0, idx);
+                },
+                basename: function(p) {
+                    if (!p || typeof p !== 'string') return '';
+                    var idx = Math.max(p.lastIndexOf('/'), p.lastIndexOf('\\'));
+                    return p.substring(idx + 1);
+                },
+                join: function() {
+                    var parts = Array.prototype.slice.call(arguments);
+                    return parts.join('/').replace(/\/+/g, '/');
+                },
+                resolve: function() {
+                    return Array.prototype.slice.call(arguments).join('/');
+                },
+                extname: function(p) {
+                    if (!p || typeof p !== 'string') return '';
+                    var idx = p.lastIndexOf('.');
+                    return idx === -1 ? '' : p.substring(idx);
+                }
+            };
+            
+            // FS module polyfill
+            var fsPolyfill = {
+                readFileSync: function() { return ''; },
+                writeFileSync: function() {},
+                existsSync: function() { return false; },
+                mkdirSync: function() {},
+                readdirSync: function() { return []; }
+            };
+            
+            // OS module polyfill
+            var osPolyfill = {
+                platform: function() { return 'browser'; },
+                type: function() { return 'Browser'; },
+                homedir: function() { return '/'; }
+            };
+            
+            // Child process polyfill
+            var childProcessPolyfill = {
+                exec: function() {},
+                spawn: function() { return { on: function() {} }; }
+            };
+            
+            // CRITICAL: Process polyfill - Must exist before c2runtime.js loads
+            if (typeof window.process === 'undefined' || window.process === null) {
+                window.process = {
+                    platform: 'browser',
+                    versions: {
+                        node: false,
+                        'node-webkit': false,
+                        nw: false,
+                        chromium: false
+                    },
+                    env: {},
+                    execPath: '',
+                    mainModule: {
+                        filename: ''
+                    }
+                };
+            } else {
+                // Ensure versions exists even if process is defined
+                if (!window.process.versions || typeof window.process.versions !== 'object') {
+                    window.process.versions = {
+                        node: false,
+                        'node-webkit': false,
+                        nw: false,
+                        chromium: false
                     };
                 }
-                return {};
-            };
-        }
-        
-        // Create stub objects for NW.js compatibility
-        window["nwgui"] = null;
+            }
+            
+            // Override require() globally
+            if (typeof window.require === 'undefined') {
+                window.require = function(module) {
+                    console.warn('require() polyfill handling module:', module);
+                    
+                    switch(module) {
+                        case 'path': return pathPolyfill;
+                        case 'fs': return fsPolyfill;
+                        case 'os': return osPolyfill;
+                        case 'child_process': return childProcessPolyfill;
+                        case 'nw.gui': 
+                            return {
+                                Window: {
+                                    get: function() {
+                                        return {
+                                            show: function() {},
+                                            showDevTools: function() {},
+                                            on: function() {}
+                                        };
+                                    }
+                                },
+                                Clipboard: {
+                                    get: function() {
+                                        return {
+                                            set: function() {},
+                                            get: function() { return ''; }
+                                        };
+                                    }
+                                }
+                            };
+                        default: 
+                            return {};
+                    }
+                };
+            }
+            
+            // NW.js object polyfill
+            if (typeof window.nw === 'undefined') {
+                window.nw = {
+                    require: window.require,
+                    App: { 
+                        quit: function() { console.log('nw.App.quit() called in browser (ignored)'); } 
+                    },
+                    Window: { 
+                        get: function() { 
+                            return {
+                                show: function() {},
+                                showDevTools: function() {},
+                                on: function() {}
+                            }; 
+                        } 
+                    },
+                    Shell: {},
+                    Clipboard: { 
+                        get: function() { 
+                            return { 
+                                set: function() {}, 
+                                get: function() { return ''; } 
+                            }; 
+                        } 
+                    }
+                };
+            }
+            
+            // Set NW.js detection flags to false
+            window.isNodeWebkit = false;
+            window.c2nodewebkit = false;
+            window.c2isNodeWebkit = false;
+            
+            // Create stub nwgui
+            window.nwgui = null;
+            
+            console.log('NW.js browser compatibility layer initialized successfully');
+            console.log('process.versions:', window.process.versions);
+            
+        })();
+        // ========================================
+        // End of Polyfill
+        // ========================================
     </script>
    
     <!-- The runtime script - loads AFTER polyfills -->
