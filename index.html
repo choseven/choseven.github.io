@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: #0a0a0a;
+            background: #000000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,15 +24,35 @@
             overflow-y: auto;
         }
 
-        .glow-bg {
+        .ambient-light {
             position: fixed;
-            width: 600px;
-            height: 600px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
             border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.3;
-            transition: all 1.5s ease;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
             pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-accent {
+            position: fixed;
+            top: 20%;
+            right: 10%;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.06), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .container {
@@ -88,20 +108,24 @@
             transition: filter 0.4s;
         }
 
-        .char-heart img,
-        .char-spade img,
+        .char-heart img {
+            width: 55%;
+            height: 55%;
+            object-fit: contain;
+            transform: translateY(0);
+        }
+
+        .char-spade img {
+            width: 60%;
+            height: 60%;
+            object-fit: contain;
+            transform: translateY(0);
+        }
+
         .char-knight img {
             width: 67%;
             height: 67%;
             object-fit: contain;
-        }
-
-        .char-heart img {
-            transform: translateY(-2px);
-        }
-
-        .char-spade img {
-            transform: translateY(-1px);
         }
 
         .character:hover img {
@@ -397,7 +421,8 @@
     </style>
 </head>
 <body>
-    <div class="glow-bg" id="glowBg"></div>
+    <div class="ambient-light"></div>
+    <div class="ambient-accent"></div>
 
     <div class="container">
         <div class="header-section">
@@ -488,9 +513,6 @@
     <script>
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
-        const glowBg = document.getElementById('glowBg');
-        const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'];
-        let colorIndex = 0;
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -500,23 +522,8 @@
                 tab.classList.add('active');
                 const targetTab = tab.getAttribute('data-tab');
                 document.getElementById(targetTab).classList.add('active');
-
-                colorIndex = (colorIndex + 1) % colors.length;
-                glowBg.style.background = `radial-gradient(circle, ${colors[colorIndex]}, transparent)`;
             });
         });
-
-        document.addEventListener('mousemove', (e) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            glowBg.style.left = (x - 300) + 'px';
-            glowBg.style.top = (y - 300) + 'px';
-        });
-
-        glowBg.style.background = `radial-gradient(circle, ${colors[0]}, transparent)`;
-        glowBg.style.left = '50%';
-        glowBg.style.top = '50%';
-        glowBg.style.transform = 'translate(-50%, -50%)';
     </script>
 </body>
 </html>
