@@ -1,0 +1,87 @@
+--- terraria/Decompiled/Terraria/Player.cs
++++ terraria/Terraria/Player.cs
+@@ -35,6 +35,7 @@
+ using Terraria.UI.Gamepad;
+ using Terraria.Utilities;
+ using Terraria.WorldBuilding;
++using System.Linq;
+ 
+ namespace Terraria;
+ 
+@@ -51191,19 +51192,33 @@
+ 		{
+ 			FileUtilities.Copy(path, path + ".bak", isCloudSave);
+ 		}
+-		RijndaelManaged rijndaelManaged = new RijndaelManaged();
+-		using Stream stream = (isCloudSave ? ((Stream)new MemoryStream(2000)) : ((Stream)new FileStream(path, FileMode.Create)));
+-		using CryptoStream cryptoStream = new CryptoStream(stream, rijndaelManaged.CreateEncryptor(ENCRYPTION_KEY, ENCRYPTION_KEY), CryptoStreamMode.Write);
+-		using BinaryWriter binaryWriter = new BinaryWriter(cryptoStream);
++		using Stream stream = ((Stream)new MemoryStream(2000));
++		using BinaryWriter binaryWriter = new BinaryWriter(stream);
+ 		binaryWriter.Write(279);
+ 		playerFile.Metadata.Write(binaryWriter);
+ 		Serialize(playerFile, player, binaryWriter);
+ 		binaryWriter.Flush();
+-		cryptoStream.FlushFinalBlock();
+ 		stream.Flush();
++
++		byte[] plaintext = ((MemoryStream)stream).ToArray();
++		byte[] key = ENCRYPTION_KEY.ToArray();
++		byte[] iv = ENCRYPTION_KEY.ToArray();
++		byte[] ciphertext = new byte[plaintext.Length + 128]; // padding
++		int byteswritten = 0;
++
++		unsafe {
++			fixed (byte *pPlaintext = plaintext, piv = iv, pdata = ciphertext) {
++				byteswritten = NativeCrypto.AesEncryptCbc(key, key.Length, piv, pPlaintext, plaintext.Length, pdata);
++			}
++		}
++
+ 		if (isCloudSave && SocialAPI.Cloud != null)
+ 		{
+-			SocialAPI.Cloud.Write(playerFile.Path, ((MemoryStream)stream).ToArray());
++			SocialAPI.Cloud.Write(playerFile.Path, ciphertext, byteswritten);
++		} else {
++			var fs = File.Open(path, FileMode.Create, FileAccess.Write);
++			fs.Write(ciphertext, 0, byteswritten);
++			fs.Close();
+ 		}
+ 	}
+ 
+@@ -51507,12 +51522,19 @@
+ 		bool gotToReadName = false;
+ 		try
+ 		{
+-			RijndaelManaged rijndaelManaged = new RijndaelManaged();
+-			rijndaelManaged.Padding = PaddingMode.None;
+-			using (MemoryStream stream = new MemoryStream(FileUtilities.ReadAllBytes(playerPath, cloudSave)))
++			byte[] ciphertext = FileUtilities.ReadAllBytes(playerPath, cloudSave);
++			byte[] plaintext = new byte[ciphertext.Length];
++			byte[] key = ENCRYPTION_KEY.ToArray();
++			
++			unsafe {
++				fixed (byte *pCiphertext = ciphertext, pPlaintext = plaintext, piv = key) {
++					int newlen = NativeCrypto.AesDecryptCbc(key, key.Length, piv, pCiphertext, ciphertext.Length, pPlaintext);
++					Array.Resize(ref plaintext, newlen);
++				}
++			}
++			using (MemoryStream stream = new MemoryStream(plaintext))
+ 			{
+-				using CryptoStream input = new CryptoStream(stream, rijndaelManaged.CreateDecryptor(ENCRYPTION_KEY, ENCRYPTION_KEY), CryptoStreamMode.Read);
+-				using BinaryReader binaryReader = new BinaryReader(input);
++				using BinaryReader binaryReader = new BinaryReader(stream);
+ 				int num = binaryReader.ReadInt32();
+ 				if (num >= 135)
+ 				{
+@@ -51536,8 +51558,10 @@
+ 			playerFileData.Player = player;
+ 			return playerFileData;
+ 		}
+-		catch
++		catch (Exception ex)
+ 		{
++			Console.WriteLine("Failed to load player data");
++			Console.WriteLine(ex);
+ 		}
+ 		Player player2 = new Player();
+ 		player2.loadStatus = 2;
