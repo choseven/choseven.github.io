@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Menu</title>
+    <title>Game Selection</title>
     <style>
         * {
             margin: 0;
@@ -11,508 +11,709 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #0a0a0a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .glow-bg {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.3;
-            transition: all 1.5s ease;
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        h1 {
-            color: #ffffff;
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            font-weight: 300;
-            letter-spacing: 8px;
-        }
-
-        .character-showcase {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .character {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-        }
-
-        .character img {
+        html, body {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            filter: brightness(0.9);
-            transition: filter 0.4s;
-        }
-
-        .char-heart img,
-        .char-spade img,
-        .char-knight img {
-            width: 67%;
-            height: 67%;
-            object-fit: contain;
-        }
-
-        .char-heart img {
-            transform: translateY(-2px);
-        }
-
-        .char-spade img {
-            transform: translateY(-1px);
-        }
-
-        .character:hover img {
-            filter: brightness(1.1);
-        }
-
-        .character::before {
-            content: '';
-            position: absolute;
-            inset: -5px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .character:hover {
-            transform: scale(1.15) translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
-        }
-
-        .character:hover::before {
-            opacity: 1;
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .char-heart {
-            border-color: rgba(255, 0, 0, 0.3);
-        }
-
-        .char-heart:hover {
-            border-color: rgba(255, 0, 0, 0.6);
-            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
-        }
-
-        .char-spade {
-            border-color: rgba(138, 43, 226, 0.3);
-        }
-
-        .char-spade:hover {
-            border-color: rgba(138, 43, 226, 0.6);
-            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
-        }
-
-        .char-knight {
-            border-color: rgba(230, 230, 230, 0.3);
-        }
-
-        .char-knight:hover {
-            border-color: rgba(230, 230, 230, 0.6);
-            box-shadow: 0 10px 30px rgba(230, 230, 230, 0.3);
-        }
-
-        .char-pokeball {
-            border-color: rgba(255, 68, 68, 0.3);
-        }
-
-        .char-pokeball:hover {
-            border-color: rgba(255, 68, 68, 0.6);
-            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.4);
-        }
-
-        .char-snake {
-            border-color: rgba(0, 255, 0, 0.3);
-        }
-
-        .char-snake:hover {
-            border-color: rgba(0, 255, 0, 0.6);
-            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.4);
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 1.1em;
-            cursor: pointer;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
-            position: relative;
-            font-weight: 500;
-            letter-spacing: 1px;
-        }
-
-        .tab::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: #fff;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .tab.active {
-            color: #fff;
-        }
-
-        .tab.active::after {
-            width: 100%;
-        }
-
-        .tab:hover {
-            color: #aaa;
-        }
-
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .game-button {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px 20px;
-            font-size: 1em;
-            font-weight: 500;
-            color: #ccc;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            background: #000;
             overflow: hidden;
-            backdrop-filter: blur(10px);
         }
 
-        .game-button::before {
-            content: '';
+        #gameCanvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;
             position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        .game-button:hover {
-            transform: scale(1.05);
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.08);
+        #instructions {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
             color: #fff;
-            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        .game-button:hover::before {
-            opacity: 1;
+        #fullscreenBtn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            border: 3px solid #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
         }
 
-        .game-button:active {
-            transform: scale(0.98);
+        #fullscreenBtn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
         }
 
-        /* Subtle game-specific accents */
-        .game-button[href*="Undertale"]:not([href*="10th"]):hover {
-            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.2);
-        }
-
-        .game-button[href*="Deltarune"]:hover {
-            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.2);
-        }
-
-        .game-button[href*="BlockBlast"]:hover {
-            box-shadow: 0 8px 30px rgba(255, 165, 0, 0.2);
-        }
-
-        .game-button[href*="HollowKnight"]:hover {
-            box-shadow: 0 8px 30px rgba(230, 230, 230, 0.15);
-        }
-
-        .game-button[href*="LastBreath"]:hover {
-            box-shadow: 0 8px 30px rgba(0, 162, 255, 0.2);
-        }
-
-        .game-button[href*="PokemonEmerald"]:hover {
-            box-shadow: 0 8px 30px rgba(0, 200, 100, 0.2);
-        }
-
-        .game-button[href*="PokemonFireRed"]:hover {
-            box-shadow: 0 8px 30px rgba(255, 69, 0, 0.2);
-        }
-
-        .game-button[href*="PokemonHeartGold"]:hover {
-            box-shadow: 0 8px 30px rgba(218, 165, 32, 0.2);
-        }
-
-        .game-button[href*="PokemonLeafGreen"]:hover {
-            box-shadow: 0 8px 30px rgba(50, 205, 50, 0.2);
-        }
-
-        .game-button[href*="PokemonPlatinum"]:hover {
-            box-shadow: 0 8px 30px rgba(192, 192, 192, 0.2);
-        }
-
-        .game-button[href*="PokemonRed"]:not([href*="Fire"]):hover {
-            box-shadow: 0 8px 30px rgba(220, 20, 60, 0.2);
-        }
-
-        .game-button[href*="PokemonRuby"]:hover {
-            box-shadow: 0 8px 30px rgba(178, 34, 34, 0.2);
-        }
-
-        .game-button[href*="PokemonSapphire"]:hover {
-            box-shadow: 0 8px 30px rgba(30, 144, 255, 0.2);
-        }
-
-        .game-button[href*="PokemonSoulSilver"]:hover {
-            box-shadow: 0 8px 30px rgba(169, 169, 169, 0.2);
-        }
-
-        .game-button[href*="Snake"]:hover {
-            box-shadow: 0 8px 30px rgba(0, 255, 0, 0.2);
-        }
-
-        .game-button[href*="10thAnniversary"]:hover {
-            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.8em;
-                letter-spacing: 4px;
-            }
-
-            .header-section {
-                margin-bottom: 35px;
-            }
-
-            .character-showcase {
-                gap: 20px;
-            }
-
-            .character {
-                width: 60px;
-                height: 60px;
-                font-size: 2em;
-            }
-
-            .tabs {
-                gap: 15px;
-            }
-
-            .tab {
-                font-size: 0.95em;
-                padding: 8px 15px;
-            }
-
-            .game-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .game-button {
-                padding: 25px 15px;
-            }
+        #fullscreenBtn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
-    <div class="glow-bg" id="glowBg"></div>
-
-    <div class="container">
-        <div class="header-section">
-            <h1>SELECT</h1>
-            <div class="character-showcase">
-                <a href="https://choseven.github.io/Undertale" class="character char-heart">
-                    <img src="undertaleheart.png" alt="Undertale">
-                </a>
-                <a href="https://choseven.github.io/Deltarune" class="character char-spade">
-                    <img src="deltarune icon.png" alt="Deltarune">
-                </a>
-                <a href="https://choseven.github.io/HollowKnight" class="character char-knight">
-                    <img src="Hollow knight icon.png" alt="Hollow Knight">
-                </a>
-                <a href="https://choseven.github.io/PokemonFireRed" class="character char-pokeball">
-                    <img src="pokeballpng.png" alt="Pokemon">
-                </a>
-                <a href="https://choseven.github.io/BlockBlast" class="character char-snake">
-                    <img src="block blast png(1).png" alt="Block Blast">
-                </a>
-            </div>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab active" data-tab="all">ALL</button>
-            <button class="tab" data-tab="indie">INDIE</button>
-            <button class="tab" data-tab="pokemon">POKEMON</button>
-            <button class="tab" data-tab="classic">CLASSIC</button>
-        </div>
-
-        <div class="tab-content active" id="all">
-            <div class="game-grid">
-                <a href="https://choseven.github.io/Undertale" class="game-button">Undertale</a>
-                <a href="https://choseven.github.io/Deltarune" class="game-button">Deltarune</a>
-                <a href="https://choseven.github.io/BlockBlast" class="game-button">Block Blast</a>
-                <a href="https://choseven.github.io/HollowKnight" class="game-button">Hollow Knight</a>
-                <a href="https://choseven.github.io/LastBreath" class="game-button">Last Breath</a>
-                <a href="https://choseven.github.io/PokemonEmerald" class="game-button">Pokemon Emerald</a>
-                <a href="https://choseven.github.io/PokemonFireRed" class="game-button">Pokemon Fire Red</a>
-                <a href="https://choseven.github.io/PokemonHeartGold" class="game-button">Pokemon Heart Gold</a>
-                <a href="https://choseven.github.io/PokemonLeafGreen" class="game-button">Pokemon Leaf Green</a>
-                <a href="https://choseven.github.io/PokemonPlatinum" class="game-button">Pokemon Platinum</a>
-                <a href="https://choseven.github.io/PokemonRed" class="game-button">Pokemon Red</a>
-                <a href="https://choseven.github.io/PokemonRuby" class="game-button">Pokemon Ruby</a>
-                <a href="https://choseven.github.io/PokemonSapphire" class="game-button">Pokemon Sapphire</a>
-                <a href="https://choseven.github.io/PokemonSoulSilver" class="game-button">Pokemon Soul Silver</a>
-                <a href="https://choseven.github.io/Snake" class="game-button">Snake</a>
-                <a href="https://ut10-battle.undertale.com/" class="game-button">10th Anniversary Undertale</a>
-            </div>
-        </div>
-
-        <div class="tab-content" id="indie">
-            <div class="game-grid">
-                <a href="https://choseven.github.io/Undertale" class="game-button">Undertale</a>
-                <a href="https://choseven.github.io/Deltarune" class="game-button">Deltarune</a>
-                <a href="https://choseven.github.io/HollowKnight" class="game-button">Hollow Knight</a>
-                <a href="https://choseven.github.io/LastBreath" class="game-button">Last Breath</a>
-                <a href="https://choseven.github.io/10thAnniversaryUndertale" class="game-button">10th Anniversary Undertale</a>
-            </div>
-        </div>
-
-        <div class="tab-content" id="pokemon">
-            <div class="game-grid">
-                <a href="https://choseven.github.io/PokemonEmerald" class="game-button">Pokemon Emerald</a>
-                <a href="https://choseven.github.io/PokemonFireRed" class="game-button">Pokemon Fire Red</a>
-                <a href="https://choseven.github.io/PokemonHeartGold" class="game-button">Pokemon Heart Gold</a>
-                <a href="https://choseven.github.io/PokemonLeafGreen" class="game-button">Pokemon Leaf Green</a>
-                <a href="https://choseven.github.io/PokemonPlatinum" class="game-button">Pokemon Platinum</a>
-                <a href="https://choseven.github.io/PokemonRed" class="game-button">Pokemon Red</a>
-                <a href="https://choseven.github.io/PokemonRuby" class="game-button">Pokemon Ruby</a>
-                <a href="https://choseven.github.io/PokemonSapphire" class="game-button">Pokemon Sapphire</a>
-                <a href="https://choseven.github.io/PokemonSoulSilver" class="game-button">Pokemon Soul Silver</a>
-            </div>
-        </div>
-
-        <div class="tab-content" id="classic">
-            <div class="game-grid">
-                <a href="https://choseven.github.io/BlockBlast" class="game-button">Block Blast</a>
-                <a href="https://choseven.github.io/Snake" class="game-button">Snake</a>
-            </div>
-        </div>
-    </div>
+    <canvas id="gameCanvas"></canvas>
+    <button id="fullscreenBtn">* FULLSCREEN</button>
+    <div id="instructions">Arrow Keys or WASD to move • Z or Enter to select</div>
 
     <script>
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const glowBg = document.getElementById('glowBg');
-        const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'];
-        let colorIndex = 0;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Disable image smoothing for crisp pixels
+        ctx.imageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(tc => tc.classList.remove('active'));
+        // Internal game resolution (Undertale-style)
+        const GAME_WIDTH = 640;
+        const GAME_HEIGHT = 480;
+
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+
+        // Scale canvas to fit screen while maintaining aspect ratio
+        function resizeCanvas() {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Calculate scale to fit screen while maintaining 640x480 aspect ratio
+            const scaleX = windowWidth / GAME_WIDTH;
+            const scaleY = windowHeight / GAME_HEIGHT;
+            const scale = Math.min(scaleX, scaleY);
+            
+            // Apply integer scaling for crisp pixels
+            const finalScale = Math.max(1, Math.floor(scale));
+            
+            canvas.style.width = (GAME_WIDTH * finalScale) + 'px';
+            canvas.style.height = (GAME_HEIGHT * finalScale) + 'px';
+        }
+
+        // Initial resize and setup listener
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Fullscreen functionality
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+                fullscreenBtn.textContent = '* EXIT FULLSCREEN';
+            } else {
+                document.exitFullscreen();
+                fullscreenBtn.textContent = '* FULLSCREEN';
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.textContent = '* FULLSCREEN';
+            }
+        });
+
+        // Frisk sprite configuration
+        const CELL_WIDTH = 23;
+        const CELL_HEIGHT = 33;
+        const SPRITE_OFFSET_X = 3;
+        const SPRITE_OFFSET_Y = 3;
+        const SPRITE_WIDTH = 20;
+        const SPRITE_HEIGHT = 30;
+        const DISPLAY_SCALE = 2;
+
+        // Movement and animation constants (GameMaker accurate)
+        const TARGET_FPS = 30;
+        const MOVE_SPEED = 4; // Double speed - Undertale uses ~4 pixels per frame
+        const ANIMATION_SPEED = 6; // 8 / 1.333 - faster animation timing
+
+        // Direction constants
+        const DIRECTION_DOWN = 0;
+        const DIRECTION_RIGHT = 1;
+        const DIRECTION_UP = 2;
+        const DIRECTION_LEFT = 3;
+
+        const SPRITE_ROWS = {
+            [DIRECTION_DOWN]: 0,
+            [DIRECTION_RIGHT]: 1,
+            [DIRECTION_UP]: 2,
+            [DIRECTION_LEFT]: 1
+        };
+
+        const WALK_FRAMES_4 = [0, 1, 2, 3];
+        const WALK_FRAMES_2 = [0, 1, 0, 1];
+        const STAND_FRAME = 0;
+
+        // Room definitions with actual games
+        const rooms = {
+            center: {
+                name: 'ALL GAMES',
+                bgColor: '#1a0a2e',
+                floorColor: '#2d1b4e',
+                exits: {
+                    left: 'indie',
+                    right: 'pokemon',
+                    down: 'classic'
+                },
+                games: []
+            },
+            indie: {
+                name: 'INDIE',
+                bgColor: '#0a0a1a',
+                floorColor: '#1b1b2d',
+                exits: {
+                    right: 'center'
+                },
+                games: [
+                    { name: 'Undertale', url: 'https://choseven.github.io/Undertale' },
+                    { name: 'Deltarune', url: 'https://choseven.github.io/Deltarune' },
+                    { name: 'Hollow Knight', url: 'https://choseven.github.io/HollowKnight' },
+                    { name: 'Last Breath First', url: 'https://choseven.github.io/LastBreathFirst' },
+                    { name: 'Last Breath Third', url: 'https://choseven.github.io/LastBreathThird' },
+                    { name: 'Undertale Yellow', url: 'https://choseven.github.io/UndertaleYellow' },
+                    { name: 'Great Time Trio', url: 'https://choseven.github.io/GreatTimeTrio' }
+                ]
+            },
+            pokemon: {
+                name: 'POKEMON',
+                bgColor: '#0a1a0a',
+                floorColor: '#1b2d1b',
+                exits: {
+                    left: 'center'
+                },
+                games: [
+                    { name: 'Pokemon Emerald', url: 'https://choseven.github.io/PokemonEmerald' },
+                    { name: 'Pokemon Fire Red', url: 'https://choseven.github.io/PokemonFireRed' },
+                    { name: 'Pokemon Heart Gold', url: 'https://choseven.github.io/PokemonHeartGold' },
+                    { name: 'Pokemon Leaf Green', url: 'https://choseven.github.io/PokemonLeafGreen' },
+                    { name: 'Pokemon Platinum', url: 'https://choseven.github.io/PokemonPlatinum' },
+                    { name: 'Pokemon Red', url: 'https://choseven.github.io/PokemonRed' },
+                    { name: 'Pokemon Ruby', url: 'https://choseven.github.io/PokemonRuby' },
+                    { name: 'Pokemon Sapphire', url: 'https://choseven.github.io/PokemonSapphire' },
+                    { name: 'Pokemon Soul Silver', url: 'https://choseven.github.io/PokemonSoulSilver' }
+                ]
+            },
+            classic: {
+                name: 'CLASSIC',
+                bgColor: '#1a1a0a',
+                floorColor: '#2d2d1b',
+                exits: {
+                    up: 'center'
+                },
+                games: [
+                    { name: "Baldi's Basics", url: 'https://choseven.github.io/BaldiBasics' },
+                    { name: 'Super Mario 64', url: 'https://choseven.github.io/SuperMario64' },
+                    { name: 'Block Blast', url: 'https://choseven.github.io/BlockBlast' },
+                    { name: 'Snake', url: 'https://choseven.github.io/Snake' },
+                    { name: 'Cookie Clicker', url: 'https://choseven.github.io/CookieClicker' }
+                ]
+            }
+        };
+
+        // Game state
+        let currentRoom = 'center';
+        let frisk = {
+            x: GAME_WIDTH / 2,
+            y: GAME_HEIGHT / 2,
+            direction: DIRECTION_DOWN,
+            frame: 0,
+            animTimer: 0,
+            isMoving: false
+        };
+
+        let selectedGame = 0;
+        let inMenu = false;
+        let transitioning = false;
+        let transitionAlpha = 0;
+        let transitionTarget = null;
+        let transitionDirection = null;
+        let friskDanceToggle = false; // For alternating dance direction
+
+        let lastTime = 0;
+        let accumulator = 0;
+        const FRAME_TIME = 1000 / TARGET_FPS;
+
+        // Input handling
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+            
+            if (inMenu) {
+                const room = rooms[currentRoom];
+                if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+                    selectedGame = Math.max(0, selectedGame - 1);
+                    playSound('select');
+                } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                    selectedGame = Math.min(room.games.length - 1, selectedGame + 1);
+                    playSound('select');
+                } else if (e.code === 'KeyZ' || e.code === 'Enter') {
+                    playSound('confirm');
+                    const selectedGameData = room.games[selectedGame];
+                    
+                    // Navigate to the game URL
+                    window.location.href = selectedGameData.url;
+                } else if (e.code === 'KeyX' || e.code === 'Escape') {
+                    inMenu = false;
+                    playSound('cancel');
+                }
+            } else {
+                if (e.code === 'KeyZ' || e.code === 'Enter') {
+                    const room = rooms[currentRoom];
+                    if (room.games.length > 0) {
+                        const centerX = GAME_WIDTH / 2;
+                        const centerY = GAME_HEIGHT / 2 - 50;
+                        const dist = Math.hypot(frisk.x - centerX, frisk.y - centerY);
+                        if (dist < 60) {
+                            inMenu = true;
+                            selectedGame = 0;
+                            playSound('confirm');
+                        }
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        // Load spritesheet
+        const spritesheet = new Image();
+        spritesheet.src = 'frisk.png';
+
+        // Simple sound effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'select') {
+                osc.frequency.value = 400;
+                gain.gain.value = 0.1;
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'confirm') {
+                osc.frequency.value = 600;
+                gain.gain.value = 0.1;
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'cancel') {
+                osc.frequency.value = 200;
+                gain.gain.value = 0.1;
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        function getSpriteCoords(direction, frameIndex, isMoving) {
+            const row = SPRITE_ROWS[direction];
+            
+            let col;
+            if (!isMoving) {
+                col = STAND_FRAME;
+            } else {
+                if (direction === DIRECTION_UP || direction === DIRECTION_DOWN) {
+                    col = WALK_FRAMES_4[frameIndex % 4];
+                } else {
+                    col = WALK_FRAMES_2[frameIndex % 4];
+                }
+            }
+            
+            const sx = SPRITE_OFFSET_X + col * CELL_WIDTH;
+            const sy = SPRITE_OFFSET_Y + row * CELL_HEIGHT;
+            
+            return { 
+                sx, 
+                sy, 
+                flip: direction === DIRECTION_RIGHT
+            };
+        }
+
+        function drawFrisk() {
+            const { sx, sy, flip } = getSpriteCoords(frisk.direction, frisk.frame, frisk.isMoving);
+            
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            
+            const drawWidth = SPRITE_WIDTH * DISPLAY_SCALE;
+            const drawHeight = SPRITE_HEIGHT * DISPLAY_SCALE;
+            const drawX = Math.floor(frisk.x - drawWidth / 2);
+            const drawY = Math.floor(frisk.y - drawHeight / 2);
+            
+            if (flip) {
+                ctx.translate(drawX + drawWidth, drawY);
+                ctx.scale(-1, 1);
+                ctx.drawImage(
+                    spritesheet,
+                    sx, sy, SPRITE_WIDTH, SPRITE_HEIGHT,
+                    0, 0,
+                    drawWidth, drawHeight
+                );
+            } else {
+                ctx.drawImage(
+                    spritesheet,
+                    sx, sy, SPRITE_WIDTH, SPRITE_HEIGHT,
+                    drawX, drawY,
+                    drawWidth, drawHeight
+                );
+            }
+            
+            ctx.restore();
+        }
+
+        function drawRoom() {
+            const room = rooms[currentRoom];
+            
+            ctx.fillStyle = room.bgColor;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            ctx.fillStyle = room.floorColor;
+            const tileSize = 32;
+            for (let y = 100; y < GAME_HEIGHT - 50; y += tileSize) {
+                for (let x = 50; x < GAME_WIDTH - 50; x += tileSize) {
+                    if ((Math.floor(x / tileSize) + Math.floor(y / tileSize)) % 2 === 0) {
+                        ctx.fillRect(x, y, tileSize, tileSize);
+                    }
+                }
+            }
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(50, 100, GAME_WIDTH - 100, GAME_HEIGHT - 150);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 24px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(room.name, GAME_WIDTH / 2, 60);
+            
+            ctx.font = '14px "Courier New", monospace';
+            
+            if (room.exits.left) {
+                ctx.fillStyle = '#4a4';
+                ctx.fillRect(50, GAME_HEIGHT / 2 - 30, 10, 60);
+                ctx.fillStyle = '#fff';
+                ctx.save();
+                ctx.translate(30, GAME_HEIGHT / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(rooms[room.exits.left].name, 0, 0);
+                ctx.restore();
+            }
+            
+            if (room.exits.right) {
+                ctx.fillStyle = '#4a4';
+                ctx.fillRect(GAME_WIDTH - 60, GAME_HEIGHT / 2 - 30, 10, 60);
+                ctx.fillStyle = '#fff';
+                ctx.save();
+                ctx.translate(GAME_WIDTH - 20, GAME_HEIGHT / 2);
+                ctx.rotate(Math.PI / 2);
+                ctx.fillText(rooms[room.exits.right].name, 0, 0);
+                ctx.restore();
+            }
+            
+            if (room.exits.up) {
+                ctx.fillStyle = '#4a4';
+                ctx.fillRect(GAME_WIDTH / 2 - 30, 100, 60, 10);
+                ctx.fillStyle = '#fff';
+                ctx.fillText(rooms[room.exits.up].name, GAME_WIDTH / 2, 85);
+            }
+            
+            if (room.exits.down) {
+                ctx.fillStyle = '#4a4';
+                ctx.fillRect(GAME_WIDTH / 2 - 30, GAME_HEIGHT - 60, 60, 10);
+                ctx.fillStyle = '#fff';
+                ctx.fillText(rooms[room.exits.down].name, GAME_WIDTH / 2, GAME_HEIGHT - 30);
+            }
+            
+            if (room.games.length > 0) {
+                const saveX = GAME_WIDTH / 2;
+                const saveY = GAME_HEIGHT / 2 - 50;
                 
-                tab.classList.add('active');
-                const targetTab = tab.getAttribute('data-tab');
-                document.getElementById(targetTab).classList.add('active');
+                const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                ctx.fillStyle = `rgba(255, 255, 0, ${glow})`;
+                ctx.beginPath();
+                ctx.arc(saveX, saveY, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px "Courier New", monospace';
+                ctx.fillText('Press Z to browse games', saveX, saveY + 40);
+            }
+            
+            if (currentRoom === 'center') {
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px "Courier New", monospace';
+                ctx.fillText('Welcome to the Game Hub!', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50);
+                ctx.font = '12px "Courier New", monospace';
+                ctx.fillText('Walk to an exit to explore game categories', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20);
+            }
+        }
 
-                colorIndex = (colorIndex + 1) % colors.length;
-                glowBg.style.background = `radial-gradient(circle, ${colors[colorIndex]}, transparent)`;
+        function drawMenu() {
+            const room = rooms[currentRoom];
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            const menuWidth = 400;
+            const menuHeight = 300;
+            const menuX = (GAME_WIDTH - menuWidth) / 2;
+            const menuY = (GAME_HEIGHT - menuHeight) / 2;
+            
+            ctx.fillStyle = '#000';
+            ctx.fillRect(menuX, menuY, menuWidth, menuHeight);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(menuX, menuY, menuWidth, menuHeight);
+            
+            ctx.fillStyle = '#ff0';
+            ctx.font = 'bold 20px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(room.name, GAME_WIDTH / 2, menuY + 40);
+            
+            ctx.font = '16px "Courier New", monospace';
+            ctx.textAlign = 'left';
+            
+            room.games.forEach((game, i) => {
+                const y = menuY + 80 + i * 40;
+                
+                if (i === selectedGame) {
+                    ctx.fillStyle = '#f00';
+                    ctx.beginPath();
+                    ctx.moveTo(menuX + 40, y - 5);
+                    ctx.lineTo(menuX + 50, y + 5);
+                    ctx.lineTo(menuX + 40, y + 15);
+                    ctx.lineTo(menuX + 30, y + 5);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillStyle = '#ff0';
+                } else {
+                    ctx.fillStyle = '#fff';
+                }
+                
+                ctx.fillText(game, menuX + 70, y + 10);
             });
-        });
+            
+            ctx.fillStyle = '#888';
+            ctx.font = '12px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('Z - Select    X - Back', GAME_WIDTH / 2, menuY + menuHeight - 20);
+        }
 
-        document.addEventListener('mousemove', (e) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            glowBg.style.left = (x - 300) + 'px';
-            glowBg.style.top = (y - 300) + 'px';
-        });
+        function drawTransition() {
+            ctx.fillStyle = `rgba(0, 0, 0, ${transitionAlpha})`;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
 
-        glowBg.style.background = `radial-gradient(circle, ${colors[0]}, transparent)`;
-        glowBg.style.left = '50%';
-        glowBg.style.top = '50%';
-        glowBg.style.transform = 'translate(-50%, -50%)';
+        function update() {
+            if (transitioning) {
+                transitionAlpha += 0.05;
+                if (transitionAlpha >= 1 && transitionTarget) {
+                    currentRoom = transitionTarget;
+                    
+                    if (transitionDirection === DIRECTION_DOWN) {
+                        frisk.y = 150;
+                        frisk.x = GAME_WIDTH / 2;
+                    } else if (transitionDirection === DIRECTION_UP) {
+                        frisk.y = GAME_HEIGHT - 100;
+                        frisk.x = GAME_WIDTH / 2;
+                    } else if (transitionDirection === DIRECTION_RIGHT) {
+                        frisk.x = 100;
+                        frisk.y = GAME_HEIGHT / 2;
+                    } else if (transitionDirection === DIRECTION_LEFT) {
+                        frisk.x = GAME_WIDTH - 100;
+                        frisk.y = GAME_HEIGHT / 2;
+                    }
+                    
+                    transitionTarget = null;
+                }
+                if (!transitionTarget && transitionAlpha > 0) {
+                    transitionAlpha -= 0.05;
+                    if (transitionAlpha <= 0) {
+                        transitionAlpha = 0;
+                        transitioning = false;
+                    }
+                }
+                return;
+            }
+            
+            if (inMenu) return;
+            
+            let dx = 0;
+            let dy = 0;
+            let bothVertical = false;
+            
+            // Horizontal movement - Right takes priority
+            if (keys['ArrowRight'] || keys['KeyD']) {
+                dx = MOVE_SPEED;
+                frisk.direction = DIRECTION_RIGHT;
+            } else if (keys['ArrowLeft'] || keys['KeyA']) {
+                dx = -MOVE_SPEED;
+                frisk.direction = DIRECTION_LEFT;
+            }
+            
+            // Vertical movement - Up takes priority (enables Frisk dance)
+            if ((keys['ArrowUp'] || keys['KeyW']) && (keys['ArrowDown'] || keys['KeyS'])) {
+                // Both keys pressed - this enables the dance
+                bothVertical = true;
+                dy = -MOVE_SPEED;
+                frisk.direction = DIRECTION_UP;
+            } else if (keys['ArrowUp'] || keys['KeyW']) {
+                dy = -MOVE_SPEED;
+                frisk.direction = DIRECTION_UP;
+            } else if (keys['ArrowDown'] || keys['KeyS']) {
+                dy = MOVE_SPEED;
+                frisk.direction = DIRECTION_DOWN;
+            }
+            
+            if (dx !== 0 && dy !== 0) {
+                const diag = MOVE_SPEED / Math.sqrt(2);
+                dx = dx > 0 ? diag : -diag;
+                dy = dy > 0 ? diag : -diag;
+            }
+            
+            frisk.isMoving = dx !== 0 || dy !== 0;
+            
+            const newX = frisk.x + dx;
+            const newY = frisk.y + dy;
+            
+            const room = rooms[currentRoom];
+            let hitExit = null;
+            
+            if (newX < 70) {
+                if (room.exits.left && newY > GAME_HEIGHT / 2 - 40 && newY < GAME_HEIGHT / 2 + 40) {
+                    hitExit = room.exits.left;
+                    transitionDirection = DIRECTION_LEFT;
+                } else {
+                    frisk.x = Math.max(70, newX);
+                }
+            } else if (newX > GAME_WIDTH - 70) {
+                if (room.exits.right && newY > GAME_HEIGHT / 2 - 40 && newY < GAME_HEIGHT / 2 + 40) {
+                    hitExit = room.exits.right;
+                    transitionDirection = DIRECTION_RIGHT;
+                } else {
+                    frisk.x = Math.min(GAME_WIDTH - 70, newX);
+                }
+            } else {
+                frisk.x = newX;
+            }
+            
+            if (newY < 120) {
+                if (room.exits.up && newX > GAME_WIDTH / 2 - 40 && newX < GAME_WIDTH / 2 + 40) {
+                    hitExit = room.exits.up;
+                    transitionDirection = DIRECTION_UP;
+                } else {
+                    frisk.y = Math.max(120, newY);
+                    // Frisk dance: if both vertical keys pressed and hit top wall, alternate direction each frame
+                    if (bothVertical && dy < 0) {
+                        friskDanceToggle = !friskDanceToggle;
+                        frisk.direction = friskDanceToggle ? DIRECTION_UP : DIRECTION_DOWN;
+                    }
+                }
+            } else if (newY > GAME_HEIGHT - 80) {
+                if (room.exits.down && newX > GAME_WIDTH / 2 - 40 && newX < GAME_WIDTH / 2 + 40) {
+                    hitExit = room.exits.down;
+                    transitionDirection = DIRECTION_DOWN;
+                } else {
+                    frisk.y = Math.min(GAME_HEIGHT - 80, newY);
+                }
+            } else {
+                frisk.y = newY;
+            }
+            
+            if (hitExit) {
+                transitioning = true;
+                transitionTarget = hitExit;
+                transitionAlpha = 0;
+            }
+            
+            if (frisk.isMoving) {
+                frisk.animTimer++;
+                if (frisk.animTimer >= ANIMATION_SPEED) {
+                    frisk.animTimer = 0;
+                    frisk.frame = (frisk.frame + 1) % 4;
+                }
+            } else {
+                frisk.frame = 0;
+                frisk.animTimer = 0;
+            }
+        }
+
+        function render() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            drawRoom();
+            drawFrisk();
+            
+            if (inMenu) {
+                drawMenu();
+            }
+            
+            if (transitioning || transitionAlpha > 0) {
+                drawTransition();
+            }
+        }
+
+        function gameLoop(currentTime) {
+            if (lastTime === 0) {
+                lastTime = currentTime;
+            }
+            
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            accumulator += deltaTime;
+            
+            while (accumulator >= FRAME_TIME) {
+                update();
+                accumulator -= FRAME_TIME;
+            }
+            
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        spritesheet.onload = () => {
+            console.log('Spritesheet loaded!');
+            requestAnimationFrame(gameLoop);
+        };
+
+        spritesheet.onerror = () => {
+            console.error('Failed to load spritesheet');
+            requestAnimationFrame(gameLoop);
+        };
+
+        document.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        });
+        document.addEventListener('keydown', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }, { once: true });
     </script>
 </body>
 </html>
