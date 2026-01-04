@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Menu</title>
     <style>
+        @font-face {
+            font-family: 'DeterminationMono';
+            src: url('DeterminationMonoWebRegular.woff2') format('woff2'),
+                 url('DTM-Mono.otf') format('opentype'),
+                 url('DTM-Mono.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+
+        @font-face {
+            font-family: 'Chara';
+            src: url('chara.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+
+        @font-face {
+            font-family: 'Windy';
+            src: url('windy.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,10 +42,17 @@
             height: 100%;
             background: #000;
             overflow: hidden;
+            /* Force sharper text rendering */
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+            font-smooth: never;
+            text-rendering: geometricPrecision;
         }
 
         #gameCanvas {
             display: block;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             -ms-interpolation-mode: nearest-neighbor;
@@ -27,6 +60,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            /* Additional sharpness hints */
+            shape-rendering: crispEdges;
         }
 
         #instructions {
@@ -36,7 +71,7 @@
             right: 0;
             text-align: center;
             color: #fff;
-            font-family: 'Courier New', monospace;
+            font-family: 'Windy', 'Courier New', monospace;
             font-size: 14px;
             pointer-events: none;
             z-index: 10;
@@ -50,7 +85,7 @@
             background: #000;
             color: #fff;
             border: 3px solid #fff;
-            font-family: 'Courier New', monospace;
+            font-family: 'Windy', 'Courier New', monospace;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
@@ -71,27 +106,34 @@
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <button id="fullscreenBtn">* FULLSCREEN</button>
+    <button id="fullscreenBtn">FULLSCREEN</button>
     <div id="instructions">Arrow Keys or WASD to move • Space to select • 1-4 to switch tabs</div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Disable image smoothing for crisp pixels
+        const ctx = canvas.getContext('2d', { 
+            alpha: false,
+            willReadFrequently: false
+        });
+
+        // Internal game resolution - DOUBLED for sharper text
+        const RENDER_SCALE = 2;
+        const GAME_WIDTH = 640;
+        const GAME_HEIGHT = 480;
+
+        // Set canvas to 2x internal resolution
+        canvas.width = GAME_WIDTH * RENDER_SCALE;
+        canvas.height = GAME_HEIGHT * RENDER_SCALE;
+
+        // Scale all drawing operations
+        ctx.scale(RENDER_SCALE, RENDER_SCALE);
+
+        // Disable smoothing
         ctx.imageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.mozImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
 
-        // Internal game resolution
-        const GAME_WIDTH = 640;
-        const GAME_HEIGHT = 480;
-
-        canvas.width = GAME_WIDTH;
-        canvas.height = GAME_HEIGHT;
-
-        // Scale canvas to fit screen
         function resizeCanvas() {
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
@@ -109,27 +151,25 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Fullscreen functionality
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         fullscreenBtn.addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
                     console.log('Fullscreen error:', err);
                 });
-                fullscreenBtn.textContent = '* EXIT FULLSCREEN';
+                fullscreenBtn.textContent = 'EXIT FULLSCREEN';
             } else {
                 document.exitFullscreen();
-                fullscreenBtn.textContent = '* FULLSCREEN';
+                fullscreenBtn.textContent = 'FULLSCREEN';
             }
         });
 
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                fullscreenBtn.textContent = '* FULLSCREEN';
+                fullscreenBtn.textContent = 'FULLSCREEN';
             }
         });
 
-        // Frisk sprite configuration
         const CELL_WIDTH = 23;
         const CELL_HEIGHT = 33;
         const SPRITE_OFFSET_X = 3;
@@ -138,12 +178,10 @@
         const SPRITE_HEIGHT = 30;
         const DISPLAY_SCALE = 2;
 
-        // Movement and animation constants
         const TARGET_FPS = 30;
         const MOVE_SPEED = 4;
         const ANIMATION_SPEED = 6;
 
-        // Direction constants
         const DIRECTION_DOWN = 0;
         const DIRECTION_RIGHT = 1;
         const DIRECTION_UP = 2;
@@ -160,7 +198,6 @@
         const WALK_FRAMES_2 = [0, 1, 0, 1];
         const STAND_FRAME = 0;
 
-        // Game database with categories
         const allGames = [
             { name: 'Undertale', url: 'https://choseven.github.io/Undertale', category: 'indie' },
             { name: 'Deltarune', url: 'https://choseven.github.io/Deltarune', category: 'indie' },
@@ -188,16 +225,17 @@
         let currentTab = 'all';
         let buttonTextureWidth = 0;
         let buttonTextureHeight = 0;
-        const BUTTON_WIDTH = 180; // Fixed width for all buttons
-        const BUTTON_HEIGHT = 50;  // Fixed height for all buttons
+        let buttonTextureHoverWidth = 0;
+        let buttonTextureHoverHeight = 0;
+        const BUTTON_WIDTH = 180;
+        const BUTTON_HEIGHT = 50;
         const BUTTON_SPACING_X = 20;
         const BUTTON_SPACING_Y = 15;
         const COLUMNS = 3;
-        const BASE_FONT_SIZE = 13; // Consistent font size for all text
+        const BASE_FONT_SIZE = 13;
         let cameraY = 0;
         const SCROLL_SPEED = 4;
 
-        // Game state
         let frisk = {
             x: GAME_WIDTH / 2,
             y: 80,
@@ -211,7 +249,6 @@
         let accumulator = 0;
         const FRAME_TIME = 1000 / TARGET_FPS;
 
-        // Input handling
         const keys = {};
         document.addEventListener('keydown', (e) => {
             keys[e.code] = true;
@@ -219,7 +256,6 @@
                 e.preventDefault();
             }
             
-            // Tab switching with 1-4 keys
             if (e.code === 'Digit1') {
                 currentTab = 'all';
                 cameraY = 0;
@@ -238,12 +274,10 @@
                 playSound('select');
             }
             
-            // Check if space is pressed and Frisk is over a button
             if (e.code === 'Space') {
                 const hoveredGame = getHoveredGame();
                 if (hoveredGame) {
                     playSound('confirm');
-                    // Navigate to the game URL
                     setTimeout(() => {
                         window.location.href = hoveredGame.url;
                     }, 100);
@@ -255,14 +289,62 @@
             keys[e.code] = false;
         });
 
-        // Load images
         const spritesheet = new Image();
         spritesheet.src = 'frisk.png';
 
         const buttonTexture = new Image();
-        buttonTexture.src = 'button1.png';
+        buttonTexture.src = 'button2.png';
 
-        // Simple sound effects
+        const buttonTextureHover = new Image();
+        buttonTextureHover.src = 'button3.png';
+
+        let fontLoaded = false;
+        let charaFontLoaded = false;
+        let windyFontLoaded = false;
+
+        async function loadCustomFont() {
+            try {
+                const font = new FontFace('DeterminationMono', 'url(DeterminationMonoWebRegular.woff2)');
+                await font.load();
+                document.fonts.add(font);
+                console.log('DeterminationMono font loaded!');
+            } catch (error) {
+                console.error('DeterminationMono font load error:', error);
+            }
+            fontLoaded = true;
+            checkStart();
+        }
+
+        async function loadCharaFont() {
+            try {
+                const font = new FontFace('Chara', 'url(chara.woff2)');
+                await font.load();
+                document.fonts.add(font);
+                console.log('Chara font loaded!');
+            } catch (error) {
+                console.error('Chara font load error:', error);
+            }
+            charaFontLoaded = true;
+            checkStart();
+        }
+
+        async function loadWindyFont() {
+            try {
+                const font = new FontFace('Windy', 'url(windy.woff2)');
+                await font.load();
+                document.fonts.add(font);
+                console.log('Windy font loaded!');
+            } catch (error) {
+                console.error('Windy font load error:', error);
+            }
+            windyFontLoaded = true;
+            checkStart();
+        }
+
+        loadCustomFont();
+        loadCharaFont();
+        loadWindyFont();
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playSound(type) {
@@ -317,10 +399,9 @@
 
         function calculateGamePositions() {
             const games = getCurrentGames();
-            const gridStartY = 180; // Moved down to avoid clipping with header
+            const gridStartY = 180;
             const positions = [];
             
-            // Calculate grid layout with fixed button sizes
             const rows = Math.ceil(games.length / COLUMNS);
             const totalGridWidth = COLUMNS * BUTTON_WIDTH + (COLUMNS - 1) * BUTTON_SPACING_X;
             const startX = (GAME_WIDTH - totalGridWidth) / 2 + BUTTON_WIDTH / 2;
@@ -356,7 +437,6 @@
             const { sx, sy, flip } = getSpriteCoords(frisk.direction, frisk.frame, frisk.isMoving);
             
             ctx.save();
-            ctx.imageSmoothingEnabled = false;
             
             const drawWidth = SPRITE_WIDTH * DISPLAY_SCALE;
             const drawHeight = SPRITE_HEIGHT * DISPLAY_SCALE;
@@ -386,13 +466,18 @@
 
         function getHoveredGame() {
             const games = calculateGamePositions();
+            
+            const bodyOffsetY = 15;
+            const hitX = frisk.x;
+            const hitY = frisk.y + bodyOffsetY;
+            
             for (let game of games) {
                 const left = game.x - game.width / 2;
                 const right = game.x + game.width / 2;
                 const top = game.y - game.height / 2;
                 const bottom = game.y + game.height / 2;
                 
-                if (frisk.x >= left && frisk.x <= right && frisk.y >= top && frisk.y <= bottom) {
+                if (hitX >= left && hitX <= right && hitY >= top && hitY <= bottom) {
                     return game;
                 }
             }
@@ -404,7 +489,6 @@
             const hoveredGame = getHoveredGame();
             
             games.forEach(game => {
-                // Skip buttons that are off-screen
                 if (game.y + game.height < 140 || game.y > GAME_HEIGHT - 20) {
                     return;
                 }
@@ -413,69 +497,58 @@
                 
                 ctx.save();
                 
-                const left = game.x - game.width / 2;
-                const top = game.y - game.height / 2;
+                const left = Math.floor(game.x - game.width / 2);
+                const top = Math.floor(game.y - game.height / 2);
                 
-                ctx.imageSmoothingEnabled = false;
+                const currentButtonTexture = isHovered ? buttonTextureHover : buttonTexture;
+                const currentTextureWidth = isHovered ? buttonTextureHoverWidth : buttonTextureWidth;
+                const currentTextureHeight = isHovered ? buttonTextureHoverHeight : buttonTextureHeight;
                 
-                if (buttonTexture.complete && buttonTextureWidth > 0) {
-                    // Use 9-slice technique to tile the button without stretching
-                    const edgeSize = Math.min(16, Math.floor(buttonTextureWidth / 3), Math.floor(buttonTextureHeight / 3));
+                if (currentButtonTexture.complete && currentTextureWidth > 0) {
+                    const edgeSize = Math.min(16, Math.floor(currentTextureWidth / 3), Math.floor(currentTextureHeight / 3));
                     
-                    // Draw corners (never stretched)
-                    // Top-left
-                    ctx.drawImage(buttonTexture, 0, 0, edgeSize, edgeSize, 
+                    ctx.drawImage(currentButtonTexture, 0, 0, edgeSize, edgeSize, 
                                   left, top, edgeSize, edgeSize);
-                    // Top-right
-                    ctx.drawImage(buttonTexture, buttonTextureWidth - edgeSize, 0, edgeSize, edgeSize,
+                    ctx.drawImage(currentButtonTexture, currentTextureWidth - edgeSize, 0, edgeSize, edgeSize,
                                   left + BUTTON_WIDTH - edgeSize, top, edgeSize, edgeSize);
-                    // Bottom-left
-                    ctx.drawImage(buttonTexture, 0, buttonTextureHeight - edgeSize, edgeSize, edgeSize,
+                    ctx.drawImage(currentButtonTexture, 0, currentTextureHeight - edgeSize, edgeSize, edgeSize,
                                   left, top + BUTTON_HEIGHT - edgeSize, edgeSize, edgeSize);
-                    // Bottom-right
-                    ctx.drawImage(buttonTexture, buttonTextureWidth - edgeSize, buttonTextureHeight - edgeSize, edgeSize, edgeSize,
+                    ctx.drawImage(currentButtonTexture, currentTextureWidth - edgeSize, currentTextureHeight - edgeSize, edgeSize, edgeSize,
                                   left + BUTTON_WIDTH - edgeSize, top + BUTTON_HEIGHT - edgeSize, edgeSize, edgeSize);
                     
-                    // Draw edges (tiled, not stretched)
-                    const centerWidth = buttonTextureWidth - (edgeSize * 2);
-                    const centerHeight = buttonTextureHeight - (edgeSize * 2);
+                    const centerWidth = currentTextureWidth - (edgeSize * 2);
+                    const centerHeight = currentTextureHeight - (edgeSize * 2);
                     
-                    // Top edge
                     for (let x = edgeSize; x < BUTTON_WIDTH - edgeSize; x += centerWidth) {
                         const w = Math.min(centerWidth, BUTTON_WIDTH - edgeSize - x);
-                        ctx.drawImage(buttonTexture, edgeSize, 0, w, edgeSize,
+                        ctx.drawImage(currentButtonTexture, edgeSize, 0, w, edgeSize,
                                       left + x, top, w, edgeSize);
                     }
-                    // Bottom edge
                     for (let x = edgeSize; x < BUTTON_WIDTH - edgeSize; x += centerWidth) {
                         const w = Math.min(centerWidth, BUTTON_WIDTH - edgeSize - x);
-                        ctx.drawImage(buttonTexture, edgeSize, buttonTextureHeight - edgeSize, w, edgeSize,
+                        ctx.drawImage(currentButtonTexture, edgeSize, currentTextureHeight - edgeSize, w, edgeSize,
                                       left + x, top + BUTTON_HEIGHT - edgeSize, w, edgeSize);
                     }
-                    // Left edge
                     for (let y = edgeSize; y < BUTTON_HEIGHT - edgeSize; y += centerHeight) {
                         const h = Math.min(centerHeight, BUTTON_HEIGHT - edgeSize - y);
-                        ctx.drawImage(buttonTexture, 0, edgeSize, edgeSize, h,
+                        ctx.drawImage(currentButtonTexture, 0, edgeSize, edgeSize, h,
                                       left, top + y, edgeSize, h);
                     }
-                    // Right edge
                     for (let y = edgeSize; y < BUTTON_HEIGHT - edgeSize; y += centerHeight) {
                         const h = Math.min(centerHeight, BUTTON_HEIGHT - edgeSize - y);
-                        ctx.drawImage(buttonTexture, buttonTextureWidth - edgeSize, edgeSize, edgeSize, h,
+                        ctx.drawImage(currentButtonTexture, currentTextureWidth - edgeSize, edgeSize, edgeSize, h,
                                       left + BUTTON_WIDTH - edgeSize, top + y, edgeSize, h);
                     }
                     
-                    // Draw center (tiled)
                     for (let y = edgeSize; y < BUTTON_HEIGHT - edgeSize; y += centerHeight) {
                         for (let x = edgeSize; x < BUTTON_WIDTH - edgeSize; x += centerWidth) {
                             const w = Math.min(centerWidth, BUTTON_WIDTH - edgeSize - x);
                             const h = Math.min(centerHeight, BUTTON_HEIGHT - edgeSize - y);
-                            ctx.drawImage(buttonTexture, edgeSize, edgeSize, w, h,
+                            ctx.drawImage(currentButtonTexture, edgeSize, edgeSize, w, h,
                                           left + x, top + y, w, h);
                         }
                     }
                 } else {
-                    // Fallback if texture not loaded
                     ctx.fillStyle = '#222';
                     ctx.fillRect(left, top, game.width, game.height);
                     ctx.strokeStyle = '#fff';
@@ -483,30 +556,16 @@
                     ctx.strokeRect(left, top, game.width, game.height);
                 }
                 
-                // Highlight if hovered
-                if (isHovered) {
-                    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
-                    ctx.fillRect(left, top, game.width, game.height);
-                    
-                    ctx.strokeStyle = '#ff0';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(left, top, game.width, game.height);
-                }
-                
-                // Draw text on button with consistent font size
-                ctx.fillStyle = isHovered ? '#ff0' : '#fff';
+                ctx.fillStyle = isHovered ? '#ffff00' : '#eb7a23';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.font = `bold ${BASE_FONT_SIZE}px "Courier New", monospace`;
+                ctx.font = `bold ${BASE_FONT_SIZE}px "Chara", "Courier New", monospace`;
                 
-                const maxWidth = game.width - 30; // Leave padding
+                const maxWidth = game.width - 30;
                 const words = game.name.split(' ');
-                
-                // Check if we need to wrap text
                 const fullTextWidth = ctx.measureText(game.name).width;
                 
                 if (fullTextWidth > maxWidth && words.length > 1) {
-                    // Multi-line text - split intelligently
                     let line1 = '';
                     let line2 = '';
                     let currentLine = '';
@@ -533,7 +592,6 @@
                         ctx.fillText(line2, game.x, game.y + lineHeight / 2);
                     }
                 } else {
-                    // Single line
                     ctx.fillText(game.name, game.x, game.y);
                 }
                 
@@ -545,7 +603,6 @@
             let dx = 0;
             let dy = 0;
             
-            // Horizontal movement
             if (keys['ArrowRight'] || keys['KeyD']) {
                 dx = MOVE_SPEED;
                 frisk.direction = DIRECTION_RIGHT;
@@ -554,7 +611,6 @@
                 frisk.direction = DIRECTION_LEFT;
             }
             
-            // Vertical movement
             if (keys['ArrowUp'] || keys['KeyW']) {
                 dy = -MOVE_SPEED;
                 frisk.direction = DIRECTION_UP;
@@ -572,35 +628,41 @@
             
             frisk.isMoving = dx !== 0 || dy !== 0;
             
-            // Update position with boundaries
-            const newX = frisk.x + dx;
-            const newY = frisk.y + dy;
+            let newX = frisk.x + dx;
+            let newY = frisk.y + dy;
             
-            frisk.x = Math.max(30, Math.min(GAME_WIDTH - 30, newX));
-            frisk.y = Math.max(140, Math.min(GAME_HEIGHT - 30, newY));
+            newX = Math.max(30, Math.min(GAME_WIDTH - 30, newX));
+            newY = Math.max(140, Math.min(GAME_HEIGHT - 30, newY));
             
-            // Camera follows Frisk vertically - scroll the view when Frisk gets near edges
             const maxCameraY = getMaxCameraY();
-            if (maxCameraY > 0) {
+            
+            if (maxCameraY > 0 && dy !== 0) {
                 // Scroll down when Frisk gets to bottom third of screen
-                if (frisk.y > GAME_HEIGHT - 150 && dy > 0) {
-                    const newCameraY = cameraY + SCROLL_SPEED;
-                    if (newCameraY <= maxCameraY) {
-                        cameraY = newCameraY;
-                        frisk.y -= SCROLL_SPEED; // Keep Frisk in same screen position
+                if (newY > GAME_HEIGHT - 150 && dy > 0) {
+                    // Use the actual dy value for smooth scrolling (handles both straight and diagonal)
+                    const scrollAmount = Math.min(Math.abs(dy), SCROLL_SPEED);
+                    const desiredCameraY = cameraY + scrollAmount;
+                    if (desiredCameraY <= maxCameraY) {
+                        cameraY = desiredCameraY;
+                        newY -= scrollAmount;
                     }
                 }
                 // Scroll up when Frisk gets to top third of screen
-                else if (frisk.y < 200 && dy < 0) {
-                    const newCameraY = cameraY - SCROLL_SPEED;
-                    if (newCameraY >= 0) {
-                        cameraY = newCameraY;
-                        frisk.y += SCROLL_SPEED; // Keep Frisk in same screen position
+                else if (newY < 200 && dy < 0) {
+                    const scrollAmount = Math.min(Math.abs(dy), SCROLL_SPEED);
+                    const desiredCameraY = cameraY - scrollAmount;
+                    if (desiredCameraY >= 0) {
+                        cameraY = desiredCameraY;
+                        newY += scrollAmount;
                     }
                 }
             }
             
-            // Update animation
+            newY = Math.max(140, Math.min(GAME_HEIGHT - 30, newY));
+            
+            frisk.x = newX;
+            frisk.y = newY;
+            
             if (frisk.isMoving) {
                 frisk.animTimer++;
                 if (frisk.animTimer >= ANIMATION_SPEED) {
@@ -625,11 +687,11 @@
                 const isActive = currentTab === tab.id;
                 
                 ctx.fillStyle = isActive ? '#fff' : '#666';
-                ctx.font = isActive ? 'bold 14px "Courier New", monospace' : '14px "Courier New", monospace';
+                ctx.font = isActive ? 'bold 14px "Chara", "Courier New", monospace' : '14px "Chara", "Courier New", monospace';
                 ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
                 ctx.fillText(tab.name, tab.x, 100);
                 
-                // Underline active tab
                 if (isActive) {
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
@@ -641,48 +703,43 @@
                 }
             });
             
-            // Tab instructions
             ctx.fillStyle = '#888';
-            ctx.font = '10px "Courier New", monospace';
+            ctx.font = '10px "Chara", "Courier New", monospace';
+            ctx.textBaseline = 'middle';
             ctx.fillText('Press 1-4 to switch tabs', GAME_WIDTH / 2, 120);
         }
 
         function render() {
-            // Background
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
             
-            // Title
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 24px "Courier New", monospace';
+            ctx.font = 'bold 42px "DeterminationMono", "Courier New", monospace';
             ctx.textAlign = 'center';
-            ctx.fillText('GAME SELECT', GAME_WIDTH / 2, 40);
+            ctx.textBaseline = 'middle';
+            ctx.fillText('GAME SELECT', GAME_WIDTH / 2, 50);
             
-            // Draw tabs
             drawTabs();
             
-            // Set clipping region to prevent buttons from overlapping header
             ctx.save();
             ctx.beginPath();
             ctx.rect(0, 140, GAME_WIDTH, GAME_HEIGHT - 140);
             ctx.clip();
             
-            // Draw buttons (will be clipped)
             drawButtons();
             
             ctx.restore();
             
-            // Draw Frisk (on top of everything)
             drawFrisk();
             
-            // Draw instruction if over a button
             const hoveredGame = getHoveredGame();
             if (hoveredGame) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 ctx.fillRect(GAME_WIDTH / 2 - 100, GAME_HEIGHT - 50, 200, 30);
                 ctx.fillStyle = '#ff0';
-                ctx.font = '14px "Courier New", monospace';
+                ctx.font = '14px "Chara", "Courier New", monospace';
                 ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
                 ctx.fillText('Press SPACE to play!', GAME_WIDTH / 2, GAME_HEIGHT - 32);
             }
         }
@@ -706,12 +763,12 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Start game when images load
         let spritesheetLoaded = false;
         let buttonTextureLoaded = false;
+        let buttonTextureHoverLoaded = false;
 
         function checkStart() {
-            if (spritesheetLoaded && buttonTextureLoaded) {
+            if (spritesheetLoaded && buttonTextureLoaded && buttonTextureHoverLoaded && fontLoaded && charaFontLoaded && windyFontLoaded) {
                 console.log('All assets loaded!');
                 requestAnimationFrame(gameLoop);
             }
@@ -727,8 +784,15 @@
             console.log('Button texture loaded!');
             buttonTextureWidth = buttonTexture.width;
             buttonTextureHeight = buttonTexture.height;
-            console.log('Button dimensions:', buttonTextureWidth, 'x', buttonTextureHeight);
             buttonTextureLoaded = true;
+            checkStart();
+        };
+
+        buttonTextureHover.onload = () => {
+            console.log('Button hover texture loaded!');
+            buttonTextureHoverWidth = buttonTextureHover.width;
+            buttonTextureHoverHeight = buttonTextureHover.height;
+            buttonTextureHoverLoaded = true;
             checkStart();
         };
 
@@ -744,7 +808,12 @@
             checkStart();
         };
 
-        // Audio context unlock
+        buttonTextureHover.onerror = () => {
+            console.error('Failed to load button hover texture');
+            buttonTextureHoverLoaded = true;
+            checkStart();
+        };
+
         document.addEventListener('click', () => {
             if (audioCtx.state === 'suspended') audioCtx.resume();
         });
