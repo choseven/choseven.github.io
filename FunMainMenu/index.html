@@ -236,6 +236,27 @@
         let cameraY = 0;
         const SCROLL_SPEED = 4;
 
+        // Save point state
+        let savepointFrame = 0;
+        let savepointAnimTimer = 0;
+        const SAVEPOINT_ANIM_SPEED = 8;
+        let showSaveDisplay = false;
+
+        // Savepoint position - only in 'all' tab
+        function getSavepointPosition() {
+            if (currentTab !== 'all') return null; // Only show in 'all' tab
+            
+            const games = allGames; // Use all games, not filtered
+            const rows = Math.ceil(games.length / COLUMNS);
+            const gridStartY = 180;
+            const lastRowY = gridStartY + rows * (BUTTON_HEIGHT + BUTTON_SPACING_Y) - cameraY;
+            
+            return {
+                x: GAME_WIDTH / 2,
+                y: lastRowY + 30
+            };
+        }
+
         let frisk = {
             x: GAME_WIDTH / 2,
             y: 80,
@@ -275,6 +296,14 @@
             }
             
             if (e.code === 'Space') {
+                // Check if near save point
+                if (isNearSavepoint()) {
+                    playSound('confirm');
+                    showSaveDisplay = !showSaveDisplay;
+                    return;
+                }
+                
+                // Check if over a game button
                 const hoveredGame = getHoveredGame();
                 if (hoveredGame) {
                     playSound('confirm');
@@ -282,6 +311,11 @@
                         window.location.href = hoveredGame.url;
                     }, 100);
                 }
+            }
+            
+            // Close save display with Space or Escape
+            if ((e.code === 'Space' || e.code === 'Escape') && showSaveDisplay) {
+                showSaveDisplay = false;
             }
         });
 
@@ -297,6 +331,12 @@
 
         const buttonTextureHover = new Image();
         buttonTextureHover.src = 'button3.png';
+
+        const savepointSprite = new Image();
+        savepointSprite.src = 'Savepoint.png';
+
+        const saveDisplay = new Image();
+        saveDisplay.src = 'SavepointDisplay.png';
 
         let fontLoaded = false;
         let charaFontLoaded = false;
@@ -428,9 +468,43 @@
         function getMaxCameraY() {
             const games = getCurrentGames();
             const rows = Math.ceil(games.length / COLUMNS);
-            const totalHeight = rows * (BUTTON_HEIGHT + BUTTON_SPACING_Y);
+            const extraSpace = (currentTab === 'all') ? 80 : 0; // Extra space only in 'all' tab
+            const totalHeight = rows * (BUTTON_HEIGHT + BUTTON_SPACING_Y) + extraSpace;
             const viewableHeight = GAME_HEIGHT - 200;
             return Math.max(0, totalHeight - viewableHeight);
+        }
+
+        function isNearSavepoint() {
+            const savePos = getSavepointPosition();
+            if (!savePos) return false;
+            
+            const distance = Math.sqrt(
+                Math.pow(frisk.x - savePos.x, 2) + 
+                Math.pow(frisk.y - savePos.y, 2)
+            );
+            return distance < 50; // Interaction radius
+        }
+        
+        function checkSavepointCollision(newX, newY) {
+            const savePos = getSavepointPosition();
+            if (!savePos) return false;
+            
+            // Savepoint is 44x44 pixels (22x21 scaled 2x), centered at savePos
+            const starLeft = savePos.x - 22;
+            const starRight = savePos.x + 22;
+            const starTop = savePos.y - 22;
+            const starBottom = savePos.y + 22;
+            
+            // Frisk's collision point (center of body)
+            const friskBodyY = newY + 15; // Offset to body center
+            
+            // Check if Frisk overlaps with the star
+            if (newX >= starLeft && newX <= starRight && 
+                friskBodyY >= starTop && friskBodyY <= starBottom) {
+                return true;
+            }
+            
+            return false;
         }
 
         function drawFrisk() {
@@ -460,6 +534,81 @@
                     drawWidth, drawHeight
                 );
             }
+            
+            ctx.restore();
+        }
+
+        function drawSavepoint() {
+            const savePos = getSavepointPosition();
+            if (!savePos || !savepointSprite.complete) return;
+            
+            // Sprite frames are 22x21 each, side by side
+            // Frame 0: Yellow star (0, 0, 22, 21)
+            // Frame 1: Outline star (22, 0, 22, 21)
+            const FRAME_WIDTH = 22;
+            const FRAME_HEIGHT = 21;
+            const sx = savepointFrame * FRAME_WIDTH; // 0 or 22
+            const sy = 0;
+            
+            const DRAW_SIZE = 44; // Scale 2x (22 * 2)
+            
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(
+                savepointSprite,
+                sx, sy, FRAME_WIDTH, FRAME_HEIGHT,
+                Math.floor(savePos.x - DRAW_SIZE / 2), 
+                Math.floor(savePos.y - DRAW_SIZE / 2),
+                DRAW_SIZE, DRAW_SIZE
+            );
+            ctx.restore();
+            
+            // Show interaction hint if near
+            if (isNearSavepoint() && !showSaveDisplay) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(Math.floor(savePos.x - 60), Math.floor(savePos.y + 25), 120, 25);
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px "Windy", "Courier New", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Press SPACE', Math.floor(savePos.x), Math.floor(savePos.y + 37));
+            }
+        }
+
+        function drawSaveDisplay() {
+            if (!showSaveDisplay || !saveDisplay.complete) return;
+            
+            // Center the display
+            const displayWidth = saveDisplay.width;
+            const displayHeight = saveDisplay.height;
+            const x = (GAME_WIDTH - displayWidth) / 2;
+            const y = (GAME_HEIGHT - displayHeight) / 2;
+            
+            ctx.save();
+            ctx.drawImage(saveDisplay, x, y);
+            
+            // Draw text on the display - smaller font to fit
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px "Windy", "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            const lines = [
+                "I'm not quite sure what to put here,",
+                "but I guess I'll mention my email:",
+                "loganshadow10@gmail.com",
+                "",
+                "Note that this menu was created by AI",
+                "(besides the small amounts of art",
+                "and fonts)."
+            ];
+            
+            const lineHeight = 18;
+            const startY = y + displayHeight / 2 - (lines.length * lineHeight) / 2;
+            
+            lines.forEach((line, index) => {
+                ctx.fillText(line, GAME_WIDTH / 2, startY + index * lineHeight);
+            });
             
             ctx.restore();
         }
@@ -600,6 +749,21 @@
         }
 
         function update() {
+            // Don't allow movement when save display is open
+            if (showSaveDisplay) {
+                frisk.isMoving = false;
+                frisk.frame = 0;
+                frisk.animTimer = 0;
+                
+                // Still animate savepoint even when display is open
+                savepointAnimTimer++;
+                if (savepointAnimTimer >= SAVEPOINT_ANIM_SPEED) {
+                    savepointAnimTimer = 0;
+                    savepointFrame = (savepointFrame + 1) % 2;
+                }
+                return;
+            }
+            
             let dx = 0;
             let dy = 0;
             
@@ -619,17 +783,36 @@
                 frisk.direction = DIRECTION_DOWN;
             }
             
-            // Normalize diagonal movement
+            // Normalize diagonal movement - CRITICAL FIX
             if (dx !== 0 && dy !== 0) {
-                const diag = MOVE_SPEED / Math.sqrt(2);
-                dx = dx > 0 ? diag : -diag;
-                dy = dy > 0 ? diag : -diag;
+                const normalizer = MOVE_SPEED / Math.sqrt(dx * dx + dy * dy);
+                dx *= normalizer;
+                dy *= normalizer;
             }
             
             frisk.isMoving = dx !== 0 || dy !== 0;
             
             let newX = frisk.x + dx;
             let newY = frisk.y + dy;
+            
+            // Check collision with savepoint before applying movement
+            if (checkSavepointCollision(newX, newY)) {
+                // Block movement but DON'T stop Frisk or savepoint animation
+                // Try moving only horizontally
+                if (!checkSavepointCollision(newX, frisk.y)) {
+                    newY = frisk.y;
+                }
+                // Try moving only vertically
+                else if (!checkSavepointCollision(frisk.x, newY)) {
+                    newX = frisk.x;
+                }
+                // Can't move at all
+                else {
+                    newX = frisk.x;
+                    newY = frisk.y;
+                    frisk.isMoving = false;
+                }
+            }
             
             newX = Math.max(30, Math.min(GAME_WIDTH - 30, newX));
             newY = Math.max(140, Math.min(GAME_HEIGHT - 30, newY));
@@ -639,7 +822,6 @@
             if (maxCameraY > 0 && dy !== 0) {
                 // Scroll down when Frisk gets to bottom third of screen
                 if (newY > GAME_HEIGHT - 150 && dy > 0) {
-                    // Use the actual dy value for smooth scrolling (handles both straight and diagonal)
                     const scrollAmount = Math.min(Math.abs(dy), SCROLL_SPEED);
                     const desiredCameraY = cameraY + scrollAmount;
                     if (desiredCameraY <= maxCameraY) {
@@ -672,6 +854,13 @@
             } else {
                 frisk.frame = 0;
                 frisk.animTimer = 0;
+            }
+            
+            // ALWAYS animate savepoint regardless of collision
+            savepointAnimTimer++;
+            if (savepointAnimTimer >= SAVEPOINT_ANIM_SPEED) {
+                savepointAnimTimer = 0;
+                savepointFrame = (savepointFrame + 1) % 2;
             }
         }
 
@@ -728,12 +917,15 @@
             
             drawButtons();
             
+            // Draw savepoint in the scrollable area
+            drawSavepoint();
+            
             ctx.restore();
             
             drawFrisk();
             
             const hoveredGame = getHoveredGame();
-            if (hoveredGame) {
+            if (hoveredGame && !showSaveDisplay) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 ctx.fillRect(GAME_WIDTH / 2 - 100, GAME_HEIGHT - 50, 200, 30);
                 ctx.fillStyle = '#ff0';
@@ -742,6 +934,9 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText('Press SPACE to play!', GAME_WIDTH / 2, GAME_HEIGHT - 32);
             }
+            
+            // Draw save display on top of everything
+            drawSaveDisplay();
         }
 
         function gameLoop(currentTime) {
@@ -766,9 +961,12 @@
         let spritesheetLoaded = false;
         let buttonTextureLoaded = false;
         let buttonTextureHoverLoaded = false;
+        let savepointLoaded = false;
+        let saveDisplayLoaded = false;
 
         function checkStart() {
-            if (spritesheetLoaded && buttonTextureLoaded && buttonTextureHoverLoaded && fontLoaded && charaFontLoaded && windyFontLoaded) {
+            if (spritesheetLoaded && buttonTextureLoaded && buttonTextureHoverLoaded && 
+                fontLoaded && charaFontLoaded && windyFontLoaded && savepointLoaded && saveDisplayLoaded) {
                 console.log('All assets loaded!');
                 requestAnimationFrame(gameLoop);
             }
@@ -796,6 +994,18 @@
             checkStart();
         };
 
+        savepointSprite.onload = () => {
+            console.log('Savepoint sprite loaded!');
+            savepointLoaded = true;
+            checkStart();
+        };
+
+        saveDisplay.onload = () => {
+            console.log('Save display loaded!');
+            saveDisplayLoaded = true;
+            checkStart();
+        };
+
         spritesheet.onerror = () => {
             console.error('Failed to load spritesheet');
             spritesheetLoaded = true;
@@ -811,6 +1021,18 @@
         buttonTextureHover.onerror = () => {
             console.error('Failed to load button hover texture');
             buttonTextureHoverLoaded = true;
+            checkStart();
+        };
+
+        savepointSprite.onerror = () => {
+            console.error('Failed to load savepoint sprite');
+            savepointLoaded = true;
+            checkStart();
+        };
+
+        saveDisplay.onerror = () => {
+            console.error('Failed to load save display');
+            saveDisplayLoaded = true;
             checkStart();
         };
 
