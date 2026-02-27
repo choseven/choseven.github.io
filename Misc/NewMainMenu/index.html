@@ -10,17 +10,17 @@
         @font-face { font-family: 'Determination'; src: url('determination.woff2') format('woff2'); }
 
         :root {
-            --white:   #ffffff; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --dim:     #666666; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --dimmer:  #2e2e2e; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --bg:      #0a0a0a; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --panel:   #060606; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --border:  #1a1a1a; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --accent:  #ff3333; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --soul:    #7070ff; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --gold:    #f0c040; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --green:   #20c050; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
-            --itchio:  #fa5c5c; /* THIS ENTIRE MENU WAS CREATED NOT BY ME, BUT INSTEAD BY CLAUDE, IT WAS ALL AI GENERATED!!! */
+            --white:   #ffffff;
+            --dim:     #666666;
+            --dimmer:  #2e2e2e;
+            --bg:      #0a0a0a;
+            --panel:   #060606;
+            --border:  #1a1a1a;
+            --accent:  #ff3333;
+            --soul:    #7070ff;
+            --gold:    #f0c040;
+            --green:   #20c050;
+            --itchio:  #fa5c5c;
             --scale:   1;
 
             --f-chara: 'Chara',         'Courier New', monospace;
@@ -44,7 +44,12 @@
         /* ════════════════════════════════
            TITLE SCREEN
         ════════════════════════════════ */
-        #title-screen { background: #000; overflow: hidden; }
+        #title-screen {
+            background: #000; overflow: hidden;
+            /* override .screen centering — we handle layout ourselves */
+            justify-content: space-between;
+            padding: clamp(32px, 5vh, 64px) 0 clamp(24px, 3vh, 40px);
+        }
 
         .title-bg-text {
             position: absolute; inset: 0;
@@ -60,10 +65,14 @@
             to   { opacity: 0.03; letter-spacing: 6px; }
         }
 
+        /* Top spacer pushes content down from top padding */
+        .title-top-spacer { flex: 1; }
+
         .title-content {
             position: relative; z-index: 2;
+            flex: 1;
             display: flex; flex-direction: column;
-            align-items: center; text-align: center;
+            align-items: center; justify-content: center; text-align: center;
         }
 
         .title-main {
@@ -93,7 +102,7 @@
             color: var(--dimmer); letter-spacing: 1px; margin-top: 8px;
         }
 
-        .title-spacer { height: clamp(36px, 5vh, 56px); }
+        .title-spacer { height: clamp(28px, 4vh, 48px); }
 
         .press-any {
             font-family: var(--f-chara);
@@ -123,42 +132,82 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── QUICK PLAY on title ── */
-        .quick-play {
-            position: absolute; bottom: 38px;
-            left: 0; right: 0;               /* full width so centering works */
-            z-index: 2; text-align: center;
-            animation: fadeUp 0.8s ease 0.8s both;
+        /* ── BOTTOM SECTION on title (Favorites + Quick Play) ── */
+        .title-bottom {
+            position: relative; z-index: 2;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 0;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.8s forwards;
+            border-top: 1px solid var(--border);
+            padding-top: clamp(14px, 2vh, 24px);
+            padding-bottom: clamp(8px, 1vh, 16px);
+            max-height: 40vh;
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .quick-play-label {
+        /* Inner wrapper constrains total panel width so nothing escapes */
+        .title-bottom-inner {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            width: min(900px, 92vw);
+        }
+
+        .title-panel-block {
+            display: flex; flex-direction: column; align-items: center;
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 380px;
+            padding: 0 24px;
+            overflow: hidden;
+        }
+
+        .title-panel-label {
             font-family: var(--f-sans);
             font-size: calc(clamp(9px, 1vw, 12px) * var(--scale));
             color: var(--dimmer); letter-spacing: 4px; margin-bottom: 10px;
+            flex-shrink: 0;
         }
-        .quick-play-list {
+        .title-panel-list {
             display: flex; flex-direction: column; gap: 4px;
-            align-items: center;
+            align-items: stretch; width: 100%;
+            overflow: hidden;
         }
-        .quick-play-empty {
+        .title-panel-empty {
             font-family: var(--f-sans);
             font-size: calc(clamp(11px, 1.1vw, 14px) * var(--scale));
             color: var(--dimmer); letter-spacing: 1px;
+            text-align: center;
         }
-        .quick-play-item {
+
+        /* Vertical divider between the two panels */
+        .title-bottom-divider {
+            width: 1px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .title-panel-item {
             font-family: var(--f-chara);
             font-size: calc(clamp(11px, 1.2vw, 15px) * var(--scale));
             color: #484848; letter-spacing: 1px;
-            cursor: pointer; padding: 4px 20px;
+            cursor: pointer; padding: 4px 14px;
             border: 1px solid transparent; border-radius: 2px;
             transition: color 0.14s, border-color 0.14s, background 0.14s;
-            text-decoration: none; display: inline-block; white-space: nowrap;
+            text-decoration: none; display: block;
+            width: 100%; text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .quick-play-item:hover { color: var(--white); border-color: #252525; background: rgba(255,255,255,0.025); }
-        .quick-play-item .qp-arrow { color: var(--accent); margin-right: 8px; opacity: 0; transition: opacity 0.14s; }
-        .quick-play-item:hover .qp-arrow { opacity: 1; }
-        .quick-play-item .qp-num { color: var(--dimmer); margin-right: 8px; }
+        .title-panel-item:hover { color: var(--white); border-color: #252525; background: rgba(255,255,255,0.025); }
+        .title-panel-item .qp-arrow { color: var(--accent); margin-right: 8px; opacity: 0; transition: opacity 0.14s; }
+        .title-panel-item:hover .qp-arrow { opacity: 1; }
+        .title-panel-item .qp-num { color: var(--dimmer); margin-right: 8px; }
 
-        /* Settings button — bottom right */
+        /* Settings button — bottom right, absolute is fine here as it's just a corner btn */
         .title-settings-btn {
             position: absolute; bottom: 18px; right: 24px;
             z-index: 3; cursor: pointer;
@@ -391,6 +440,8 @@
         .tag-classic { color: var(--green);  border-color: rgba(32,192,80,0.2);   background: rgba(32,192,80,0.05); }
         .tag-itchio  { color: var(--itchio); border-color: rgba(250,92,92,0.2);   background: rgba(250,92,92,0.05); }
 
+
+
         /* No results */
         .no-results {
             font-family: var(--f-sans);
@@ -547,7 +598,50 @@
         }
         .toggle-switch.on::after { left: 19px; }
 
-        /* Quick Play Manager */
+        /* Favorites Manager */
+        .fav-manager { display: flex; flex-direction: column; gap: 6px; }
+        .fav-mgr-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px;
+            border: 1px solid var(--border); border-radius: 2px;
+            background: rgba(255,255,255,0.018);
+        }
+        .fav-mgr-name {
+            font-family: var(--f-chara);
+            font-size: calc(clamp(9px, 1vw, 12px) * var(--scale));
+            color: #888; letter-spacing: 1px; flex: 1;
+        }
+        .fav-mgr-remove {
+            background: none; border: none; cursor: pointer;
+            font-family: var(--f-sans); font-size: 14px;
+            color: var(--dimmer); transition: color 0.14s; padding: 0 4px;
+        }
+        .fav-mgr-remove:hover { color: var(--accent); }
+        .fav-mgr-empty {
+            font-family: var(--f-sans);
+            font-size: calc(clamp(11px, 1.1vw, 13px) * var(--scale));
+            color: var(--dimmer); letter-spacing: 1px; padding: 4px 0;
+        }
+        .fav-add-row { display: flex; gap: 8px; margin-top: 10px; }
+        .fav-add-select {
+            flex: 1; background: #0e0e0e;
+            border: 1px solid var(--border); border-radius: 2px;
+            font-family: var(--f-chara);
+            font-size: calc(clamp(9px, 1vw, 12px) * var(--scale));
+            color: #888; padding: 8px 10px; cursor: pointer; outline: none;
+        }
+        .fav-add-select option { background: #0e0e0e; }
+        .fav-add-btn {
+            background: none; border: 1px solid var(--border);
+            font-family: var(--f-sans);
+            font-size: calc(clamp(9px, 1vw, 11px) * var(--scale));
+            color: #666; cursor: pointer; padding: 8px 14px;
+            letter-spacing: 2px; border-radius: 2px;
+            transition: all 0.12s; white-space: nowrap;
+        }
+        .fav-add-btn:hover { color: var(--white); border-color: #555; }
+
+        /* Quick Play Manager (Recent) */
         .qp-manager { display: flex; flex-direction: column; gap: 6px; }
         .qp-mgr-item {
             display: flex; align-items: center; gap: 10px;
@@ -571,24 +665,7 @@
             font-size: calc(clamp(11px, 1.1vw, 13px) * var(--scale));
             color: var(--dimmer); letter-spacing: 1px; padding: 4px 0;
         }
-        .qp-add-row { display: flex; gap: 8px; margin-top: 10px; }
-        .qp-add-select {
-            flex: 1; background: #0e0e0e;
-            border: 1px solid var(--border); border-radius: 2px;
-            font-family: var(--f-chara);
-            font-size: calc(clamp(9px, 1vw, 12px) * var(--scale));
-            color: #888; padding: 8px 10px; cursor: pointer; outline: none;
-        }
-        .qp-add-select option { background: #0e0e0e; }
-        .qp-add-btn {
-            background: none; border: 1px solid var(--border);
-            font-family: var(--f-sans);
-            font-size: calc(clamp(9px, 1vw, 11px) * var(--scale));
-            color: #666; cursor: pointer; padding: 8px 14px;
-            letter-spacing: 2px; border-radius: 2px;
-            transition: all 0.12s; white-space: nowrap;
-        }
-        .qp-add-btn:hover { color: var(--white); border-color: #555; }
+
         .danger-btn {
             background: none; border: 1px solid rgba(255,51,51,0.18);
             font-family: var(--f-sans);
@@ -614,7 +691,10 @@
             .panel-bottom { display: none; }
             .right-panel { padding: 0 14px 60px; }
             .game-tag { display: none; }
-            .quick-play { left: 0; right: 0; }
+            .title-bottom { flex-direction: column; align-items: center; padding: 16px 0 8px; margin-top: 16px; }
+            #title-screen { padding: 24px 0 16px; }
+            .title-panel-block { max-width: 100%; padding: 0 16px; }
+            .title-bottom-divider { width: 60px; height: 1px; align-self: auto; margin: 6px 0; }
         }
     </style>
 </head>
@@ -638,9 +718,26 @@
         <div class="press-any" id="press-any-btn">Press any key to continue</div>
     </div>
 
-    <div class="quick-play">
-        <div class="quick-play-label">QUICK PLAY</div>
-        <div class="quick-play-list" id="quick-play-list"></div>
+    <!-- Favorites + Quick Play blocks side by side -->
+    <div class="title-bottom" id="title-bottom">
+        <div class="title-bottom-inner">
+
+            <!-- FAVORITES block (always shown) -->
+            <div class="title-panel-block" id="fav-block">
+                <div class="title-panel-label">FAVORITES</div>
+                <div class="title-panel-list" id="fav-list"></div>
+            </div>
+
+            <!-- Divider — only visible when Quick Play is enabled -->
+            <div class="title-bottom-divider" id="title-divider" style="display:none;"></div>
+
+            <!-- QUICK PLAY block (only shown if quickPlayEnabled) -->
+            <div class="title-panel-block" id="qp-block" style="display:none;">
+                <div class="title-panel-label">QUICK PLAY</div>
+                <div class="title-panel-list" id="qp-list"></div>
+            </div>
+
+        </div>
     </div>
 
     <button class="title-settings-btn" id="title-settings-btn">SETTINGS</button>
@@ -656,7 +753,7 @@
         <div class="panel-sub">choose your game</div>
 
         <div class="categories">
-            <button class="cat-btn active" data-cat="all">ALL GAMES <span class="count">24</span></button>
+            <button class="cat-btn active" data-cat="all">ALL GAMES <span class="count">26</span></button>
             <button class="cat-btn" data-cat="indie">INDIE <span class="count">8</span></button>
             <button class="cat-btn" data-cat="pokemon">POKEMON <span class="count">9</span></button>
             <button class="cat-btn" data-cat="classic">CLASSIC <span class="count">5</span></button>
@@ -711,7 +808,7 @@
                 <span class="game-num">07</span><span class="game-name">GREAT TIME TRIO</span><span class="game-tag tag-indie">INDIE</span></a>
             <a href="https://choseven.github.io/Indie/CookieClicker"   class="game-item" tabindex="0" data-cat="indie"   data-flavor="You've baked infinite cookies, congrats."                               data-name="COOKIE CLICKER">
                 <span class="game-num">08</span><span class="game-name">COOKIE CLICKER</span><span class="game-tag tag-indie">INDIE</span></a>
-            <a href="https://choseven.github.io/Indie/TheBindingOfIsaac"   class="game-item" tabindex="0" data-cat="indie"   data-flavor="kill peoples"                               data-name="COOKIE CLICKER">
+            <a href="https://choseven.github.io/Indie/TheBindingOfIsaac"   class="game-item" tabindex="0" data-cat="indie"   data-flavor="kill peoples"                               data-name="THE BINDING OF ISAAC">
                 <span class="game-num">09</span><span class="game-name">THE BINDING OF ISAAC</span><span class="game-tag tag-indie">INDIE</span></a>
 
             <div class="section-label" data-section="pokemon">POKEMON</div>
@@ -743,7 +840,7 @@
                 <span class="game-num">21</span><span class="game-name">BLOCK BLAST</span><span class="game-tag tag-classic">CLASSIC</span></a>
             <a href="https://choseven.github.io/Classic/Snake"           class="game-item" tabindex="0" data-cat="classic" data-flavor="Don't bite yourself."                              data-name="SNAKE">
                 <span class="game-num">22</span><span class="game-name">SNAKE</span><span class="game-tag tag-classic">CLASSIC</span></a>
-            <a href="https://choseven.github.io/Classic/CookieClicker"   class="game-item" tabindex="0" data-cat="classic" data-flavor="You've baked infinite cookies, congrats."                               data-name="COOKIE CLICKER">
+            <a href="https://choseven.github.io/Classic/CookieClicker"   class="game-item" tabindex="0" data-cat="classic" data-flavor="You've baked infinite cookies, congrats."          data-name="COOKIE CLICKER">
                 <span class="game-num">23</span><span class="game-name">COOKIE CLICKER</span><span class="game-tag tag-classic">CLASSIC</span></a>
 
             <div class="section-label" data-section="itchio">ITCH.IO</div>
@@ -828,16 +925,30 @@
                 </div>
                 <button class="toggle-switch" data-key="flashEnabled"></button>
             </div>
+            <div class="toggle-row">
+                <div class="toggle-left">
+                    <div class="toggle-label">Quick Play</div>
+                    <div class="toggle-desc">Show recently played games on the title screen</div>
+                </div>
+                <button class="toggle-switch" data-key="quickPlayEnabled"></button>
+            </div>
         </div>
 
-        <!-- Quick Play -->
+        <!-- Favorites -->
         <div class="settings-section">
-            <div class="settings-section-title">QUICK PLAY</div>
-            <div class="qp-manager" id="qp-manager"></div>
-            <div class="qp-add-row">
-                <select class="qp-add-select" id="qp-add-select"></select>
-                <button class="qp-add-btn" id="qp-add-btn">Add</button>
+            <div class="settings-section-title">FAVORITES</div>
+            <div class="fav-manager" id="fav-manager"></div>
+            <div class="fav-add-row">
+                <select class="fav-add-select" id="fav-add-select"></select>
+                <button class="fav-add-btn" id="fav-add-btn">Add</button>
             </div>
+            <button class="danger-btn" id="fav-clear-btn">Clear all favorites</button>
+        </div>
+
+        <!-- Quick Play (Recent) -->
+        <div class="settings-section" id="qp-settings-section">
+            <div class="settings-section-title">QUICK PLAY — RECENT HISTORY</div>
+            <div class="qp-manager" id="qp-manager"></div>
             <button class="danger-btn" id="qp-clear-btn">Clear recent history</button>
         </div>
 
@@ -857,7 +968,7 @@ const ALL_GAMES = [
     { name: 'UNDERTALE YELLOW',              href: 'https://choseven.github.io/Indie/UndertaleYellow'  },
     { name: 'GREAT TIME TRIO',               href: 'https://choseven.github.io/Indie/GreatTimeTrio'    },
     { name: 'COOKIE CLICKER',                href: 'https://choseven.github.io/Indie/CookieClicker'    },
-    { name: 'THE BINDING OF ISAAC',                href: 'https://choseven.github.io/Indie/TheBindingOfIsaac'    },
+    { name: 'THE BINDING OF ISAAC',          href: 'https://choseven.github.io/Indie/TheBindingOfIsaac'},
     { name: 'POKEMON RED',                   href: 'https://choseven.github.io/Pokemon/PokemonRed'       },
     { name: 'POKEMON FIRE RED',              href: 'https://choseven.github.io/Pokemon/PokemonFireRed'   },
     { name: 'POKEMON LEAF GREEN',            href: 'https://choseven.github.io/Pokemon/PokemonLeafGreen' },
@@ -868,7 +979,7 @@ const ALL_GAMES = [
     { name: 'POKEMON EMERALD',               href: 'https://choseven.github.io/Pokemon/PokemonEmerald'   },
     { name: 'POKEMON PLATINUM',              href: 'https://choseven.github.io/Pokemon/PokemonPlatinum'  },
     { name: 'SUPER MARIO 64',                href: 'https://choseven.github.io/Classic/SuperMario64'     },
-    { name: "BALDI'S BASICS",               href: 'https://choseven.github.io/Classic/BaldiBasics'      },
+    { name: "BALDI'S BASICS",                href: 'https://choseven.github.io/Classic/BaldiBasics'      },
     { name: 'BLOCK BLAST',                   href: 'https://choseven.github.io/Classic/BlockBlast'       },
     { name: 'SNAKE',                         href: 'https://choseven.github.io/Classic/Snake'            },
     { name: 'DUNGEONS AND DRAGONS GAMBLERS', href: 'https://choseven.github.io/Itch/DnDG'       },
@@ -903,7 +1014,14 @@ document.getElementById('quote-attr').textContent = q.aow ? '— Sun Tzu, The Ar
 // ══════════════════════════════════════════
 // SETTINGS STORAGE
 // ══════════════════════════════════════════
-const DEFAULTS = { uiScale: 1, accentColor: '#ff3333', captionsEnabled: true, tagsEnabled: true, flashEnabled: false };
+const DEFAULTS = {
+    uiScale: 1,
+    accentColor: '#ff3333',
+    captionsEnabled: true,
+    tagsEnabled: true,
+    flashEnabled: false,
+    quickPlayEnabled: false,   // off by default
+};
 
 function getSetting(key) {
     try {
@@ -918,10 +1036,8 @@ function setSetting(key, val) {
 // ── Apply accent color
 function applyAccent(color) {
     document.documentElement.style.setProperty('--accent', color);
-    // sync custom color input
     const ci = document.getElementById('color-custom');
     if (ci) ci.value = color;
-    // sync swatch active state
     document.querySelectorAll('.color-swatch').forEach(s => {
         s.classList.toggle('active', s.dataset.color === color);
     });
@@ -936,7 +1052,12 @@ function applyToggle(key, val) {
         const cap = document.getElementById('left-hover-caption');
         if (cap && !val) cap.classList.remove('visible');
     }
-    if (key === 'flashEnabled') { /* handled in doFlash */ }
+    if (key === 'quickPlayEnabled') {
+        renderTitleScreenPanels();
+        // show/hide the QP section in settings
+        const sec = document.getElementById('qp-settings-section');
+        if (sec) sec.style.display = val ? '' : 'none';
+    }
 }
 
 // ── Load all settings on start
@@ -948,7 +1069,7 @@ function applyToggle(key, val) {
 
     applyAccent(getSetting('accentColor'));
 
-    ['captionsEnabled', 'tagsEnabled', 'flashEnabled'].forEach(key => {
+    ['captionsEnabled', 'tagsEnabled', 'flashEnabled', 'quickPlayEnabled'].forEach(key => {
         const val = getSetting(key);
         const btn = document.querySelector(`[data-key="${key}"]`);
         if (btn) { btn.classList.toggle('on', val); }
@@ -991,40 +1112,103 @@ document.addEventListener('keydown', e => {
 document.getElementById('back-btn').addEventListener('click', goToTitle);
 
 // ══════════════════════════════════════════
-// QUICK PLAY
+// FAVORITES (manually managed, never auto-added)
 // ══════════════════════════════════════════
-const STORAGE_KEY = 'choseven_recent';
+const FAV_KEY     = 'choseven_favorites';
+const MAX_FAVS    = 8;
+
+function getFavorites() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
+function saveFavorites(a) { try { localStorage.setItem(FAV_KEY, JSON.stringify(a)); } catch {} }
+
+function addFavorite(name, href) {
+    let a = getFavorites();
+    if (a.some(r => r.href === href)) return; // already in list
+    a.push({ name, href });
+    saveFavorites(a.slice(0, MAX_FAVS));
+}
+function removeFavorite(href) {
+    saveFavorites(getFavorites().filter(r => r.href !== href));
+}
+function isFavorite(href) {
+    return getFavorites().some(r => r.href === href);
+}
+
+// ══════════════════════════════════════════
+// QUICK PLAY — RECENT (auto-tracked)
+// ══════════════════════════════════════════
+const RECENT_KEY  = 'choseven_recent';
 const MAX_RECENT  = 5;
 
-function getRecent() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
-function saveRecent(a) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(a)); } catch {} }
+function getRecent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; } }
+function saveRecent(a) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(a)); } catch {} }
 function recordPlay(name, href) {
     let a = getRecent().filter(r => r.href !== href);
     a.unshift({ name, href });
     saveRecent(a.slice(0, MAX_RECENT));
 }
 
-function renderQuickPlay() {
-    const arr = getRecent();
-    const container = document.getElementById('quick-play-list');
-    if (!arr.length) {
-        container.innerHTML = '<span class="quick-play-empty">No recent games yet.</span>';
+// ══════════════════════════════════════════
+// RENDER TITLE SCREEN PANELS
+// ══════════════════════════════════════════
+function renderTitleScreenPanels() {
+    // --- FAVORITES ---
+    const favArr = getFavorites();
+    const favList = document.getElementById('fav-list');
+    if (!favArr.length) {
+        favList.innerHTML = '<span class="title-panel-empty">No favorites yet.</span>';
+    } else {
+        favList.innerHTML = favArr.map((r, i) =>
+            `<a class="title-panel-item" href="${r.href}" data-href="${r.href}" data-name="${r.name}">
+                <span class="qp-arrow">&#9658;</span><span class="qp-num">${String(i+1).padStart(2,'0')}</span>${r.name}
+             </a>`
+        ).join('');
+        favList.querySelectorAll('.title-panel-item').forEach(el => {
+            el.addEventListener('click', e => {
+                e.preventDefault();
+                recordPlay(el.dataset.name, el.dataset.href);
+                doFlash(() => { window.location.href = el.dataset.href; });
+            });
+        });
+    }
+
+    // --- QUICK PLAY ---
+    const qpEnabled = getSetting('quickPlayEnabled');
+    const qpBlock   = document.getElementById('qp-block');
+    const divider   = document.getElementById('title-divider');
+
+    if (!qpEnabled) {
+        qpBlock.style.display  = 'none';
+        divider.style.display  = 'none';
         return;
     }
-    container.innerHTML = arr.map((r, i) =>
-        `<a class="quick-play-item" href="${r.href}" data-href="${r.href}" data-name="${r.name}">
-            <span class="qp-arrow">&#9658;</span><span class="qp-num">${String(i+1).padStart(2,'0')}</span>${r.name}
-         </a>`
-    ).join('');
-    container.querySelectorAll('.quick-play-item').forEach(el => {
-        el.addEventListener('click', e => {
-            e.preventDefault();
-            recordPlay(el.dataset.name, el.dataset.href);
-            doFlash(() => { window.location.href = el.dataset.href; });
+
+    const recentArr = getRecent();
+    const qpList    = document.getElementById('qp-list');
+
+    if (!recentArr.length) {
+        qpList.innerHTML = '<span class="title-panel-empty">No recent games yet.</span>';
+    } else {
+        qpList.innerHTML = recentArr.map((r, i) =>
+            `<a class="title-panel-item" href="${r.href}" data-href="${r.href}" data-name="${r.name}">
+                <span class="qp-arrow">&#9658;</span><span class="qp-num">${String(i+1).padStart(2,'0')}</span>${r.name}
+             </a>`
+        ).join('');
+        qpList.querySelectorAll('.title-panel-item').forEach(el => {
+            el.addEventListener('click', e => {
+                e.preventDefault();
+                recordPlay(el.dataset.name, el.dataset.href);
+                doFlash(() => { window.location.href = el.dataset.href; });
+            });
         });
-    });
+    }
+
+    qpBlock.style.display  = '';
+    divider.style.display  = '';
 }
-renderQuickPlay();
+
+renderTitleScreenPanels();
+
+
 
 // ══════════════════════════════════════════
 // CATEGORY FILTER
@@ -1052,7 +1236,6 @@ catBtns.forEach(btn => {
         currentCat = btn.dataset.cat;
         listTitleEl.textContent = catMeta[currentCat].label;
         listCountEl.textContent = catMeta[currentCat].count;
-        // clear search when changing category
         const si = document.getElementById('search-input');
         si.value = '';
         document.getElementById('search-clear').classList.remove('visible');
@@ -1077,7 +1260,6 @@ function applyFilter() {
         if (currentCat !== 'all' && lbl.dataset.section !== currentCat) {
             lbl.style.display = 'none'; return;
         }
-        // only show section if it has visible items
         const sec = lbl.dataset.section;
         const hasVisible = Array.from(gameItems).some(
             item => item.dataset.cat === sec && item.style.display !== 'none'
@@ -1130,7 +1312,7 @@ gameItems.forEach(item => {
 });
 
 // ══════════════════════════════════════════
-// NAVIGATE + RECORD
+// NAVIGATE + RECORD PLAY
 // ══════════════════════════════════════════
 gameItems.forEach(item => {
     item.addEventListener('click', e => {
@@ -1146,7 +1328,7 @@ gameItems.forEach(item => {
 // SETTINGS PANEL
 // ══════════════════════════════════════════
 const overlay = document.getElementById('settings-overlay');
-function openSettings() { renderQPManager(); populateQPSelect(); overlay.classList.add('open'); }
+function openSettings() { renderFavManager(); renderQPManager(); populateFavSelect(); overlay.classList.add('open'); }
 function closeSettings() { overlay.classList.remove('open'); }
 
 document.getElementById('title-settings-btn').addEventListener('click', openSettings);
@@ -1176,7 +1358,6 @@ document.querySelectorAll('.color-swatch').forEach(swatch => {
 document.getElementById('color-custom').addEventListener('input', function () {
     applyAccent(this.value);
     setSetting('accentColor', this.value);
-    // deselect all swatches since it's custom
     document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
 });
 
@@ -1191,11 +1372,55 @@ document.querySelectorAll('.toggle-switch').forEach(btn => {
     });
 });
 
-// ── QP Manager
+// ── FAVORITES Manager
+function renderFavManager() {
+    const arr = getFavorites();
+    const el  = document.getElementById('fav-manager');
+    if (!arr.length) { el.innerHTML = '<div class="fav-mgr-empty">No favorites saved.</div>'; return; }
+    el.innerHTML = arr.map((r, i) =>
+        `<div class="fav-mgr-item">
+            <span class="fav-mgr-name">${r.name}</span>
+            <button class="fav-mgr-remove" data-i="${i}">&#x2715;</button>
+         </div>`
+    ).join('');
+    el.querySelectorAll('.fav-mgr-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const a = getFavorites();
+            a.splice(parseInt(btn.dataset.i), 1);
+            saveFavorites(a);
+            renderFavManager();
+            renderTitleScreenPanels();
+        });
+    });
+}
+
+function populateFavSelect() {
+    const sel = document.getElementById('fav-add-select');
+    sel.innerHTML = ALL_GAMES.map(g =>
+        `<option value="${g.href}" data-name="${g.name}">${g.name}</option>`
+    ).join('');
+}
+
+document.getElementById('fav-add-btn').addEventListener('click', () => {
+    const sel = document.getElementById('fav-add-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt) return;
+    addFavorite(opt.dataset.name, opt.value);
+    renderFavManager();
+    renderTitleScreenPanels();
+});
+
+document.getElementById('fav-clear-btn').addEventListener('click', () => {
+    saveFavorites([]);
+    renderFavManager();
+    renderTitleScreenPanels();
+});
+
+// ── QUICK PLAY Manager (recent history)
 function renderQPManager() {
     const arr = getRecent();
     const el  = document.getElementById('qp-manager');
-    if (!arr.length) { el.innerHTML = '<div class="qp-mgr-empty">No recent games saved.</div>'; return; }
+    if (!arr.length) { el.innerHTML = '<div class="qp-mgr-empty">No recent games.</div>'; return; }
     el.innerHTML = arr.map((r, i) =>
         `<div class="qp-mgr-item">
             <span class="qp-mgr-name">${r.name}</span>
@@ -1208,31 +1433,15 @@ function renderQPManager() {
             a.splice(parseInt(btn.dataset.i), 1);
             saveRecent(a);
             renderQPManager();
-            renderQuickPlay();
+            renderTitleScreenPanels();
         });
     });
 }
 
-function populateQPSelect() {
-    const sel = document.getElementById('qp-add-select');
-    sel.innerHTML = ALL_GAMES.map(g =>
-        `<option value="${g.href}" data-name="${g.name}">${g.name}</option>`
-    ).join('');
-}
-
-document.getElementById('qp-add-btn').addEventListener('click', () => {
-    const sel = document.getElementById('qp-add-select');
-    const opt = sel.options[sel.selectedIndex];
-    if (!opt) return;
-    recordPlay(opt.dataset.name, opt.value);
-    renderQPManager();
-    renderQuickPlay();
-});
-
 document.getElementById('qp-clear-btn').addEventListener('click', () => {
     saveRecent([]);
     renderQPManager();
-    renderQuickPlay();
+    renderTitleScreenPanels();
 });
 </script>
 </body>
