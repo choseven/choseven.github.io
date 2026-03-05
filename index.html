@@ -753,12 +753,12 @@
 
         <div class="categories">
             <button class="cat-btn active" data-cat="all">ALL GAMES <span class="count" id="count-all">26</span></button>
-            <button class="cat-btn" data-cat="indie">INDIE <span class="count">8</span></button>
-            <button class="cat-btn" data-cat="pokemon">POKEMON <span class="count">9</span></button>
+            <button class="cat-btn" data-cat="indie">INDIE <span class="count">9</span></button>
+            <button class="cat-btn" data-cat="pokemon">POKEMON <span class="count">7</span></button>
             <button class="cat-btn" data-cat="classic">CLASSIC <span class="count">5</span></button>
             <button class="cat-btn" data-cat="itchio">ITCH.IO <span class="count">3</span></button>
             <!-- Duck Life category — hidden by default, shown when hiddenEnabled -->
-            <button class="cat-btn" data-cat="ducklife" id="cat-ducklife" style="display:none;">HIDDEN <span class="count">8</span></button>
+            <button class="cat-btn" data-cat="ducklife" id="cat-ducklife" style="display:none;">HIDDEN <span class="count">5</span></button>
         </div>
 
         <div class="left-hover-caption" id="left-hover-caption">
@@ -1181,12 +1181,12 @@ const listTitleEl = document.getElementById('list-title');
 const listCountEl = document.getElementById('list-count');
 
 const catMeta = {
-    all:      { label: 'ALL GAMES', count: () => (getSetting('hiddenEnabled') ? '34' : '26') + ' available' },
+    all:      { label: 'ALL GAMES', count: () => (getSetting('hiddenEnabled') ? '29' : '24') + ' available' },
     indie:    { label: 'INDIE',     count: () => '9 available'  },
-    pokemon:  { label: 'POKEMON',   count: () => '9 available'  },
+    pokemon:  { label: 'POKEMON',   count: () => '7 available'  },
     classic:  { label: 'CLASSIC',   count: () => '5 available'  },
     itchio:   { label: 'ITCH.IO',   count: () => '3 available'  },
-    ducklife: { label: 'HIDDEN', count: () => '4 available'  },
+    ducklife: { label: 'HIDDEN', count: () => '5 available'  },
 };
 
 let currentCat = 'all';
