@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Code Editor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;color:#cccccc;display:flex;flex-direction:column;font-size:13px;}
+
+/* ─── MENU BAR (the ONLY top bar) ─────────── */
+#menubar{
+  height:30px;background:#3c3c3c;display:flex;align-items:center;
+  padding:0 0 0 8px;flex-shrink:0;position:relative;z-index:500;
+  border-bottom:1px solid #252526;
+}
+.mbi{padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;color:#cccccc;height:24px;display:flex;align-items:center;white-space:nowrap;position:relative;}
+.mbi:hover,.mbi.open{background:rgba(255,255,255,.12);}
+
+/* ─── DROPDOWN MENUS ───────────────────────── */
+.ddm{position:fixed;background:#252526;border:1px solid #454545;box-shadow:4px 6px 18px rgba(0,0,0,.7);z-index:9999;min-width:240px;padding:4px 0;font-size:12px;display:none;}
+.ddm.vis{display:block;}
+.ddi{padding:3px 12px 3px 28px;height:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;color:#cccccc;position:relative;white-space:nowrap;}
+.ddi:hover{background:#094771;color:#fff;}
+.ddi.dim{color:#6d6d6d;pointer-events:none;}
+.ddi .ks{color:#6d6d6d;font-size:11px;flex-shrink:0;}
+.ddi:hover .ks{color:#bbb;}
+.ddi .ck{position:absolute;left:10px;font-size:10px;}
+.ddi .arr{font-size:9px;}
+.dds{height:1px;background:#3c3c3c;margin:3px 0;}
+
+/* ─── MAIN LAYOUT ──────────────────────────── */
+#main{display:flex;flex:1;overflow:hidden;}
+
+/* ─── ACTIVITY BAR ─────────────────────────── */
+#actbar{width:48px;background:#333333;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.abt{display:flex;flex-direction:column;flex:1;align-items:center;padding-top:2px;}
+.abb{display:flex;flex-direction:column;align-items:center;padding-bottom:6px;}
+.ab{width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#858585;position:relative;}
+.ab:hover{color:#cccccc;}
+.ab.on{color:#cccccc;}
+.ab.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:2px;background:#cccccc;border-radius:0 1px 1px 0;}
+.ab svg{width:24px;height:24px;}
+.ab .badge{position:absolute;top:8px;right:4px;background:#007acc;color:#fff;border-radius:10px;font-size:9px;min-width:16px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:600;}
+
+/* ─── SIDEBAR ───────────────────────────────── */
+#sidebar{width:240px;background:#252526;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+#sidebar.hide{width:0;}
+#sbr{width:5px;cursor:col-resize;flex-shrink:0;background:transparent;}
+#sbr:hover,#sbr.drag{background:#007acc;}
+
+/* Sidebar panel header */
+.sph{height:22px;padding:0 12px 0 8px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.08em;color:#bbbbbb;text-transform:uppercase;flex-shrink:0;cursor:default;user-select:none;margin-top:2px;}
+.sph:hover .spha{opacity:1;}
+.spha{opacity:0;display:flex;gap:2px;}
+.sphb{width:20px;height:20px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#858585;}
+.sphb:hover{background:#3c3c3c;color:#cccccc;}
+.sphb svg{width:14px;height:14px;}
+
+/* Panel */
+.pnl{display:none;flex-direction:column;height:100%;overflow:hidden;}
+.pnl.vis{display:flex;}
+
+/* File list */
+#fl{flex:1;overflow-y:auto;}
+#fl::-webkit-scrollbar{width:6px;}
+#fl::-webkit-scrollbar-thumb{background:#424242;}
+.fi{height:22px;display:flex;align-items:center;padding:0 0 0 22px;gap:4px;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;}
+.fi:hover{background:#2a2d2e;}
+.fi.on{background:#37373d;}
+.fi .fn{flex:1;overflow:hidden;text-overflow:ellipsis;color:#cccccc;}
+.fi .fdot{width:8px;height:8px;border-radius:50%;background:#cccccc;flex-shrink:0;display:none;margin-left:auto;margin-right:6px;}
+.fi.mod .fdot{display:block;}
+.fi .fac{display:none;margin-left:auto;gap:1px;}
+.fi:hover .fac{display:flex;}
+.fi.mod:hover .fdot{display:none;}
+.fab{width:18px;height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#858585;line-height:1;}
+.fab:hover{background:#4c4c4c;color:#cccccc;}
+
+#dz{margin:8px;border:1px dashed #555;border-radius:3px;padding:16px 8px;text-align:center;font-size:11px;color:#858585;cursor:pointer;line-height:1.8;}
+#dz:hover,#dz.ov{border-color:#007acc;color:#007acc;background:rgba(0,122,204,.04);}
+
+/* Search panel */
+.srchbox{height:26px;background:#3c3c3c;border:1px solid #3c3c3c;border-radius:2px;display:flex;align-items:center;padding:0 6px;gap:4px;margin:4px 8px;}
+.srchbox:focus-within{border-color:#007acc;}
+.srchbox input{flex:1;background:none;border:none;outline:none;color:#cccccc;font-size:13px;}
+.srchbox input::placeholder{color:#6d6d6d;}
+#sc{font-size:11px;color:#858585;padding:2px 8px;flex-shrink:0;}
+#srl{flex:1;overflow-y:auto;}
+.srf{padding:2px 8px;font-size:12px;color:#ccc;cursor:pointer;display:flex;align-items:center;gap:4px;height:22px;white-space:nowrap;}
+.srf:hover{background:#2a2d2e;}
+.srm{padding:1px 8px 1px 22px;font-size:12px;color:#858585;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:20px;display:flex;align-items:center;}
+.srm:hover{background:#2a2d2e;color:#ccc;}
+.srh{color:#f5a623;}
+
+/* ─── EDITOR AREA ───────────────────────────── */
+#ea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* Tabs */
+#tabs{height:35px;background:#2d2d2d;display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0;border-bottom:1px solid #252526;}
+#tabs::-webkit-scrollbar{height:3px;}
+#tabs::-webkit-scrollbar-thumb{background:#555;}
+.tab{height:35px;display:flex;align-items:center;padding:0 0 0 10px;gap:5px;font-size:12px;cursor:pointer;border-right:1px solid #252526;position:relative;color:#969696;background:#2d2d2d;flex-shrink:0;min-width:90px;max-width:180px;user-select:none;}
+.tab:hover{background:#1e1e1e;color:#ccc;}
+.tab.on{background:#1e1e1e;color:#fff;}
+.tab.on::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:#007acc;}
+.tab .tl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tab .tx{width:26px;height:35px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#969696;flex-shrink:0;opacity:0;}
+.tab:hover .tx,.tab.on .tx{opacity:1;}
+.tab:hover .tx:hover,.tab.on .tx:hover{color:#fff;}
+.tab .tdot{width:8px;height:8px;border-radius:50%;background:#cccccc;flex-shrink:0;margin-left:auto;margin-right:9px;cursor:pointer;}
+
+/* Breadcrumbs */
+#bc{height:22px;background:#1e1e1e;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#858585;border-bottom:1px solid #252526;flex-shrink:0;overflow:hidden;white-space:nowrap;}
+.bcs{cursor:pointer;padding:0 2px;display:inline-flex;align-items:center;gap:3px;}
+.bcs:hover{color:#ccc;}
+.bcarr{padding:0 2px;color:#555;}
+
+/* Editor */
+#ew{flex:1;display:flex;overflow:hidden;position:relative;}
+#monaco{flex:1;display:none;}
+
+/* Welcome screen - clean, no weird symbols */
+#welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#1e1e1e;}
+#welcome .wlogo{display:flex;align-items:center;gap:14px;}
+#welcome .wlogo svg{width:52px;height:52px;}
+#welcome h2{font-size:30px;font-weight:300;color:#cccccc;letter-spacing:-0.5px;}
+#welcome p{font-size:12px;color:#858585;text-align:center;}
+.wbtns{display:flex;gap:8px;}
+.wb{padding:5px 14px;border:1px solid #3c3c3c;border-radius:2px;cursor:pointer;font-size:12px;color:#cccccc;background:none;}
+.wb:hover{background:#2a2d2e;border-color:#555;}
+.wb.p{background:#0e639c;border-color:#0e639c;color:#fff;}
+.wb.p:hover{background:#1177bb;}
+
+/* Right gutter — problems panel stub */
+#problems-gutter{width:0;background:#252526;overflow:hidden;position:relative;}
+
+/* ─── STATUS BAR ────────────────────────────── */
+#sb{height:22px;background:#007acc;display:flex;align-items:center;font-size:11px;color:#fff;flex-shrink:0;user-select:none;}
+.sbi{padding:0 8px;height:22px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.sbi:hover{background:rgba(255,255,255,.15);}
+.sbi svg{width:13px;height:13px;}
+#sbr2{margin-left:auto;display:flex;}
+/* Clickable language in status bar opens language picker */
+#sb-lang{cursor:pointer;}
+
+/* ─── LANGUAGE PICKER (like Image 1) ────────── */
+#langpick{position:fixed;top:0;left:50%;transform:translateX(-50%);width:500px;background:#252526;border:1px solid #454545;z-index:9998;display:none;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.6);}
+#langpick.vis{display:flex;}
+#lpinput{background:#252526;border:none;border-bottom:1px solid #454545;outline:none;color:#cccccc;font-size:13px;padding:8px 12px;width:100%;}
+#lplist{max-height:340px;overflow-y:auto;}
+.lpi{padding:4px 12px;height:24px;display:flex;align-items:center;gap:8px;cursor:pointer;color:#cccccc;font-size:13px;}
+.lpi:hover,.lpi.sel{background:#094771;color:#fff;}
+.lpi .lpid{color:#6d6d6d;font-size:11px;}
+.lpi:hover .lpid,.lpi.sel .lpid{color:#bbb;}
+
+/* ─── CONTEXT MENU ──────────────────────────── */
+#ctx{position:fixed;background:#252526;border:1px solid #454545;box-shadow:4px 4px 12px rgba(0,0,0,.6);z-index:9997;min-width:160px;padding:4px 0;font-size:12px;display:none;}
+#ctx.vis{display:block;}
+.cxi{padding:4px 12px;height:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;}
+.cxi:hover{background:#094771;color:#fff;}
+.cxk{color:#858585;font-size:11px;}
+.cxi:hover .cxk{color:#ccc;}
+.cxr{color:#f48771;}
+.cxs{height:1px;background:#454545;margin:3px 0;}
+
+/* ─── NEW FILE DIALOG ───────────────────────── */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:5000;display:none;align-items:flex-start;justify-content:center;padding-top:80px;}
+#overlay.vis{display:flex;}
+#dlg{background:#252526;border:1px solid #454545;min-width:380px;border-radius:2px;box-shadow:0 8px 32px rgba(0,0,0,.7);}
+.dt{padding:9px 14px;font-size:12px;border-bottom:1px solid #3c3c3c;color:#ccc;}
+.db{padding:10px 14px;}
+.db input{width:100%;background:#3c3c3c;border:1px solid #3c3c3c;border-radius:2px;padding:5px 8px;color:#ccc;font-size:13px;outline:none;}
+.db input:focus{border-color:#007acc;}
+.df{padding:8px 14px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #3c3c3c;}
+.dbtn{padding:4px 12px;border-radius:2px;font-size:12px;cursor:pointer;border:1px solid #3c3c3c;color:#ccc;background:none;}
+.dbtn:hover{background:#3c3c3c;}
+.dbtn.ok{background:#0e639c;border-color:#0e639c;color:#fff;}
+.dbtn.ok:hover{background:#1177bb;}
+
+/* ─── TOAST ─────────────────────────────────── */
+#toast{position:fixed;bottom:28px;right:16px;background:#252526;border:1px solid #454545;border-radius:2px;padding:6px 12px;font-size:12px;color:#ccc;z-index:8000;box-shadow:0 4px 12px rgba(0,0,0,.5);display:none;max-width:340px;}
+#toast.vis{display:block;}
+
+/* File icon dot */
+.fic{display:inline-flex;align-items:center;justify-content:center;border-radius:2px;font-size:9px;font-weight:800;font-family:monospace;flex-shrink:0;}
+
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#424242;}
+::-webkit-scrollbar-thumb:hover{background:#555;}
+</style>
+</head>
+<body>
+
+<!-- ██ SINGLE TOP BAR: File Edit Selection View Go Run Terminal Help ██ -->
+<div id="menubar">
+  <div class="mbi" data-m="file"       onclick="OM('file',this)">File</div>
+  <div class="mbi" data-m="edit"       onclick="OM('edit',this)">Edit</div>
+  <div class="mbi" data-m="selection"  onclick="OM('selection',this)">Selection</div>
+  <div class="mbi" data-m="view"       onclick="OM('view',this)">View</div>
+  <div class="mbi" data-m="go"         onclick="OM('go',this)">Go</div>
+  <div class="mbi" data-m="run"        onclick="OM('run',this)">Run</div>
+  <div class="mbi" data-m="terminal"   onclick="OM('terminal',this)">Terminal</div>
+  <div class="mbi" data-m="help"       onclick="OM('help',this)">Help</div>
+</div>
+
+<!-- ██ FILE MENU ██ -->
+<div class="ddm" id="dd-file">
+  <div class="ddi" onclick="A('new')">New Text File <span class="ks">Ctrl+N</span></div>
+  <div class="ddi" onclick="A('new')">New File… <span class="ks">Ctrl+Alt+N</span></div>
+  <div class="ddi dim">New Window <span class="ks">Ctrl+Shift+N</span></div>
+  <div class="ddi dim">New Window with Profile <span class="arr">›</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('import')">Open File… <span class="ks">Ctrl+O</span></div>
+  <div class="ddi" onclick="A('import')">Open Folder… <span class="ks">Ctrl+K Ctrl+O</span></div>
+  <div class="ddi dim">Open Workspace from File…</div>
+  <div class="ddi dim">Open Recent <span class="arr">›</span></div>
+  <div class="dds"></div>
+  <div class="ddi dim">Add Folder to Workspace…</div>
+  <div class="ddi dim">Save Workspace As…</div>
+  <div class="ddi dim">Duplicate Workspace</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('save')">Save <span class="ks">Ctrl+S</span></div>
+  <div class="ddi" onclick="A('saveas')">Save As… <span class="ks">Ctrl+Shift+S</span></div>
+  <div class="ddi" onclick="A('dlall')">Save All <span class="ks">Ctrl+K S</span></div>
+  <div class="dds"></div>
+  <div class="ddi dim">Share <span class="arr">›</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('autosave')"><span class="ck" id="autosave-ck"></span>Auto Save</div>
+  <div class="ddi dim">Preferences <span class="arr">›</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('revert')">Revert File</div>
+  <div class="ddi" onclick="A('closetab')">Close Editor <span class="ks">Ctrl+W</span></div>
+  <div class="ddi dim">Close Folder <span class="ks">Ctrl+K F</span></div>
+  <div class="ddi dim">Close Window <span class="ks">Alt+F4</span></div>
+  <div class="dds"></div>
+  <div class="ddi dim">Exit</div>
+</div>
+
+<!-- ██ EDIT MENU ██ -->
+<div class="ddm" id="dd-edit">
+  <div class="ddi" onclick="ME('undo')">Undo <span class="ks">Ctrl+Z</span></div>
+  <div class="ddi" onclick="ME('redo')">Redo <span class="ks">Ctrl+Y</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="ME('cut')">Cut <span class="ks">Ctrl+X</span></div>
+  <div class="ddi" onclick="ME('copy')">Copy <span class="ks">Ctrl+C</span></div>
+  <div class="ddi" onclick="ME('paste')">Paste <span class="ks">Ctrl+V</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('actions.find')">Find <span class="ks">Ctrl+F</span></div>
+  <div class="ddi" onclick="EA('editor.action.startFindReplaceAction')">Replace <span class="ks">Ctrl+H</span></div>
+  <div class="ddi" onclick="EA('editor.action.findWithSelection')">Find in Selection <span class="ks">Alt+L</span></div>
+  <div class="ddi" onclick="SP('search')">Find in Files <span class="ks">Ctrl+Shift+F</span></div>
+  <div class="ddi" onclick="SP('search')">Replace in Files <span class="ks">Ctrl+Shift+H</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.formatDocument')">Format Document <span class="ks">Shift+Alt+F</span></div>
+  <div class="ddi" onclick="EA('editor.action.formatSelection')">Format Selection <span class="ks">Ctrl+K Ctrl+F</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.commentLine')">Toggle Line Comment <span class="ks">Ctrl+/</span></div>
+  <div class="ddi" onclick="EA('editor.action.blockComment')">Toggle Block Comment <span class="ks">Shift+Alt+A</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.transformToUppercase')">Transform to Uppercase</div>
+  <div class="ddi" onclick="EA('editor.action.transformToLowercase')">Transform to Lowercase</div>
+  <div class="ddi" onclick="EA('editor.action.transformToTitlecase')">Transform to Title Case</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.indentLines')">Indent Line <span class="ks">Ctrl+]</span></div>
+  <div class="ddi" onclick="EA('editor.action.outdentLines')">Outdent Line <span class="ks">Ctrl+[</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.deleteLines')">Delete Line <span class="ks">Ctrl+Shift+K</span></div>
+  <div class="ddi" onclick="EA('editor.action.duplicateSelection')">Duplicate Selection</div>
+</div>
+
+<!-- ██ SELECTION MENU ██ -->
+<div class="ddm" id="dd-selection">
+  <div class="ddi" onclick="EA('editor.action.selectAll')">Select All <span class="ks">Ctrl+A</span></div>
+  <div class="ddi" onclick="EA('expandLineSelection')">Expand Selection <span class="ks">Ctrl+L</span></div>
+  <div class="ddi" onclick="EA('editor.action.smartSelect.shrink')">Shrink Selection <span class="ks">Shift+Alt+←</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.copyLinesUpAction')">Copy Line Up <span class="ks">Shift+Alt+↑</span></div>
+  <div class="ddi" onclick="EA('editor.action.copyLinesDownAction')">Copy Line Down <span class="ks">Shift+Alt+↓</span></div>
+  <div class="ddi" onclick="EA('editor.action.moveLinesUpAction')">Move Line Up <span class="ks">Alt+↑</span></div>
+  <div class="ddi" onclick="EA('editor.action.moveLinesDownAction')">Move Line Down <span class="ks">Alt+↓</span></div>
+  <div class="ddi" onclick="EA('editor.action.duplicateSelection')">Duplicate Selection</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.addSelectionToNextFindMatch')">Add Next Occurrence <span class="ks">Ctrl+D</span></div>
+  <div class="ddi" onclick="EA('editor.action.addSelectionToPreviousFindMatch')">Add Previous Occurrence</div>
+  <div class="ddi" onclick="EA('editor.action.selectHighlights')">Select All Occurrences <span class="ks">Ctrl+Shift+L</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.insertCursorAbove')">Add Cursor Above <span class="ks">Ctrl+Alt+↑</span></div>
+  <div class="ddi" onclick="EA('editor.action.insertCursorBelow')">Add Cursor Below <span class="ks">Ctrl+Alt+↓</span></div>
+  <div class="ddi" onclick="EA('editor.action.insertCursorAtEndOfEachLineSelected')">Add Cursors to Line Ends <span class="ks">Shift+Alt+I</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.sortLinesAscending')">Sort Lines Ascending</div>
+  <div class="ddi" onclick="EA('editor.action.sortLinesDescending')">Sort Lines Descending</div>
+  <div class="dds"></div>
+  <div class="ddi dim">Switch to Ctrl+Click for Multi-Cursor</div>
+  <div class="ddi dim">Column Selection Mode</div>
+</div>
+
+<!-- ██ VIEW MENU ██ -->
+<div class="ddm" id="dd-view">
+  <div class="ddi" onclick="A('sidebar')">Toggle Primary Side Bar <span class="ks">Ctrl+B</span></div>
+  <div class="ddi" onclick="SP('search')">Toggle Search <span class="ks">Ctrl+Shift+F</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('minimap')"><span class="ck" id="mm-ck">✓</span>Toggle Minimap</div>
+  <div class="ddi" onclick="A('wordwrap')"><span class="ck" id="ww-ck"></span>Toggle Word Wrap <span class="ks">Alt+Z</span></div>
+  <div class="ddi" onclick="A('whitespace')"><span class="ck" id="ws-ck"></span>Toggle Render Whitespace</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.fontZoomIn')">Zoom In <span class="ks">Ctrl+=</span></div>
+  <div class="ddi" onclick="EA('editor.action.fontZoomOut')">Zoom Out <span class="ks">Ctrl+−</span></div>
+  <div class="ddi" onclick="EA('editor.action.fontZoomReset')">Reset Zoom <span class="ks">Ctrl+Numpad0</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('problems')">Toggle Problems Panel</div>
+</div>
+
+<!-- ██ GO MENU ██ -->
+<div class="ddm" id="dd-go">
+  <div class="ddi" onclick="EA('workbench.action.gotoLine')">Go to Line/Column… <span class="ks">Ctrl+G</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.goToDeclaration')">Go to Definition <span class="ks">F12</span></div>
+  <div class="ddi" onclick="EA('editor.action.referenceSearch.trigger')">Go to References <span class="ks">Shift+F12</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('cursorTop')">Go to Beginning of File <span class="ks">Ctrl+Home</span></div>
+  <div class="ddi" onclick="EA('cursorBottom')">Go to End of File <span class="ks">Ctrl+End</span></div>
+  <div class="ddi" onclick="EA('cursorHome')">Go to Beginning of Line <span class="ks">Home</span></div>
+  <div class="ddi" onclick="EA('cursorEnd')">Go to End of Line <span class="ks">End</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="EA('editor.action.marker.next')">Go to Next Problem <span class="ks">F8</span></div>
+  <div class="ddi" onclick="EA('editor.action.marker.prev')">Go to Previous Problem <span class="ks">Shift+F8</span></div>
+</div>
+
+<!-- ██ RUN MENU — all wired to real Monaco/browser actions ██ -->
+<div class="ddm" id="dd-run">
+  <div class="ddi" onclick="A('runfile')">Run Current File <span class="ks">Ctrl+F5</span></div>
+  <div class="dds"></div>
+  <div class="ddi dim">Start Debugging <span class="ks">F5</span></div>
+  <div class="ddi dim">Stop Debugging <span class="ks">Shift+F5</span></div>
+  <div class="ddi dim">Restart Debugging <span class="ks">Ctrl+Shift+F5</span></div>
+  <div class="dds"></div>
+  <div class="ddi dim">Toggle Breakpoint <span class="ks">F9</span></div>
+  <div class="ddi dim">New Breakpoint <span class="arr">›</span></div>
+  <div class="ddi dim">Enable All Breakpoints</div>
+  <div class="ddi dim">Remove All Breakpoints</div>
+</div>
+
+<!-- ██ TERMINAL MENU ██ -->
+<div class="ddm" id="dd-terminal">
+  <div class="ddi" onclick="A('terminal')">New Terminal <span class="ks">Ctrl+`</span></div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('runtask')">Run Task…</div>
+  <div class="ddi dim">Run Build Task… <span class="ks">Ctrl+Shift+B</span></div>
+  <div class="ddi" onclick="A('runfile')">Run Active File</div>
+  <div class="ddi" onclick="A('runsel')">Run Selected Text</div>
+  <div class="dds"></div>
+  <div class="ddi dim">Show Running Tasks…</div>
+  <div class="ddi dim">Configure Tasks…</div>
+</div>
+
+<!-- ██ HELP MENU ██ -->
+<div class="ddm" id="dd-help">
+  <div class="ddi" onclick="A('welcome')">Welcome</div>
+  <div class="ddi" onclick="EA('editor.action.quickCommand')">Show All Commands <span class="ks">Ctrl+Shift+P</span></div>
+  <div class="ddi" onclick="A('docurl')">Documentation</div>
+  <div class="ddi dim">Editor Playground</div>
+  <div class="ddi dim">Open Walkthrough…</div>
+  <div class="ddi dim">Show Release Notes</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('shortcuts')">Keyboard Shortcuts Reference <span class="ks">Ctrl+K Ctrl+R</span></div>
+  <div class="ddi dim">Video Tutorials</div>
+  <div class="ddi dim">Tips and Tricks</div>
+  <div class="dds"></div>
+  <div class="ddi dim">Join Us on YouTube</div>
+  <div class="ddi dim">Search Feature Requests</div>
+  <div class="ddi dim">Report Issue</div>
+  <div class="dds"></div>
+  <div class="ddi dim">View License</div>
+  <div class="ddi dim">Privacy Statement</div>
+  <div class="dds"></div>
+  <div class="ddi dim">Toggle Developer Tools</div>
+  <div class="ddi dim">Open Process Explorer</div>
+  <div class="dds"></div>
+  <div class="ddi" onclick="A('about')">About</div>
+</div>
+
+<!-- ██ MAIN ██ -->
+<div id="main">
+
+  <!-- ACTIVITY BAR -->
+  <div id="actbar">
+    <div class="abt">
+      <div class="ab on" id="ab-e" title="Explorer (Ctrl+Shift+E)" onclick="SP('explorer')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M3 7a2 2 0 012-2h3.172a2 2 0 011.414.586L10.414 7H19a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ab" id="ab-s" title="Search (Ctrl+Shift+F)" onclick="SP('search')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="7.5"/>
+          <path d="m16.5 16.5 4.5 4.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="ab" id="ab-g" title="Source Control (Ctrl+Shift+G)" onclick="SP('git')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/>
+          <path d="M6 8v8" stroke-linecap="round"/>
+          <path d="M8 6h6a4 4 0 014 4v2a3 3 0 003 3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="ab" id="ab-d" title="Run and Debug (Ctrl+Shift+D)" onclick="SP('debug')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6.5 5.5l11 6.5-11 6.5V5.5z" stroke-linejoin="round"/>
+          <circle cx="18.5" cy="5.5" r="2" fill="currentColor" stroke="none"/>
+          <path d="M16.5 5.5h-11" stroke-linecap="round"/>
+          <circle cx="5.5" cy="18.5" r="2" fill="none" stroke="currentColor"/>
+          <path d="M16.5 18.5h-11" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="ab" id="ab-x" title="Extensions (Ctrl+Shift+X)" onclick="SP('ext')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 7h4V3m-4 4v4m0-4H2m16-4h2v2m-2-2v4m0-4h-2M4 17h-2v2m2-2v4m0-4h4m12-4h2v2m-2-2v-4m0 4h-2M4 17h4v4m12-8h-4v4m4-4v4m0-4h2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="abb">
+      <div class="ab" id="ab-acc" title="Accounts" onclick="toast('Sign in to sync settings across devices')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="ab" id="ab-set" title="Manage" onclick="A('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+
+    <!-- Explorer -->
+    <div class="pnl vis" id="pnl-explorer">
+      <div class="sph">
+        <span>Explorer</span>
+        <div class="spha">
+          <div class="sphb" title="New File (Ctrl+N)" onclick="newFileDlg()">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 1.1l3.4 3.5.1.4v2h-1V5H8V1H3v14h4v1H2.5l-.5-.5v-15l.5-.5h6.7l.3.1zM9 5h2.9L9 2.1V5zm4 9v-2h-2v-1h2V9h1v2h2v1h-2v2h-1z"/></svg>
+          </div>
+          <div class="sphb" title="Open File (Ctrl+O)" onclick="A('import')">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 3h-4.7L7.3 1.5 6.7 1H1.5l-.5.5v12l.5.5h12l.5-.5V3.5l-.5-.5zm-.5 10H2V2h4.3l1.5 1.5.4.5H13v9z"/></svg>
+          </div>
+          <div class="sphb" title="Download All as ZIP" onclick="A('dlall')">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.646 11.854a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V1.5a.5.5 0 00-1 0v8.793L5.354 8.146a.5.5 0 10-.708.708l3 3zM2 13.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg>
+          </div>
+          <div class="sphb" title="Collapse All" onclick="toast('All folders collapsed')">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9 9H4v1h5V9zm0-4H4v1h5V5zM5 13l3 2 3-2H9V8H7v5H5z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
+      <div id="fl">
+        <div id="dz" onclick="A('import')" ondragover="DOV(event)" ondragleave="DOL(event)" ondrop="DRP(event)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="display:block;margin:0 auto 6px;opacity:.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+          Drop files here to open<br>or <span style="color:#007acc">click to browse</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="pnl" id="pnl-search">
+      <div class="sph" style="opacity:1;">
+        <span>Search</span>
+        <div style="display:flex;gap:2px;opacity:1;">
+          <div class="sphb" id="opt-c" title="Match Case (Alt+C)" onclick="toggleOpt('c')">Aa</div>
+          <div class="sphb" id="opt-w" title="Match Whole Word (Alt+W)" onclick="toggleOpt('w')">ab</div>
+          <div class="sphb" id="opt-r" title="Use Regex (Alt+R)" onclick="toggleOpt('r')">.*</div>
+        </div>
+      </div>
+      <div class="srchbox"><svg width="13" height="13" viewBox="0 0 16 16" fill="#858585" style="flex-shrink:0"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.115-.1zM12 6.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"/></svg><input id="sq" placeholder="Search" oninput="doSearch(this.value)"></div>
+      <div id="sc"></div>
+      <div id="srl"></div>
+    </div>
+
+    <!-- Git -->
+    <div class="pnl" id="pnl-git">
+      <div class="sph"><span>Source Control</span></div>
+      <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
+      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">
+        No source control providers registered.<br><br>
+        <span style="color:#3794ff;cursor:pointer" onclick="toast('Open a folder with a git repository to use source control')">How to use Git with VS Code</span>
+      </div>
+    </div>
+
+    <!-- Debug -->
+    <div class="pnl" id="pnl-debug">
+      <div class="sph"><span>Run and Debug</span></div>
+      <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
+      <div style="padding:16px 12px;font-size:12px;color:#ccc;line-height:1.7;">
+        To customize Run and Debug,<br>open a folder and create a<br>launch.json file.<br><br>
+        <div onclick="A('runfile')" style="display:inline-flex;align-items:center;gap:6px;background:#0e639c;color:#fff;padding:5px 12px;border-radius:2px;cursor:pointer;font-size:12px;margin-top:4px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 3l9 5-9 5V3z"/></svg>
+          Run File
+        </div>
+      </div>
+    </div>
+
+    <!-- Extensions -->
+    <div class="pnl" id="pnl-ext">
+      <div class="sph"><span>Extensions</span></div>
+      <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
+      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">
+        This editor does not support<br>installing extensions.<br><br>
+        <span style="color:#3794ff;cursor:pointer" onclick="A('docurl')">Browse VS Code Extensions →</span>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <!-- RESIZE -->
+  <div id="sbr"></div>
+
+  <!-- EDITOR AREA -->
+  <div id="ea">
+
+    <!-- TABS -->
+    <div id="tabs"></div>
+
+    <!-- BREADCRUMBS -->
+    <div id="bc">
+      <span class="bcs" style="color:#4ec9b0;">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><path d="M1 3.5A1.5 1.5 0 012.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0115 5.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+        Project
+      </span>
+      <span class="bcarr"> › </span>
+      <span id="bc-f" class="bcs" style="color:#ccc;">No file open</span>
+    </div>
+
+    <!-- EDITOR -->
+    <div id="ew">
+      <div id="welcome">
+        <div class="wlogo">
+          <svg width="52" height="52" viewBox="0 0 100 100">
+            <path d="M73.5 5L24 51.5 5 32.5 0 44l24 24 55-50z" fill="#007acc"/>
+          </svg>
+          <h2>Code Editor</h2>
+        </div>
+        <p>Powered by Monaco · A VS Code-style editor in your browser</p>
+        <div class="wbtns">
+          <button class="wb p" onclick="A('import')">Open File…</button>
+          <button class="wb" onclick="newFileDlg()">New File</button>
+          <button class="wb" id="wdlall" style="display:none" onclick="A('dlall')">Download All as ZIP</button>
+        </div>
+        <p style="font-size:11px;color:#555;line-height:1.9;">
+          <strong style="color:#686868">Supported:</strong> .html .css .js .ts .json .md .py .java .cpp .c .cs .go .rs .php .rb .sh .sql .xml .yaml + more<br>
+          Drag &amp; drop files here · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+O</kbd> open · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+S</kbd> save
+        </p>
+      </div>
+      <div id="monaco"></div>
+    </div>
+
+  </div><!-- /editor area -->
+</div><!-- /main -->
+
+<!-- STATUS BAR -->
+<div id="sb">
+  <div class="sbi" id="sb-branch" onclick="SP('git')" title="Source Control">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z"/></svg>
+    main
+  </div>
+  <div class="sbi" title="Synchronize Changes">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.502 6.27A6.5 6.5 0 0113.5 8h-1.5A5 5 0 004.39 6.646L6 8H2V4l1.5 1.5A6.5 6.5 0 012 8H.5a8 8 0 01.002-.73zM13.498 9.73A6.5 6.5 0 012.5 8H4a5 5 0 009.11 1.354L11.5 8H15.5v4L14 10.5A6.5 6.5 0 0113.998 8.73z"/></svg>
+    <span id="sb-sync">0↓ 0↑</span>
+  </div>
+  <div class="sbi" id="sb-errs" onclick="A('problems')" title="Problems">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8.22 1.754a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368L8.22 1.754zm-1.763-.707c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM9 11a1 1 0 11-2 0 1 1 0 012 0zm-.25-5.25a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z"/></svg>
+    <span id="sb-ec">0</span>&nbsp;
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 110-2 1 1 0 010 2z"/></svg>
+    <span id="sb-wc">0</span>
+  </div>
+  <div id="sbr2">
+    <div class="sbi" id="sb-pos">Ln 1, Col 1</div>
+    <div class="sbi" id="sb-spc">Spaces: 4</div>
+    <div class="sbi" id="sb-enc">UTF-8</div>
+    <div class="sbi" id="sb-eol">CRLF</div>
+    <div class="sbi" id="sb-lang" onclick="A('langpick')" title="Select Language Mode">Plain Text</div>
+    <div class="sbi" id="sb-cnt">0 files</div>
+    <div class="sbi" onclick="toast('Go Live requires a local server — not available in browser')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>
+      Go Live
+    </div>
+  </div>
+</div>
+
+<!-- LANGUAGE PICKER -->
+<div id="langpick">
+  <input id="lpi" placeholder="Select Language Mode" oninput="filterLangs(this.value)" onkeydown="lpKey(event)" autocomplete="off">
+  <div id="lpl"></div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx">
+  <div class="cxi" id="cx-open">Open</div>
+  <div class="cxi" id="cx-rename">Rename…</div>
+  <div class="cxs"></div>
+  <div class="cxi" id="cx-copy">Copy Relative Path</div>
+  <div class="cxs"></div>
+  <div class="cxi" id="cx-dl">Download <span class="cxk">Ctrl+S</span></div>
+  <div class="cxs"></div>
+  <div class="cxi cxr" id="cx-del">Delete</div>
+</div>
+
+<!-- NEW FILE DIALOG -->
+<div id="overlay">
+  <div id="dlg">
+    <div class="dt">New File</div>
+    <div class="db"><input type="text" id="nfi" value="untitled.txt"></div>
+    <div class="df">
+      <button class="dbtn" onclick="closeDlg()">Cancel</button>
+      <button class="dbtn ok" onclick="createFile()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+<!-- FILE INPUT -->
+<input type="file" id="fi" multiple style="display:none" onchange="handleFI(event)">
+
+<script>
+/* ════════════ STATE ════════════ */
+const F={};let tabs=[],aid=null,mok=false,ed=null;
+let ctxid=null,sbOpen=true,curP='explorer',ww=false,mm=true,ws=false,openMN=null;
+let autosave=false,lpSelIdx=0,lpFiltered=[];
+let errCount=0,warnCount=0;
+
+/* ════════════ LANGUAGE TABLES ════════════ */
+const LM={html:'html',htm:'html',css:'css',scss:'scss',sass:'scss',less:'less',
+  js:'javascript',mjs:'javascript',cjs:'javascript',jsx:'javascript',
+  ts:'typescript',tsx:'typescript',json:'json',jsonc:'json',md:'markdown',
+  markdown:'markdown',xml:'xml',svg:'xml',yaml:'yaml',yml:'yaml',
+  py:'python',pyw:'python',java:'java',c:'c',h:'c',cpp:'cpp',cc:'cpp',cxx:'cpp',
+  hpp:'cpp',cs:'csharp',go:'go',rs:'rust',php:'php',rb:'ruby',
+  sh:'shell',bash:'shell',zsh:'shell',fish:'shell',
+  sql:'sql',graphql:'graphql',gql:'graphql',kt:'kotlin',swift:'swift',
+  r:'r',lua:'lua',pl:'perl',txt:'plaintext',log:'plaintext',
+  ini:'ini',toml:'ini',cfg:'ini',ps1:'powershell',psm1:'powershell'};
+const IC={html:'#e34c26',css:'#264de4',javascript:'#f0db4f',typescript:'#3178c6',
+  json:'#f5a623',markdown:'#4a9eff',python:'#3572a5',java:'#b07219',cpp:'#f34b7d',
+  c:'#555599',csharp:'#178600',go:'#00add8',rust:'#dea584',shell:'#89e051',
+  xml:'#e67e22',yaml:'#cb171e',sql:'#e38c00',kotlin:'#a97bff',swift:'#f05138',
+  ruby:'#701516',php:'#4f5d95',plaintext:'#858585',graphql:'#e535ab',
+  powershell:'#5391fe',lua:'#000080'};
+const IL={html:'H',css:'C',javascript:'J',typescript:'T',json:'{',markdown:'M',
+  python:'P',java:'J',cpp:'C',c:'C',csharp:'#',go:'G',rust:'R',shell:'$',
+  xml:'X',yaml:'Y',sql:'S',kotlin:'K',swift:'S',ruby:'R',php:'P',
+  plaintext:'T',graphql:'G',powershell:'P',lua:'L'};
+const LL={html:'HTML',css:'CSS',javascript:'JavaScript',typescript:'TypeScript',
+  json:'JSON',markdown:'Markdown',python:'Python',java:'Java',cpp:'C++',c:'C',
+  csharp:'C#',go:'Go',rust:'Rust',shell:'Shell Script',xml:'XML',yaml:'YAML',
+  sql:'SQL',kotlin:'Kotlin',swift:'Swift',ruby:'Ruby',php:'PHP',
+  plaintext:'Plain Text',graphql:'GraphQL',scss:'SCSS',less:'Less',ini:'INI',
+  lua:'Lua',r:'R',powershell:'PowerShell'};
+
+// Full language list for picker (like VS Code image 1)
+const ALL_LANGS=[
+  {id:'abap',label:'ABAP'},{id:'bat',label:'Batch',alias:'bat'},
+  {id:'bibtex',label:'BibTeX',alias:'bibtex'},{id:'plaintext',label:'Plain Text',alias:'(Plain Text)'},
+  {id:'c',label:'C',alias:'c'},{id:'csharp',label:'C#',alias:'csharp'},
+  {id:'cpp',label:'C++',alias:'cpp'},{id:'clojure',label:'Clojure',alias:'clojure'},
+  {id:'coffeescript',label:'CoffeeScript',alias:'coffeescript'},{id:'css',label:'CSS',alias:'css'},
+  {id:'dart',label:'Dart',alias:'dart'},{id:'diff',label:'Diff',alias:'diff'},
+  {id:'dockerfile',label:'Dockerfile',alias:'dockerfile'},{id:'go',label:'Go',alias:'go'},
+  {id:'graphql',label:'GraphQL',alias:'graphql'},{id:'handlebars',label:'Handlebars',alias:'handlebars'},
+  {id:'html',label:'HTML',alias:'html'},{id:'ini',label:'Ini',alias:'ini'},
+  {id:'java',label:'Java',alias:'java'},{id:'javascript',label:'JavaScript',alias:'javascript'},
+  {id:'json',label:'JSON',alias:'json'},{id:'jsonc',label:'JSON with Comments',alias:'jsonc'},
+  {id:'jsx',label:'JavaScript JSX',alias:'jsx'},{id:'kotlin',label:'Kotlin',alias:'kotlin'},
+  {id:'less',label:'Less',alias:'less'},{id:'lua',label:'Lua',alias:'lua'},
+  {id:'markdown',label:'Markdown',alias:'markdown'},{id:'objective-c',label:'Objective-C',alias:'objc'},
+  {id:'perl',label:'Perl',alias:'perl'},{id:'php',label:'PHP',alias:'php'},
+  {id:'powershell',label:'PowerShell',alias:'ps1'},{id:'python',label:'Python',alias:'python'},
+  {id:'r',label:'R',alias:'r'},{id:'ruby',label:'Ruby',alias:'ruby'},
+  {id:'rust',label:'Rust',alias:'rust'},{id:'scss',label:'SCSS',alias:'scss'},
+  {id:'shell',label:'Shell Script',alias:'shellscript'},{id:'sql',label:'SQL',alias:'sql'},
+  {id:'swift',label:'Swift',alias:'swift'},{id:'toml',label:'TOML',alias:'toml'},
+  {id:'typescript',label:'TypeScript',alias:'typescript'},{id:'tsx',label:'TypeScript JSX',alias:'tsx'},
+  {id:'xml',label:'XML',alias:'xml'},{id:'yaml',label:'YAML',alias:'yaml'},
+];
+
+function gl(n){const e=n.split('.').pop().toLowerCase();const b=n.toLowerCase();
+  if(b==='dockerfile')return'dockerfile';if(b==='makefile')return'makefile';
+  return LM[e]||'plaintext';}
+function gll(l){return LL[l]||(l[0].toUpperCase()+l.slice(1));}
+function fic(l,s=16){const c=IC[l]||'#858585';const le=IL[l]||(l[0]||'F').toUpperCase();
+  return`<span class="fic" style="background:${c}22;color:${c};width:${s}px;height:${s}px;font-size:${s<=14?'8':'9'}px">${le}</span>`;}
+function uid(){return'_'+Math.random().toString(36).slice(2);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ════════════ MONACO ════════════ */
+function loadM(cb){
+  if(mok){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
+  s.onload=()=>{
+    require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'}});
+    require(['vs/editor/editor.main'],()=>{
+      mok=true;
+      ed=monaco.editor.create(document.getElementById('monaco'),{
+        value:'',language:'plaintext',theme:'vs-dark',
+        fontSize:13,lineHeight:20,
+        fontFamily:"'Cascadia Code','Fira Code','Consolas','Courier New',monospace",
+        fontLigatures:true,minimap:{enabled:true},scrollBeyondLastLine:false,
+        automaticLayout:true,lineNumbers:'on',wordWrap:'off',
+        bracketPairColorization:{enabled:true},padding:{top:4},
+        smoothScrolling:false,cursorBlinking:'blink',
+        renderWhitespace:'none',tabSize:4,insertSpaces:true,
+        glyphMargin:true,folding:true,renderLineHighlight:'line',
+      });
+      ed.onDidChangeCursorPosition(e=>{
+        document.getElementById('sb-pos').textContent=`Ln ${e.position.lineNumber}, Col ${e.position.column}`;
+      });
+      ed.onDidChangeModelContent(()=>{
+        if(!aid||!F[aid])return;
+        const v=ed.getValue();
+        if(F[aid].c!==v){
+          F[aid].c=v;F[aid].mod=true;
+          renderTabs();renderFL();
+          if(autosave){F[aid].mod=false;renderTabs();renderFL();}
+          // update error/warning counts from markers
+          setTimeout(updateMarkers,100);
+        }
+      });
+      // marker watcher
+      monaco.editor.onDidChangeMarkers(()=>updateMarkers());
+      cb();
+    });
+  };
+  document.head.appendChild(s);
+}
+
+function updateMarkers(){
+  if(!mok||!ed)return;
+  const m=ed.getModel();if(!m)return;
+  const markers=monaco.editor.getModelMarkers({resource:m.uri});
+  errCount=markers.filter(x=>x.severity===monaco.MarkerSeverity.Error).length;
+  warnCount=markers.filter(x=>x.severity===monaco.MarkerSeverity.Warning).length;
+  document.getElementById('sb-ec').textContent=errCount;
+  document.getElementById('sb-wc').textContent=warnCount;
+  // Color status bar red if errors
+  document.getElementById('sb').style.background=errCount>0?'#c72e0f':'#007acc';
+}
+
+/* ════════════ FILES ════════════ */
+function addF(name,content){
+  const id=uid(),lang=gl(name);
+  F[id]={name,c:content,lang,mod:false};
+  renderFL();updSB();return id;
+}
+function openFile(id){
+  if(!F[id])return;
+  aid=id;
+  if(!tabs.includes(id))tabs.push(id);
+  const f=F[id];
+  document.getElementById('bc-f').textContent=f.name;
+  document.getElementById('sb-lang').textContent=gll(f.lang);
+  loadM(()=>{
+    document.getElementById('welcome').style.display='none';
+    const me=document.getElementById('monaco');
+    me.style.display='block';me.style.flex='1';me.style.height='100%';
+    const old=ed.getModel();
+    const nw=monaco.editor.createModel(f.c,f.lang);
+    ed.setModel(nw);if(old)old.dispose();
+    ed.focus();updateMarkers();
+  });
+  renderTabs();renderFL();
+}
+function closeTab(id){
+  const i=tabs.indexOf(id);if(i>=0)tabs.splice(i,1);
+  if(aid===id){
+    const nx=tabs[Math.min(i,tabs.length-1)];
+    if(nx)openFile(nx);
+    else{
+      aid=null;
+      document.getElementById('welcome').style.display='flex';
+      document.getElementById('monaco').style.display='none';
+      document.getElementById('bc-f').textContent='No file open';
+      document.getElementById('sb-lang').textContent='Plain Text';
+      errCount=0;warnCount=0;
+      document.getElementById('sb-ec').textContent='0';
+      document.getElementById('sb-wc').textContent='0';
+      document.getElementById('sb').style.background='#007acc';
+    }
+  }
+  renderTabs();renderFL();
+}
+function delFile(id){closeTab(id);delete F[id];renderFL();updSB();}
+function dlFile(id){
+  const f=F[id];if(!f)return;
+  const b=new Blob([f.c],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();
+  URL.revokeObjectURL(a.href);f.mod=false;renderTabs();renderFL();
+  toast(`Saved: ${f.name}`);
+}
+function dlAll(){
+  const ids=Object.keys(F);if(!ids.length){toast('No files to download');return;}
+  if(typeof JSZip==='undefined'){toast('JSZip unavailable');return;}
+  const z=new JSZip();ids.forEach(id=>z.file(F[id].name,F[id].c));
+  z.generateAsync({type:'blob'}).then(b=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='project.zip';a.click();
+    toast(`Downloaded project.zip (${ids.length} files)`);
+  });
+}
+function importF(){document.getElementById('fi').click();}
+function handleFI(e){
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();r.onload=ev=>{
+      const id=addF(f.name,ev.target.result);
+      if(!aid)openFile(id);else toast(`Imported: ${f.name}`);
+    };r.readAsText(f);
+  });e.target.value='';
+}
+
+/* ════════════ DRAG & DROP ════════════ */
+function DOV(e){e.preventDefault();document.getElementById('dz')?.classList.add('ov');}
+function DOL(){document.getElementById('dz')?.classList.remove('ov');}
+function DRP(e){
+  e.preventDefault();document.getElementById('dz')?.classList.remove('ov');
+  Array.from(e.dataTransfer.files).forEach(f=>{
+    const r=new FileReader();r.onload=ev=>{
+      const id=addF(f.name,ev.target.result);
+      if(!aid)openFile(id);else toast(`Imported: ${f.name}`);
+    };r.readAsText(f);
+  });
+}
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files.length)DRP(e);});
+
+/* ════════════ RENDER ════════════ */
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=tabs.filter(id=>F[id]).map(id=>{
+    const f=F[id],on=id===aid;
+    return`<div class="tab ${on?'on':''}" onclick="openFile('${id}')" oncontextmenu="tabCtx(event,'${id}')">
+      ${fic(f.lang,14)}<span class="tl">${esc(f.name)}</span>
+      ${f.mod?`<span class="tdot" title="Unsaved changes — click to save" onclick="event.stopPropagation();dlFile('${id}')"></span>`
+             :`<span class="tx" onclick="event.stopPropagation();closeTab('${id}')">×</span>`}
+    </div>`;
+  }).join('');
+}
+function renderFL(){
+  const el=document.getElementById('fl');
+  const ids=Object.keys(F);
+  document.getElementById('wdlall').style.display=ids.length?'inline-block':'none';
+  if(!ids.length){
+    el.innerHTML=`<div id="dz" onclick="A('import')" ondragover="DOV(event)" ondragleave="DOL()" ondrop="DRP(event)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="display:block;margin:0 auto 6px;opacity:.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>Drop files here to open<br><span style="color:#007acc">or click to browse</span></div>`;
+    return;
+  }
+  el.innerHTML=ids.map(id=>{
+    const f=F[id],on=id===aid;
+    return`<div class="fi ${on?'on':''} ${f.mod?'mod':''}" onclick="openFile('${id}')" oncontextmenu="showCtx(event,'${id}')">
+      ${fic(f.lang,16)}<span class="fn">${esc(f.name)}</span>
+      <span class="fdot"></span>
+      <div class="fac">
+        <span class="fab" title="Download" onclick="event.stopPropagation();dlFile('${id}')">↓</span>
+        <span class="fab" title="Delete" onclick="event.stopPropagation();delFile('${id}')">×</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function updSB(){
+  const n=Object.keys(F).length;
+  document.getElementById('sb-cnt').textContent=`${n} file${n!==1?'s':''}`;
+}
+
+/* ════════════ PANELS ════════════ */
+const PIDS=['explorer','search','git','debug','ext'];
+const ABMAP={explorer:'ab-e',search:'ab-s',git:'ab-g',debug:'ab-d',ext:'ab-x'};
+function SP(name){
+  if(curP===name&&sbOpen){
+    document.getElementById('sidebar').classList.add('hide');
+    sbOpen=false;curP=null;
+    document.querySelectorAll('.ab').forEach(e=>e.classList.remove('on'));return;
+  }
+  document.getElementById('sidebar').classList.remove('hide');
+  sbOpen=true;curP=name;
+  PIDS.forEach(p=>{document.getElementById('pnl-'+p).classList.toggle('vis',p===name);});
+  document.querySelectorAll('.ab').forEach(e=>e.classList.remove('on'));
+  if(ABMAP[name])document.getElementById(ABMAP[name]).classList.add('on');
+  if(name==='search')setTimeout(()=>document.getElementById('sq').focus(),60);
+}
+
+/* ════════════ SEARCH ════════════ */
+let srchOpts={c:false,w:false,r:false};
+function toggleOpt(k){
+  srchOpts[k]=!srchOpts[k];
+  document.getElementById('opt-'+k).style.background=srchOpts[k]?'#094771':'';
+  document.getElementById('opt-'+k).style.color=srchOpts[k]?'#fff':'';
+  doSearch(document.getElementById('sq').value);
+}
+function doSearch(q){
+  const r=document.getElementById('srl'),c=document.getElementById('sc');
+  if(!q){r.innerHTML='';c.textContent='';return;}
+  let pat;
+  try{pat=srchOpts.r?new RegExp(q,srchOpts.c?'g':'gi'):
+    new RegExp(srchOpts.w?`\\b${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`:q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),srchOpts.c?'g':'gi');}
+  catch{r.innerHTML='<div style="padding:8px 12px;color:#f48771;font-size:12px;">Invalid regex</div>';return;}
+  let tot=0,html='';
+  Object.keys(F).forEach(id=>{
+    const f=F[id];const ms=[];
+    f.c.split('\n').forEach((line,i)=>{
+      pat.lastIndex=0;
+      if(pat.test(line)){ms.push({n:i+1,t:line.trim()});tot++;}
+    });
+    if(ms.length){
+      html+=`<div class="srf" onclick="openFile('${id}')">${fic(f.lang,13)}&nbsp;${esc(f.name)}<span style="float:right;color:#555;font-size:10px">${ms.length}</span></div>`;
+      ms.slice(0,8).forEach(m=>{
+        const t=esc(m.t).replace(new RegExp(esc(q),'gi'),s=>`<span class="srh">${s}</span>`);
+        html+=`<div class="srm" onclick="openFile('${id}')">${m.n}: ${t}</div>`;
+      });
+    }
+  });
+  c.textContent=tot?`${tot} result${tot>1?'s':''} in ${Object.keys(F).length} file${Object.keys(F).length>1?'s':''}` : '';
+  r.innerHTML=html||`<div style="padding:8px 12px;color:#858585;font-size:12px;">No results for "${esc(q)}"</div>`;
+}
+
+/* ════════════ MENUS ════════════ */
+function OM(name,el){
+  closeMenus();
+  const m=document.getElementById('dd-'+name);if(!m)return;
+  openMN=name;el.classList.add('open');
+  const rc=el.getBoundingClientRect();
+  m.style.left=rc.left+'px';m.style.top=rc.bottom+'px';
+  m.classList.add('vis');
+}
+function closeMenus(){
+  document.querySelectorAll('.ddm').forEach(d=>d.classList.remove('vis'));
+  document.querySelectorAll('.mbi').forEach(i=>i.classList.remove('open'));
+  openMN=null;
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.mbi')&&!e.target.closest('.ddm'))closeMenus();
+});
+document.addEventListener('mouseover',e=>{
+  if(openMN){const mb=e.target.closest('.mbi');
+    if(mb&&mb.dataset.m&&mb.dataset.m!==openMN)OM(mb.dataset.m,mb);}
+});
+
+/* ════════════ ACTIONS ════════════ */
+function A(a){
+  closeMenus();
+  switch(a){
+    case'new':newFileDlg();break;
+    case'import':importF();break;
+    case'save':if(aid){dlFile(aid);}else{toast('No file open');}break;
+    case'saveas':if(aid){dlFile(aid);}else{toast('No file open');}break;
+    case'dlall':dlAll();break;
+    case'closetab':if(aid)closeTab(aid);break;
+    case'revert':
+      if(aid&&F[aid]){
+        const orig=F[aid]._orig||'';
+        F[aid].c=orig;F[aid].mod=false;
+        if(ed&&mok){const m=ed.getModel();if(m)m.setValue(orig);}
+        renderTabs();renderFL();toast('File reverted');
+      }break;
+    case'autosave':
+      autosave=!autosave;
+      document.getElementById('autosave-ck').textContent=autosave?'✓':'';
+      toast(`Auto Save ${autosave?'enabled':'disabled'}`);break;
+    case'sidebar':
+      if(sbOpen){document.getElementById('sidebar').classList.add('hide');sbOpen=false;
+        document.querySelectorAll('.ab').forEach(e=>e.classList.remove('on'));}
+      else{document.getElementById('sidebar').classList.remove('hide');sbOpen=true;
+        SP(curP||'explorer');}break;
+    case'minimap':
+      mm=!mm;
+      document.getElementById('mm-ck').textContent=mm?'✓':'';
+      if(ed)ed.updateOptions({minimap:{enabled:mm}});break;
+    case'wordwrap':
+      ww=!ww;
+      document.getElementById('ww-ck').textContent=ww?'✓':'';
+      if(ed)ed.updateOptions({wordWrap:ww?'on':'off'});break;
+    case'whitespace':
+      ws=!ws;
+      document.getElementById('ws-ck').textContent=ws?'✓':'';
+      if(ed)ed.updateOptions({renderWhitespace:ws?'all':'none'});break;
+    case'problems':
+      toast(`${errCount} error${errCount!==1?'s':''}, ${warnCount} warning${warnCount!==1?'s':''}`);break;
+    case'runfile':
+      if(!aid||!F[aid]){toast('No file open');break;}
+      {const f=F[aid];
+      if(f.lang==='javascript'||f.name.endsWith('.js')){
+        try{eval(f.c);toast('Script executed (check console)');}
+        catch(e){toast('Error: '+e.message);}
+      } else if(f.lang==='html'||f.name.endsWith('.html')){
+        const w=window.open('','_blank');
+        w.document.write(f.c);w.document.close();toast('HTML opened in new tab');
+      } else {toast('Run is only supported for .js and .html files');}}break;
+    case'runsel':
+      if(ed&&mok){try{const sel=ed.getModel()?.getValueInRange(ed.getSelection()||{});if(sel)eval(sel);toast('Selection executed');}catch(e){toast('Error: '+e.message);}}break;
+    case'runtask':
+      toast('No tasks configured. Create a tasks.json to configure tasks.');break;
+    case'terminal':
+      toast('Integrated terminal not available in browser. Use your system terminal.');break;
+    case'langpick':openLangPick();break;
+    case'settings':
+      toast('Settings: Use View menu to toggle Minimap, Word Wrap, and Whitespace rendering');break;
+    case'shortcuts':
+      toast('Ctrl+N New · Ctrl+O Open · Ctrl+S Save · Ctrl+W Close · Ctrl+B Sidebar · Ctrl+Shift+F Search');break;
+    case'welcome':
+      if(aid)closeTab(aid);break;
+    case'about':
+      toast('Code Editor — VS Code-style editor powered by Monaco Editor (Microsoft MIT License)');break;
+    case'docurl':
+      window.open('https://code.visualstudio.com/docs','_blank');break;
+    case'search':SP('search');break;
+  }
+}
+function EA(a){closeMenus();if(ed){try{ed.getAction(a)?.run();}catch(e){toast('Action: '+a);}}}
+function ME(c){closeMenus();if(ed){ed.focus();document.execCommand(c);}}
+
+/* ════════════ LANGUAGE PICKER ════════════ */
+function openLangPick(){
+  const lp=document.getElementById('langpick');
+  lp.classList.add('vis');
+  lpFiltered=[...ALL_LANGS];lpSelIdx=0;
+  renderLP();
+  document.getElementById('lpi').value='';
+  setTimeout(()=>document.getElementById('lpi').focus(),30);
+}
+function closeLangPick(){document.getElementById('langpick').classList.remove('vis');}
+function filterLangs(q){
+  lpFiltered=q?ALL_LANGS.filter(l=>l.label.toLowerCase().includes(q.toLowerCase())||l.id.includes(q.toLowerCase())):ALL_LANGS;
+  lpSelIdx=0;renderLP();
+}
+function renderLP(){
+  document.getElementById('lpl').innerHTML=lpFiltered.map((l,i)=>`
+    <div class="lpi ${i===lpSelIdx?'sel':''}" onclick="setLang('${l.id}')" data-idx="${i}">
+      ${esc(l.label)} <span class="lpid">${l.alias||l.id}</span>
+    </div>`).join('');
+  const sel=document.querySelector('.lpi.sel');if(sel)sel.scrollIntoView({block:'nearest'});
+}
+function setLang(id){
+  closeLangPick();
+  if(aid&&F[aid]&&ed&&mok){
+    F[aid].lang=id;
+    const m=ed.getModel();
+    if(m)monaco.editor.setModelLanguage(m,id);
+    document.getElementById('sb-lang').textContent=gll(id);
+    renderTabs();renderFL();
+  }
+}
+function lpKey(e){
+  if(e.key==='ArrowDown'){lpSelIdx=Math.min(lpSelIdx+1,lpFiltered.length-1);renderLP();}
+  else if(e.key==='ArrowUp'){lpSelIdx=Math.max(lpSelIdx-1,0);renderLP();}
+  else if(e.key==='Enter'&&lpFiltered[lpSelIdx])setLang(lpFiltered[lpSelIdx].id);
+  else if(e.key==='Escape')closeLangPick();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLangPick();},{capture:false});
+document.getElementById('langpick').addEventListener('click',e=>{if(e.target===document.getElementById('langpick'))closeLangPick();});
+
+/* ════════════ CONTEXT MENU ════════════ */
+function showCtx(e,id){
+  e.preventDefault();ctxid=id;posCtx(e.clientX,e.clientY);
+  document.getElementById('cx-open').onclick=()=>{openFile(id);hCtx();};
+  document.getElementById('cx-rename').onclick=()=>{rnF(id);hCtx();};
+  document.getElementById('cx-copy').onclick=()=>{navigator.clipboard?.writeText(F[id]?.name||'');hCtx();toast('Copied');};
+  document.getElementById('cx-dl').onclick=()=>{dlFile(id);hCtx();};
+  document.getElementById('cx-del').onclick=()=>{delFile(id);hCtx();};
+}
+function tabCtx(e,id){
+  e.preventDefault();ctxid=id;posCtx(e.clientX,e.clientY);
+  document.getElementById('cx-open').onclick=()=>{openFile(id);hCtx();};
+  document.getElementById('cx-rename').onclick=()=>{rnF(id);hCtx();};
+  document.getElementById('cx-copy').onclick=()=>{navigator.clipboard?.writeText(F[id]?.name||'');hCtx();};
+  document.getElementById('cx-dl').onclick=()=>{dlFile(id);hCtx();};
+  document.getElementById('cx-del').onclick=()=>{delFile(id);hCtx();};
+}
+function posCtx(x,y){const m=document.getElementById('ctx');
+  m.style.left=Math.min(x,innerWidth-170)+'px';
+  m.style.top=Math.min(y,innerHeight-200)+'px';m.classList.add('vis');}
+function hCtx(){document.getElementById('ctx').classList.remove('vis');}
+document.addEventListener('click',hCtx);
+document.addEventListener('contextmenu',e=>{if(!e.target.closest('.fi')&&!e.target.closest('.tab'))hCtx();});
+function rnF(id){const f=F[id];if(!f)return;const n=prompt('Rename:',f.name);
+  if(n&&n.trim()&&n!==f.name){f.name=n.trim();f.lang=gl(n);
+    if(aid===id&&ed){const m=ed.getModel();if(m)monaco.editor.setModelLanguage(m,f.lang);
+      document.getElementById('sb-lang').textContent=gll(f.lang);}
+    renderFL();renderTabs();}}
+
+/* ════════════ DIALOG ════════════ */
+function newFileDlg(){closeMenus();document.getElementById('overlay').classList.add('vis');
+  setTimeout(()=>{const i=document.getElementById('nfi');i.focus();i.select();},40);}
+function closeDlg(){document.getElementById('overlay').classList.remove('vis');}
+function createFile(){
+  const n=document.getElementById('nfi').value.trim();if(!n)return;
+  const id=addF(n,'');closeDlg();openFile(id);
+  document.getElementById('nfi').value='untitled.txt';toast(`Created: ${n}`);}
+document.getElementById('nfi').addEventListener('keydown',e=>{if(e.key==='Enter')createFile();if(e.key==='Escape')closeDlg();});
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeDlg();});
+
+/* ════════════ SIDEBAR RESIZE ════════════ */
+let rsz=false;const sbrEl=document.getElementById('sbr');
+sbrEl.addEventListener('mousedown',()=>{rsz=true;sbrEl.classList.add('drag');document.body.style.userSelect='none';});
+document.addEventListener('mousemove',e=>{if(!rsz)return;
+  const aw=48;const w=e.clientX-aw;
+  if(w>=80&&w<=600)document.getElementById('sidebar').style.width=w+'px';});
+document.addEventListener('mouseup',()=>{rsz=false;sbrEl.classList.remove('drag');document.body.style.userSelect='';});
+
+/* ════════════ KEYBOARD ════════════ */
+document.addEventListener('keydown',e=>{
+  const c=e.ctrlKey||e.metaKey;
+  if(c&&e.key==='s'){e.preventDefault();if(aid)dlFile(aid);}
+  if(c&&e.key==='o'){e.preventDefault();importF();}
+  if(c&&e.key==='n'){e.preventDefault();newFileDlg();}
+  if(c&&e.key==='w'){e.preventDefault();if(aid)closeTab(aid);}
+  if(c&&e.key==='b'){e.preventDefault();A('sidebar');}
+  if(c&&e.shiftKey&&e.key==='D'){e.preventDefault();dlAll();}
+  if(c&&e.shiftKey&&(e.key==='E'||e.key==='e')){e.preventDefault();SP('explorer');}
+  if(c&&e.shiftKey&&(e.key==='F'||e.key==='f')){e.preventDefault();SP('search');}
+  if(c&&e.shiftKey&&(e.key==='G'||e.key==='g')){e.preventDefault();SP('git');}
+  if(c&&e.shiftKey&&(e.key==='X'||e.key==='x')){e.preventDefault();SP('ext');}
+  if(c&&e.shiftKey&&(e.key==='D'||e.key==='d')&&!e.key.startsWith('D')){e.preventDefault();SP('debug');}
+  if(e.key==='Escape'){closeMenus();closeDlg();hCtx();}
+});
+
+/* ════════════ TOAST ════════════ */
+let tt;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('vis');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('vis'),3500);}
+
+/* ════════════ INIT ════════════ */
+updSB();
+</script>
+</body>
+</html>
