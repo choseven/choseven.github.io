@@ -1,38 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reel → MP4</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0d10;
-      --surface: #13131a;
-      --surface2: #1a1a24;
-      --border: #252530;
-      --accent: #e8445a;
-      --accent-glow: rgba(232,68,90,0.18);
-      --text: #f2efe9;
-      --muted: #666070;
-      --success: #44e8a0;
-      --warn: #e8b444;
+      --bg: #0d0d10; --surface: #13131a; --surface2: #1a1a24;
+      --border: #252530; --accent: #e8445a; --accent-glow: rgba(232,68,90,0.18);
+      --text: #f2efe9; --muted: #666070; --success: #44e8a0; --warn: #e8b444;
     }
-
-    html { scroll-behavior: smooth; }
     body {
-      background: var(--bg); color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif;
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; padding: 48px 20px 100px; overflow-x: hidden;
     }
     body::before {
       content: ''; position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
       background-size: 52px 52px; pointer-events: none; z-index: 0;
     }
     .orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(80px); opacity: 0.5; }
@@ -41,98 +28,34 @@
 
     .page { position: relative; z-index: 1; width: 100%; max-width: 660px; }
 
-    /* Header */
-    header { margin-bottom: 52px; }
-    .tag {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-family: 'DM Mono', monospace; font-size: 10px;
-      letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
-    }
+    header { margin-bottom: 48px; }
+    .tag { display: inline-flex; align-items: center; gap: 7px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
     .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
     h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 14vw, 108px); line-height: 0.88; letter-spacing: 0.015em; color: var(--text); }
     h1 em { font-style: normal; -webkit-text-stroke: 1.5px var(--accent); color: transparent; }
     .subtitle { font-size: 13px; color: var(--muted); margin-top: 18px; line-height: 1.7; font-weight: 300; max-width: 460px; }
 
-    /* Cards */
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
     .card-accent-bar::before { content: ''; position: absolute; top:0;left:0;right:0; height: 2px; background: linear-gradient(90deg, var(--accent), #e87844); }
 
-    /* Instance status bar */
-    .instance-bar {
-      display: flex; align-items: center; gap: 10px;
-      font-family: 'DM Mono', monospace; font-size: 11px;
-    }
-    .inst-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
-    .inst-dot.ok { background: var(--success); box-shadow: 0 0 6px var(--success); }
-    .inst-dot.fail { background: var(--accent); }
-    .inst-dot.checking { background: var(--warn); animation: pulse 0.8s ease-in-out infinite; }
-    .inst-name { flex: 1; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
-    .inst-name.ok { color: var(--text); }
-    .inst-change { font-size: 10px; color: var(--accent); cursor: pointer; border: 1px solid rgba(232,68,90,0.3); padding: 3px 9px; border-radius: 4px; white-space: nowrap; transition: background 0.15s; letter-spacing: 0.05em; }
-    .inst-change:hover { background: rgba(232,68,90,0.1); }
-
-    /* Instance picker panel */
-    .inst-panel { display: none; margin-top: 20px; }
-    .inst-panel.open { display: block; }
-
-    .info-box { background: rgba(232,180,68,0.08); border: 1px solid rgba(232,180,68,0.2); border-radius: 8px; padding: 12px 14px; font-size: 12px; color: var(--warn); line-height: 1.7; margin-bottom: 14px; }
-    .info-box a { color: var(--warn); }
-
-    .inst-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-    .inst-row {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 14px; cursor: pointer;
-      transition: border-color 0.15s; font-size: 12px;
-    }
-    .inst-row:hover { border-color: var(--accent); }
-    .inst-row.active { border-color: var(--success); }
-    .inst-row-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-    .inst-row-dot.ok { background: var(--success); }
-    .inst-row-dot.fail { background: var(--accent); }
-    .inst-row-dot.checking { background: var(--warn); animation: pulse 0.8s ease-in-out infinite; }
-    .inst-row-name { flex: 1; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
-    .inst-row-name.ok { color: var(--text); }
-    .inst-row-badge { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 4px; }
-    .inst-row-badge.active { background: rgba(68,232,160,0.12); color: var(--success); border: 1px solid rgba(68,232,160,0.25); }
-
-    .custom-row { display: flex; gap: 8px; margin-top: 4px; }
-    .custom-row input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px; outline: none; transition: border-color 0.18s; }
-    .custom-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .custom-row button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; white-space: nowrap; }
-
-    /* Fields */
     .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
     .field-label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
     .input-wrap { position: relative; }
-    input[type="text"], input[type="password"] {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;
-      color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px;
-      outline: none; transition: border-color 0.18s, box-shadow 0.18s;
-    }
+    input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 44px 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.18s, box-shadow 0.18s; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .eye-btn, .paste-btn { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 3px; line-height: 1; transition: color 0.15s; }
-    .eye-btn:hover, .paste-btn:hover { color: var(--accent); }
+    .icon-btn { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 3px; line-height: 1; transition: color 0.15s; }
+    .icon-btn:hover { color: var(--accent); }
 
-    /* Action row */
     .action-row { display: flex; gap: 10px; align-items: flex-end; }
-    .action-row .field { flex: 1; margin: 0; }
-    .action-row input[type="text"] { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 13px 40px 13px 14px; }
-
-    .fetch-btn {
-      flex-shrink: 0; background: var(--accent); color: #fff; border: none;
-      border-radius: 8px; padding: 13px 22px;
-      font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
-      cursor: pointer; letter-spacing: 0.06em; white-space: nowrap;
-      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-    }
+    .action-row .url-field { flex: 1; }
+    .action-row .url-field label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+    .fetch-btn { flex-shrink: 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 13px 22px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; }
     .fetch-btn:hover { background: #f05570; box-shadow: 0 0 20px var(--accent-glow); }
     .fetch-btn:active { transform: scale(0.96); }
     .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    /* Status */
     .status-row { margin-top: 18px; font-size: 12px; display: none; align-items: center; gap: 10px; }
     .status-row.visible { display: flex; }
     .status-row.loading { color: var(--muted); }
@@ -141,30 +64,13 @@
     .spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.65s linear infinite; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Result */
     .result-wrap { margin-top: 18px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; display: none; }
     .result-wrap.show { display: block; }
-    .result-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 14px; letter-spacing: 0.05em; }
+    .result-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 14px; }
     .dl-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .dl-btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: rgba(68,232,160,0.08); color: var(--success);
-      border: 1px solid rgba(68,232,160,0.25); border-radius: 7px; padding: 9px 16px;
-      font-family: 'DM Mono', monospace; font-size: 11px; text-decoration: none; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s; letter-spacing: 0.04em;
-    }
+    .dl-btn { display: inline-flex; align-items: center; gap: 7px; background: rgba(68,232,160,0.08); color: var(--success); border: 1px solid rgba(68,232,160,0.25); border-radius: 7px; padding: 9px 16px; font-family: 'DM Mono', monospace; font-size: 11px; text-decoration: none; cursor: pointer; transition: background 0.15s, border-color 0.15s; letter-spacing: 0.04em; }
     .dl-btn:hover { background: rgba(68,232,160,0.16); border-color: var(--success); }
 
-    /* Picker */
-    .picker-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
-    .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 14px; }
-    .picker-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 4/5; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 26px; }
-    .picker-item img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .picker-item .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; font-size: 22px; z-index: 1; }
-    .picker-item:hover .overlay { opacity: 1; }
-    .picker-item:hover { border-color: var(--accent); }
-
-    /* History */
     .section-head { display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
     .section-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .history-list { display: flex; flex-direction: column; gap: 8px; }
@@ -177,12 +83,6 @@
 
     footer { margin-top: 60px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; line-height: 2; }
     footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
-
-    /* API key section */
-    .key-toggle { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); cursor: pointer; margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; }
-    .key-toggle:hover { color: var(--text); }
-    .key-section { display: none; margin-top: 12px; }
-    .key-section.open { display: block; }
   </style>
 </head>
 <body>
@@ -191,73 +91,32 @@
   <div class="page">
 
     <header>
-      <div class="tag"><div class="tag-dot"></div> powered by cobalt</div>
+      <div class="tag"><div class="tag-dot"></div> via RapidAPI</div>
       <h1>REEL<br>TO <em>MP4</em></h1>
-      <p class="subtitle">Paste an Instagram Reel link and download it as an .mp4 — no account, no watermark, no tracking.</p>
+      <p class="subtitle">Download Instagram Reels as .mp4 files. Paste a Reel URL below and hit Fetch.</p>
     </header>
 
-    <!-- Instance status card -->
-    <div class="card card-accent-bar" style="margin-bottom:14px;">
-      <div class="instance-bar">
-        <div class="inst-dot checking" id="inst-dot"></div>
-        <span class="inst-name" id="inst-name">Searching for a working instance…</span>
-        <span class="inst-change" onclick="togglePanel()">CHANGE</span>
-      </div>
-
-      <!-- Instance picker panel -->
-      <div class="inst-panel" id="inst-panel">
-        <div style="height:16px;"></div>
-        <div class="info-box">
-          <strong>Note:</strong> <code style="font-family:monospace;font-size:11px;">api.cobalt.tools</code> blocks direct API calls (bot protection). The page auto-selects the first working community instance. Community instances are free — no sign-up needed. Find more at <a href="https://instances.cobalt.best" target="_blank">instances.cobalt.best</a>.
-        </div>
-        <div class="inst-list" id="inst-list"></div>
-        <div class="custom-row">
-          <input type="text" id="custom-input" placeholder="https://your-cobalt-instance.com" />
-          <button onclick="addCustomInstance()">USE</button>
-        </div>
-        <div class="key-toggle" onclick="toggleKeySection()">▸ API key (optional)</div>
-        <div class="key-section" id="key-section">
-          <div style="height:10px;"></div>
-          <div class="field-label">API key — only if your instance requires one</div>
-          <div class="input-wrap">
-            <input type="password" id="api-key" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="saveKey()" />
-            <button class="eye-btn" onclick="toggleKey()">👁</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Downloader -->
     <div class="card card-accent-bar">
       <div class="action-row">
-        <div class="field">
-          <label class="field-label">Instagram Reel URL</label>
+        <div class="url-field">
+          <label>Instagram Reel URL</label>
           <div class="input-wrap">
-            <input type="text" id="reel-url"
-              placeholder="https://www.instagram.com/reel/…"
-              onkeydown="if(event.key==='Enter') fetchReel()" />
-            <button class="paste-btn" onclick="pasteURL()" title="Paste">📋</button>
+            <input type="text" id="reel-url" placeholder="https://www.instagram.com/reel/…" onkeydown="if(event.key==='Enter') fetchReel()"/>
+            <button class="icon-btn" onclick="pasteURL()" title="Paste">📋</button>
           </div>
         </div>
         <button class="fetch-btn" id="fetch-btn" onclick="fetchReel()">FETCH</button>
       </div>
-
       <div class="status-row" id="status-row">
         <div class="spinner" id="spinner" style="display:none;"></div>
         <span id="status-text"></span>
       </div>
-
       <div class="result-wrap" id="result-wrap">
         <div class="result-meta" id="result-meta"></div>
-        <div id="picker-section" style="display:none;">
-          <div class="picker-label">SELECT A FILE TO DOWNLOAD</div>
-          <div class="picker-grid" id="picker-grid"></div>
-        </div>
         <div class="dl-grid" id="dl-grid"></div>
       </div>
     </div>
 
-    <!-- History -->
     <div style="margin-top:32px;">
       <div class="section-head">Recent downloads</div>
       <div class="history-list" id="history-list">
@@ -266,260 +125,92 @@
     </div>
 
     <footer>
-      uses <a href="https://cobalt.tools" target="_blank">cobalt</a> ·
-      find instances at <a href="https://instances.cobalt.best" target="_blank">instances.cobalt.best</a>
+      uses <a href="https://rapidapi.com/7scorp-7scorp-default/api/instagram-downloader-download-instagram-videos-stories" target="_blank">Instagram Downloader API</a> via RapidAPI
     </footer>
   </div>
 
 <script>
-// ── Candidate instances to probe on startup ──────────────────
-const CANDIDATES = [
-  'https://cobalt.api.timelessnesses.me',
-  'https://cobalt.seaphor.net',
-  'https://cobalt.lunar.icu',
-  'https://cob.frnet.org',
-  'https://cobalt.dn42.us',
-  'https://cobalt.privacyredirect.com',
-  'https://api.cobalt.tools', // official — last resort, may require challenge
-];
+const LS = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k,v) => { try { localStorage.setItem(k,v); } catch{} } };
 
-// ── State ────────────────────────────────────────────────────
-const LS = {
-  get: k => { try { return localStorage.getItem(k); } catch { return null; } },
-  set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
-};
+const API_HOST = 'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com';
+const API_URL  = `https://${API_HOST}/index`;
+const API_KEY  = '16571dc8admsh89af81f1822f2b9p132515jsn004212588c7d';
 
-let activeInstance = LS.get('cobalt_instance') || '';
-let apiKey = LS.get('cobalt_key') || '';
 let dlHistory = [];
-try { dlHistory = JSON.parse(LS.get('cobalt_history') || '[]'); } catch {}
+try { dlHistory = JSON.parse(LS.get('reel_history') || '[]'); } catch {}
 
-// instance probe state per candidate
-const probeState = {}; // url -> 'checking' | 'ok' | 'fail'
+renderHistory();
 
-// ── Init ─────────────────────────────────────────────────────
-(function init() {
-  document.getElementById('api-key').value = apiKey;
-  renderInstList();
-  renderHistory();
-  probeAll();
-})();
-
-// ── Instance probing ─────────────────────────────────────────
-async function probeOne(url) {
-  probeState[url] = 'checking';
-  renderInstList();
-  try {
-    const res = await fetch(`${url}/`, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      signal: AbortSignal.timeout(6000),
-    });
-    if (res.ok) {
-      probeState[url] = 'ok';
-    } else {
-      probeState[url] = 'fail';
-    }
-  } catch {
-    probeState[url] = 'fail';
-  }
-  renderInstList();
-  return probeState[url] === 'ok';
-}
-
-async function probeAll() {
-  setInstStatus('checking', 'Searching for a working instance…');
-
-  // If we have a saved instance, try it first
-  if (activeInstance && !CANDIDATES.includes(activeInstance)) {
-    CANDIDATES.unshift(activeInstance);
-  }
-
-  for (const url of CANDIDATES) {
-    const ok = await probeOne(url);
-    if (ok && !activeInstance) {
-      selectInstance(url, false);
-      break;
-    } else if (ok && activeInstance === url) {
-      setInstStatus('ok', new URL(url).host);
-      break;
-    }
-  }
-
-  // If still no active instance found, pick first ok
-  if (!activeInstance) {
-    const firstOk = CANDIDATES.find(u => probeState[u] === 'ok');
-    if (firstOk) {
-      selectInstance(firstOk, false);
-    } else {
-      setInstStatus('fail', 'No working instance found — add a custom one below');
-    }
-  }
-}
-
-function selectInstance(url, saveToLS = true) {
-  activeInstance = url;
-  if (saveToLS) LS.set('cobalt_instance', url);
-  try {
-    setInstStatus('ok', new URL(url).host);
-  } catch {
-    setInstStatus('ok', url);
-  }
-  renderInstList();
-}
-
-function setInstStatus(state, label) {
-  const dot = document.getElementById('inst-dot');
-  const name = document.getElementById('inst-name');
-  dot.className = `inst-dot ${state}`;
-  name.className = `inst-name${state === 'ok' ? ' ok' : ''}`;
-  name.textContent = label;
-}
-
-// ── Instance list UI ─────────────────────────────────────────
-function renderInstList() {
-  const list = document.getElementById('inst-list');
-  list.innerHTML = '';
-  const allUrls = [...new Set([...CANDIDATES])];
-  allUrls.forEach(url => {
-    const state = probeState[url] || 'checking';
-    const isActive = url === activeInstance;
-    let host;
-    try { host = new URL(url).host; } catch { host = url; }
-
-    const row = document.createElement('div');
-    row.className = `inst-row${isActive ? ' active' : ''}`;
-    row.onclick = () => { selectInstance(url); togglePanel(); };
-    row.innerHTML = `
-      <div class="inst-row-dot ${state}"></div>
-      <span class="inst-row-name ${state}">${host}</span>
-      ${isActive ? '<span class="inst-row-badge active">ACTIVE</span>' : ''}
-    `;
-    list.appendChild(row);
-  });
-}
-
-function togglePanel() {
-  const panel = document.getElementById('inst-panel');
-  panel.classList.toggle('open');
-}
-
-function toggleKeySection() {
-  const s = document.getElementById('key-section');
-  const t = document.querySelector('.key-toggle');
-  s.classList.toggle('open');
-  t.textContent = s.classList.contains('open') ? '▾ API key (optional)' : '▸ API key (optional)';
-}
-
-function addCustomInstance() {
-  const val = document.getElementById('custom-input').value.trim().replace(/\/$/, '');
-  if (!val) return;
-  if (!CANDIDATES.includes(val)) CANDIDATES.unshift(val);
-  probeState[val] = 'checking';
-  renderInstList();
-  probeOne(val).then(() => {
-    selectInstance(val);
-  });
-  document.getElementById('custom-input').value = '';
-}
-
-// ── Key ───────────────────────────────────────────────────────
-function saveKey() { apiKey = document.getElementById('api-key').value.trim(); LS.set('cobalt_key', apiKey); }
-function toggleKey() { const el = document.getElementById('api-key'); el.type = el.type === 'password' ? 'text' : 'password'; }
-
-// ── Paste ─────────────────────────────────────────────────────
 async function pasteURL() {
   try { document.getElementById('reel-url').value = await navigator.clipboard.readText(); }
   catch { document.getElementById('reel-url').focus(); }
 }
 
-// ── Fetch ─────────────────────────────────────────────────────
 async function fetchReel() {
   const url = document.getElementById('reel-url').value.trim();
   if (!url) { setStatus('error', 'Please enter a Reel URL.'); return; }
   if (!url.includes('instagram.com')) { setStatus('error', "That doesn't look like an Instagram URL."); return; }
-  if (!activeInstance) { setStatus('error', 'No working cobalt instance found. Add a custom one in the instance panel.'); return; }
 
   document.getElementById('fetch-btn').disabled = true;
   document.getElementById('result-wrap').classList.remove('show');
-  setStatus('loading', `Fetching via ${new URL(activeInstance).host}…`);
-
-  const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-  if (apiKey) headers['Authorization'] = `Api-Key ${apiKey}`;
+  setStatus('loading', 'Fetching…');
 
   let data;
   try {
-    const res = await fetch(`${activeInstance}/`, {
-      method: 'POST', headers, body: JSON.stringify({ url }),
-      signal: AbortSignal.timeout(20000),
+    const res = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': API_KEY,
+        'x-rapidapi-host': API_HOST,
+      },
     });
     data = await res.json();
   } catch (e) {
-    setStatus('error', `Request failed (${e.message}). The instance may be down — try another from the panel.`);
-    // Mark this instance as failed and re-probe
-    probeState[activeInstance] = 'fail';
-    activeInstance = '';
-    setInstStatus('fail', 'Instance failed — click CHANGE to pick another');
-    renderInstList();
+    setStatus('error', `Request failed: ${e.message}`);
     document.getElementById('fetch-btn').disabled = false;
     return;
   }
 
   document.getElementById('fetch-btn').disabled = false;
 
-  if (data.status === 'error') {
-    const code = data.error?.code || JSON.stringify(data.error);
-    setStatus('error', `cobalt error: ${code}`);
+  if (data.message) {
+    if (data.message.toLowerCase().includes('subscribe') || data.message.toLowerCase().includes('quota')) {
+      setStatus('error', `API limit reached: ${data.message}`);
+    } else if (data.message.toLowerCase().includes('invalid') || data.message.toLowerCase().includes('key')) {
+      setStatus('error', 'Invalid API key.');
+    } else {
+      setStatus('error', `API error: ${data.message}`);
+    }
+    return;
+  }
+
+  const mediaUrl = Array.isArray(data.url) ? data.url[0] : (data.url || data.video_url || data.media);
+  if (!mediaUrl) {
+    setStatus('error', 'No video found — make sure the Reel is public.');
     return;
   }
 
   setStatus('ok', 'Ready — download below ↓');
-  renderResult(data, url);
+  renderResult(data, url, mediaUrl);
 }
 
-// ── Render result ─────────────────────────────────────────────
-function renderResult(data, sourceURL) {
+function renderResult(data, sourceURL, mediaUrl) {
   const wrap = document.getElementById('result-wrap');
   const metaEl = document.getElementById('result-meta');
   const dlGrid = document.getElementById('dl-grid');
-  const pickerSection = document.getElementById('picker-section');
-  const pickerGrid = document.getElementById('picker-grid');
-
-  dlGrid.innerHTML = ''; pickerGrid.innerHTML = '';
-  pickerSection.style.display = 'none'; metaEl.textContent = '';
+  dlGrid.innerHTML = ''; metaEl.textContent = '';
   wrap.classList.add('show');
 
-  if (data.status === 'tunnel' || data.status === 'redirect') {
-    const filename = data.filename || 'instagram-reel.mp4';
-    metaEl.textContent = `↳ ${filename}`;
-    dlGrid.appendChild(makeDLBtn(data.url, filename));
-    addToHistory(sourceURL, data.url, filename);
-  } else if (data.status === 'picker') {
-    metaEl.textContent = `${data.picker.length} file(s) found`;
-    if (data.picker.length > 1) {
-      pickerSection.style.display = 'block';
-      data.picker.forEach((item, i) => {
-        const ext = item.type === 'video' ? 'mp4' : 'jpg';
-        const fname = `reel-${i + 1}.${ext}`;
-        const div = document.createElement('div');
-        div.className = 'picker-item';
-        div.innerHTML = (item.type === 'video' ? '🎬' : '🖼') + '<div class="overlay">⬇</div>';
-        if (item.thumb) {
-          const img = document.createElement('img');
-          img.src = item.thumb; img.loading = 'lazy';
-          div.prepend(img);
-        }
-        div.onclick = () => triggerDL(item.url, fname);
-        pickerGrid.appendChild(div);
-      });
-    } else {
-      const item = data.picker[0];
-      const fname = `reel.${item.type === 'video' ? 'mp4' : 'jpg'}`;
-      dlGrid.appendChild(makeDLBtn(item.url, fname));
-      addToHistory(sourceURL, item.url, fname);
-    }
-    if (data.audio) dlGrid.appendChild(makeDLBtn(data.audio, data.audioFilename || 'audio.mp3', '♫ audio'));
-  }
+  const urls = Array.isArray(data.url) ? data.url : [mediaUrl];
+  const filename = `reel-${Date.now()}.mp4`;
+  metaEl.textContent = `↳ ${urls.length} file(s) found`;
+
+  urls.forEach((u, i) => {
+    const fname = urls.length > 1 ? `reel-${i+1}.mp4` : filename;
+    dlGrid.appendChild(makeDLBtn(u, fname, urls.length > 1 ? `version ${i+1}` : null));
+  });
+
+  addToHistory(sourceURL, urls[0], filename);
 }
 
 function makeDLBtn(url, filename, label) {
@@ -529,12 +220,6 @@ function makeDLBtn(url, filename, label) {
   return a;
 }
 
-function triggerDL(url, filename) {
-  const a = document.createElement('a'); a.href = url; a.download = filename; a.target = '_blank';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-}
-
-// ── Status ────────────────────────────────────────────────────
 function setStatus(type, msg) {
   const row = document.getElementById('status-row');
   row.className = `status-row visible ${type}`;
@@ -542,11 +227,10 @@ function setStatus(type, msg) {
   document.getElementById('status-text').textContent = msg;
 }
 
-// ── History ───────────────────────────────────────────────────
 function addToHistory(sourceURL, dlURL, filename) {
   dlHistory.unshift({ sourceURL, dlURL, filename });
   if (dlHistory.length > 10) dlHistory.pop();
-  try { LS.set('cobalt_history', JSON.stringify(dlHistory)); } catch {}
+  try { LS.set('reel_history', JSON.stringify(dlHistory)); } catch {}
   renderHistory();
 }
 
@@ -556,7 +240,7 @@ function renderHistory() {
   document.getElementById('history-empty').style.display = dlHistory.length ? 'none' : 'block';
   dlHistory.forEach(h => {
     let short = h.sourceURL;
-    try { short = new URL(h.sourceURL).pathname.slice(0, 36) + '…'; } catch {}
+    try { short = new URL(h.sourceURL).pathname.slice(0,36) + '…'; } catch {}
     const row = document.createElement('div');
     row.className = 'history-row';
     row.innerHTML = `<span class="h-check">✓</span><span class="h-url" title="${h.sourceURL}">${short}</span><a class="h-link" href="${h.dlURL}" download="${h.filename}" target="_blank">↓ ${h.filename}</a>`;
