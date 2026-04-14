@@ -26,7 +26,9 @@
     .orb-1 { width: 500px; height: 500px; background: rgba(232,68,90,0.15); top: -180px; right: -120px; }
     .orb-2 { width: 350px; height: 350px; background: rgba(68,90,232,0.08); bottom: -100px; left: -100px; }
 
-    .page { position: relative; z-index: 1; width: 100%; max-width: 660px; }
+    /* ── Desktop ── */
+    .desktop-view { position: relative; z-index: 1; width: 100%; max-width: 660px; }
+    .mobile-view { display: none; }
 
     header { margin-bottom: 48px; }
     .tag { display: inline-flex; align-items: center; gap: 7px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
@@ -35,27 +37,20 @@
     h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 14vw, 108px); line-height: 0.88; letter-spacing: 0.015em; color: var(--text); }
     h1 em { font-style: normal; -webkit-text-stroke: 1.5px var(--accent); color: transparent; }
     .subtitle { font-size: 13px; color: var(--muted); margin-top: 18px; line-height: 1.7; font-weight: 300; max-width: 460px; }
-
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 14px; position: relative; overflow: hidden; }
     .card-accent-bar::before { content: ''; position: absolute; top:0;left:0;right:0; height: 2px; background: linear-gradient(90deg, var(--accent), #e87844); }
-
-    .field { margin-bottom: 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .field-label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+    .action-row { display: flex; gap: 10px; align-items: flex-end; }
+    .action-row .url-field { flex: 1; }
+    .action-row .url-field label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
     .input-wrap { position: relative; }
     input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 44px 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.18s, box-shadow 0.18s; }
     input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     .icon-btn { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 3px; line-height: 1; transition: color 0.15s; }
     .icon-btn:hover { color: var(--accent); }
-
-    .action-row { display: flex; gap: 10px; align-items: flex-end; }
-    .action-row .url-field { flex: 1; }
-    .action-row .url-field label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
     .fetch-btn { flex-shrink: 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 13px 22px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; }
     .fetch-btn:hover { background: #f05570; box-shadow: 0 0 20px var(--accent-glow); }
     .fetch-btn:active { transform: scale(0.96); }
     .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
-
     .status-row { margin-top: 18px; font-size: 12px; display: none; align-items: center; gap: 10px; }
     .status-row.visible { display: flex; }
     .status-row.loading { color: var(--muted); }
@@ -63,14 +58,12 @@
     .status-row.ok { color: var(--success); }
     .spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.65s linear infinite; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .result-wrap { margin-top: 18px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; display: none; }
     .result-wrap.show { display: block; }
     .result-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 14px; }
     .dl-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .dl-btn { display: inline-flex; align-items: center; gap: 7px; background: rgba(68,232,160,0.08); color: var(--success); border: 1px solid rgba(68,232,160,0.25); border-radius: 7px; padding: 9px 16px; font-family: 'DM Mono', monospace; font-size: 11px; text-decoration: none; cursor: pointer; transition: background 0.15s, border-color 0.15s; letter-spacing: 0.04em; }
     .dl-btn:hover { background: rgba(68,232,160,0.16); border-color: var(--success); }
-
     .section-head { display: flex; align-items: center; gap: 10px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
     .section-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .history-list { display: flex; flex-direction: column; gap: 8px; }
@@ -80,29 +73,116 @@
     .h-url { flex: 1; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .h-link { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); text-decoration: none; border: 1px solid rgba(232,68,90,0.3); padding: 4px 10px; border-radius: 5px; transition: background 0.15s; white-space: nowrap; }
     .h-link:hover { background: rgba(232,68,90,0.1); }
-
     footer { margin-top: 60px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; line-height: 2; }
     footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 540px) {
+      body { padding: 0; align-items: stretch; }
+      .desktop-view { display: none; }
+      .mobile-view {
+        display: flex; flex-direction: column; min-height: 100vh;
+        position: relative; z-index: 1;
+      }
+
+      .m-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 18px 18px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .m-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.04em; line-height: 1; color: var(--text); }
+      .m-logo span { -webkit-text-stroke: 1px var(--accent); color: transparent; }
+
+      .m-hero { padding: 28px 18px 20px; }
+      .m-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 58px; line-height: 0.88; }
+      .m-hero-title em { font-style: normal; -webkit-text-stroke: 1.5px var(--accent); color: transparent; }
+      .m-hero-sub { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.65; font-weight: 300; }
+
+      .m-main { padding: 0 18px; display: flex; flex-direction: column; gap: 10px; }
+
+      .m-field-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; display: block; }
+
+      .m-input-row { position: relative; }
+      .m-input-row input[type="text"] {
+        width: 100%; background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 13px 46px 13px 14px;
+        color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+        outline: none; transition: border-color 0.18s, box-shadow 0.18s;
+      }
+      .m-input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+      .m-paste { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-size: 17px; cursor: pointer; padding: 4px; line-height: 1; }
+
+      .m-btn {
+        width: 100%; background: var(--accent); color: #fff; border: none;
+        border-radius: 10px; padding: 15px; font-family: 'DM Mono', monospace;
+        font-size: 14px; font-weight: 500; letter-spacing: 0.08em; cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+      }
+      .m-btn:active { transform: scale(0.97); background: #f05570; }
+      .m-btn:disabled { opacity: 0.35; }
+
+      .m-status {
+        font-size: 12px; display: none; align-items: center; gap: 8px;
+        padding: 11px 14px; border-radius: 8px;
+        background: var(--surface); border: 1px solid var(--border);
+      }
+      .m-status.visible { display: flex; }
+      .m-status.loading { color: var(--muted); }
+      .m-status.error { color: var(--accent); }
+      .m-status.ok { color: var(--success); }
+
+      .m-result-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 14px; display: none; flex-direction: column; gap: 8px;
+      }
+      .m-result-card.show { display: flex; }
+      .m-result-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+      .m-dl-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        background: rgba(68,232,160,0.08); color: var(--success);
+        border: 1px solid rgba(68,232,160,0.25); border-radius: 8px;
+        padding: 13px 16px; font-family: 'DM Mono', monospace; font-size: 12px;
+        text-decoration: none; letter-spacing: 0.04em;
+      }
+
+      .m-divider { display: flex; align-items: center; gap: 10px; padding: 20px 18px 10px; }
+      .m-divider span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+      .m-divider::before, .m-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+      .m-hist-list { padding: 0 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+      .m-hist-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 20px; font-style: italic; }
+      .m-hist-row {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 12px 14px;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .m-hist-check { color: var(--success); font-size: 12px; flex-shrink: 0; }
+      .m-hist-url { flex: 1; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+      .m-hist-link { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); text-decoration: none; border: 1px solid rgba(232,68,90,0.3); padding: 5px 10px; border-radius: 5px; white-space: nowrap; }
+
+      .m-footer { padding: 24px 18px 36px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; line-height: 2; }
+      .m-footer a { color: var(--muted); text-decoration: underline; }
+    }
   </style>
 </head>
 <body>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="page">
 
+  <!-- ══ DESKTOP ══ -->
+  <div class="desktop-view">
     <header>
       <div class="tag"><div class="tag-dot"></div> via RapidAPI</div>
       <h1>REEL<br>TO <em>MP4</em></h1>
       <p class="subtitle">Download Instagram Reels as .mp4 files. Paste a Reel URL below and hit Fetch.</p>
     </header>
-
     <div class="card card-accent-bar">
       <div class="action-row">
         <div class="url-field">
           <label>Instagram Reel URL</label>
           <div class="input-wrap">
             <input type="text" id="reel-url" placeholder="https://www.instagram.com/reel/…" onkeydown="if(event.key==='Enter') fetchReel()"/>
-            <button class="icon-btn" onclick="pasteURL()" title="Paste">📋</button>
+            <button class="icon-btn" onclick="pasteURL('reel-url')" title="Paste">📋</button>
           </div>
         </div>
         <button class="fetch-btn" id="fetch-btn" onclick="fetchReel()">FETCH</button>
@@ -116,115 +196,156 @@
         <div class="dl-grid" id="dl-grid"></div>
       </div>
     </div>
-
     <div style="margin-top:32px;">
       <div class="section-head">Recent downloads</div>
       <div class="history-list" id="history-list">
         <div class="history-empty" id="history-empty">No downloads yet.</div>
       </div>
     </div>
+    <footer>uses <a href="https://rapidapi.com/7scorp-7scorp-default/api/instagram-downloader-download-instagram-videos-stories" target="_blank">Instagram Downloader API</a> via RapidAPI</footer>
+  </div>
 
-    <footer>
-      uses <a href="https://rapidapi.com/7scorp-7scorp-default/api/instagram-downloader-download-instagram-videos-stories" target="_blank">Instagram Downloader API</a> via RapidAPI
-    </footer>
+  <!-- ══ MOBILE ══ -->
+  <div class="mobile-view">
+    <div class="m-topbar">
+      <div class="m-logo">REEL TO <span>MP4</span></div>
+      <div class="tag" style="margin:0;"><div class="tag-dot"></div> RapidAPI</div>
+    </div>
+
+    <div class="m-hero">
+      <div class="m-hero-title">DOWNLOAD<br><em>REELS</em></div>
+      <p class="m-hero-sub">Paste an Instagram Reel URL below and tap Fetch to get your .mp4.</p>
+    </div>
+
+    <div class="m-main">
+      <div>
+        <span class="m-field-label">Instagram Reel URL</span>
+        <div class="m-input-row">
+          <input type="text" id="m-reel-url" placeholder="https://www.instagram.com/reel/…" onkeydown="if(event.key==='Enter'){this.blur();mFetch();}"/>
+          <button class="m-paste" onclick="pasteURL('m-reel-url')" title="Paste">📋</button>
+        </div>
+      </div>
+      <button class="m-btn" id="m-fetch-btn" onclick="mFetch()">FETCH</button>
+      <div class="m-status" id="m-status">
+        <div class="spinner" id="m-spinner" style="display:none;"></div>
+        <span id="m-status-text"></span>
+      </div>
+      <div class="m-result-card" id="m-result-card">
+        <div class="m-result-meta" id="m-result-meta"></div>
+        <div id="m-dl-grid"></div>
+      </div>
+    </div>
+
+    <div class="m-divider"><span>Recent downloads</span></div>
+    <div class="m-hist-list" id="m-hist-list">
+      <div class="m-hist-empty" id="m-hist-empty">No downloads yet.</div>
+    </div>
+
+    <div class="m-footer">uses <a href="https://rapidapi.com/7scorp-7scorp-default/api/instagram-downloader-download-instagram-videos-stories" target="_blank">Instagram Downloader API</a> via RapidAPI</div>
   </div>
 
 <script>
 const LS = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k,v) => { try { localStorage.setItem(k,v); } catch{} } };
-
 const API_HOST = 'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com';
 const API_URL  = `https://${API_HOST}/index`;
 const API_KEY  = '16571dc8admsh89af81f1822f2b9p132515jsn004212588c7d';
 
 let dlHistory = [];
 try { dlHistory = JSON.parse(LS.get('reel_history') || '[]'); } catch {}
-
 renderHistory();
 
-async function pasteURL() {
-  try { document.getElementById('reel-url').value = await navigator.clipboard.readText(); }
-  catch { document.getElementById('reel-url').focus(); }
+async function pasteURL(id) {
+  try { document.getElementById(id).value = await navigator.clipboard.readText(); }
+  catch { document.getElementById(id).focus(); }
 }
 
-async function fetchReel() {
-  const url = document.getElementById('reel-url').value.trim();
-  if (!url) { setStatus('error', 'Please enter a Reel URL.'); return; }
-  if (!url.includes('instagram.com')) { setStatus('error', "That doesn't look like an Instagram URL."); return; }
-
-  document.getElementById('fetch-btn').disabled = true;
-  document.getElementById('result-wrap').classList.remove('show');
-  setStatus('loading', 'Fetching…');
-
-  let data;
+async function callAPI(url) {
   try {
     const res = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`, {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': API_KEY,
-        'x-rapidapi-host': API_HOST,
-      },
+      method: 'GET', headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': API_HOST }
     });
-    data = await res.json();
-  } catch (e) {
-    setStatus('error', `Request failed: ${e.message}`);
-    document.getElementById('fetch-btn').disabled = false;
-    return;
-  }
-
-  document.getElementById('fetch-btn').disabled = false;
-
-  if (data.message) {
-    if (data.message.toLowerCase().includes('subscribe') || data.message.toLowerCase().includes('quota')) {
-      setStatus('error', `API limit reached: ${data.message}`);
-    } else if (data.message.toLowerCase().includes('invalid') || data.message.toLowerCase().includes('key')) {
-      setStatus('error', 'Invalid API key.');
-    } else {
-      setStatus('error', `API error: ${data.message}`);
+    const data = await res.json();
+    if (data.message) {
+      const m = data.message.toLowerCase();
+      if (m.includes('subscribe') || m.includes('quota')) return { err: `API limit reached: ${data.message}` };
+      if (m.includes('invalid') || m.includes('key')) return { err: 'Invalid API key.' };
+      return { err: `API error: ${data.message}` };
     }
-    return;
-  }
-
-  const mediaUrl = Array.isArray(data.url) ? data.url[0] : (data.url || data.video_url || data.media);
-  if (!mediaUrl) {
-    setStatus('error', 'No video found — make sure the Reel is public.');
-    return;
-  }
-
-  setStatus('ok', 'Ready — download below ↓');
-  renderResult(data, url, mediaUrl);
+    return { data };
+  } catch (e) { return { err: `Request failed: ${e.message}` }; }
 }
 
-function renderResult(data, sourceURL, mediaUrl) {
-  const wrap = document.getElementById('result-wrap');
-  const metaEl = document.getElementById('result-meta');
-  const dlGrid = document.getElementById('dl-grid');
-  dlGrid.innerHTML = ''; metaEl.textContent = '';
-  wrap.classList.add('show');
+function dlIcon() { return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
 
-  const urls = Array.isArray(data.url) ? data.url : [mediaUrl];
-  const filename = `reel-${Date.now()}.mp4`;
-  metaEl.textContent = `↳ ${urls.length} file(s) found`;
-
+// Desktop
+async function fetchReel() {
+  const url = document.getElementById('reel-url').value.trim();
+  if (!url) { dSetStatus('error', 'Please enter a Reel URL.'); return; }
+  if (!url.includes('instagram.com')) { dSetStatus('error', "That doesn't look like an Instagram URL."); return; }
+  document.getElementById('fetch-btn').disabled = true;
+  document.getElementById('result-wrap').classList.remove('show');
+  dSetStatus('loading', 'Fetching…');
+  const { data, err } = await callAPI(url);
+  document.getElementById('fetch-btn').disabled = false;
+  if (err) { dSetStatus('error', err); return; }
+  const media = Array.isArray(data.url) ? data.url[0] : (data.url || data.video_url || data.media);
+  if (!media) { dSetStatus('error', 'No video found — make sure the Reel is public.'); return; }
+  dSetStatus('ok', 'Ready — download below ↓');
+  const urls = Array.isArray(data.url) ? data.url : [media];
+  const fname = `reel-${Date.now()}.mp4`;
+  document.getElementById('result-meta').textContent = `↳ ${urls.length} file(s) found`;
+  const grid = document.getElementById('dl-grid'); grid.innerHTML = '';
   urls.forEach((u, i) => {
-    const fname = urls.length > 1 ? `reel-${i+1}.mp4` : filename;
-    dlGrid.appendChild(makeDLBtn(u, fname, urls.length > 1 ? `version ${i+1}` : null));
+    const f = urls.length > 1 ? `reel-${i+1}.mp4` : fname;
+    const a = document.createElement('a');
+    a.className = 'dl-btn'; a.href = u; a.download = f; a.target = '_blank';
+    a.innerHTML = dlIcon() + (urls.length > 1 ? `version ${i+1}` : f);
+    grid.appendChild(a);
   });
-
-  addToHistory(sourceURL, urls[0], filename);
+  document.getElementById('result-wrap').classList.add('show');
+  addToHistory(url, urls[0], fname);
 }
-
-function makeDLBtn(url, filename, label) {
-  const a = document.createElement('a');
-  a.className = 'dl-btn'; a.href = url; a.download = filename; a.target = '_blank';
-  a.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>${label || filename}`;
-  return a;
-}
-
-function setStatus(type, msg) {
+function dSetStatus(type, msg) {
   const row = document.getElementById('status-row');
   row.className = `status-row visible ${type}`;
   document.getElementById('spinner').style.display = type === 'loading' ? 'block' : 'none';
   document.getElementById('status-text').textContent = msg;
+}
+
+// Mobile
+async function mFetch() {
+  const url = document.getElementById('m-reel-url').value.trim();
+  if (!url) { mSetStatus('error', 'Please enter a Reel URL.'); return; }
+  if (!url.includes('instagram.com')) { mSetStatus('error', "That doesn't look like an Instagram URL."); return; }
+  document.getElementById('m-fetch-btn').disabled = true;
+  document.getElementById('m-result-card').classList.remove('show');
+  mSetStatus('loading', 'Fetching…');
+  const { data, err } = await callAPI(url);
+  document.getElementById('m-fetch-btn').disabled = false;
+  if (err) { mSetStatus('error', err); return; }
+  const media = Array.isArray(data.url) ? data.url[0] : (data.url || data.video_url || data.media);
+  if (!media) { mSetStatus('error', 'No video found — make sure the Reel is public.'); return; }
+  mSetStatus('ok', 'Ready — tap to download ↓');
+  const urls = Array.isArray(data.url) ? data.url : [media];
+  const fname = `reel-${Date.now()}.mp4`;
+  document.getElementById('m-result-meta').textContent = `↳ ${urls.length} file(s) found`;
+  const grid = document.getElementById('m-dl-grid'); grid.innerHTML = '';
+  urls.forEach((u, i) => {
+    const f = urls.length > 1 ? `reel-${i+1}.mp4` : fname;
+    const a = document.createElement('a');
+    a.className = 'm-dl-btn'; a.href = u; a.download = f; a.target = '_blank';
+    a.style.marginBottom = i < urls.length - 1 ? '8px' : '0';
+    a.innerHTML = dlIcon() + (urls.length > 1 ? `version ${i+1}` : f);
+    grid.appendChild(a);
+  });
+  document.getElementById('m-result-card').classList.add('show');
+  addToHistory(url, urls[0], fname);
+}
+function mSetStatus(type, msg) {
+  const el = document.getElementById('m-status');
+  el.className = `m-status visible ${type}`;
+  document.getElementById('m-spinner').style.display = type === 'loading' ? 'block' : 'none';
+  document.getElementById('m-status-text').textContent = msg;
 }
 
 function addToHistory(sourceURL, dlURL, filename) {
@@ -235,16 +356,27 @@ function addToHistory(sourceURL, dlURL, filename) {
 }
 
 function renderHistory() {
-  const list = document.getElementById('history-list');
-  list.querySelectorAll('.history-row').forEach(el => el.remove());
+  // Desktop
+  const dList = document.getElementById('history-list');
+  dList.querySelectorAll('.history-row').forEach(el => el.remove());
   document.getElementById('history-empty').style.display = dlHistory.length ? 'none' : 'block';
   dlHistory.forEach(h => {
     let short = h.sourceURL;
     try { short = new URL(h.sourceURL).pathname.slice(0,36) + '…'; } catch {}
-    const row = document.createElement('div');
-    row.className = 'history-row';
+    const row = document.createElement('div'); row.className = 'history-row';
     row.innerHTML = `<span class="h-check">✓</span><span class="h-url" title="${h.sourceURL}">${short}</span><a class="h-link" href="${h.dlURL}" download="${h.filename}" target="_blank">↓ ${h.filename}</a>`;
-    list.appendChild(row);
+    dList.appendChild(row);
+  });
+  // Mobile
+  const mList = document.getElementById('m-hist-list');
+  mList.querySelectorAll('.m-hist-row').forEach(el => el.remove());
+  document.getElementById('m-hist-empty').style.display = dlHistory.length ? 'none' : 'block';
+  dlHistory.forEach(h => {
+    let short = h.sourceURL;
+    try { short = new URL(h.sourceURL).pathname.slice(0,36) + '…'; } catch {}
+    const row = document.createElement('div'); row.className = 'm-hist-row';
+    row.innerHTML = `<span class="m-hist-check">✓</span><span class="m-hist-url" title="${h.sourceURL}">${short}</span><a class="m-hist-link" href="${h.dlURL}" download="${h.filename}" target="_blank">↓ mp4</a>`;
+    mList.appendChild(row);
   });
 }
 </script>

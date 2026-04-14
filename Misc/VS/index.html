@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Code Editor</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -9,16 +10,12 @@
 html,body{height:100%;overflow:hidden;}
 body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;color:#cccccc;display:flex;flex-direction:column;font-size:13px;}
 
-/* ─── MENU BAR (the ONLY top bar) ─────────── */
-#menubar{
-  height:30px;background:#3c3c3c;display:flex;align-items:center;
-  padding:0 0 0 8px;flex-shrink:0;position:relative;z-index:500;
-  border-bottom:1px solid #252526;
-}
+/* ─── MENU BAR ─────────── */
+#menubar{height:30px;background:#3c3c3c;display:flex;align-items:center;padding:0 0 0 8px;flex-shrink:0;position:relative;z-index:500;border-bottom:1px solid #252526;}
 .mbi{padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;color:#cccccc;height:24px;display:flex;align-items:center;white-space:nowrap;position:relative;}
 .mbi:hover,.mbi.open{background:rgba(255,255,255,.12);}
 
-/* ─── DROPDOWN MENUS ───────────────────────── */
+/* ─── DROPDOWN MENUS ─── */
 .ddm{position:fixed;background:#252526;border:1px solid #454545;box-shadow:4px 6px 18px rgba(0,0,0,.7);z-index:9999;min-width:240px;padding:4px 0;font-size:12px;display:none;}
 .ddm.vis{display:block;}
 .ddi{padding:3px 12px 3px 28px;height:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;color:#cccccc;position:relative;white-space:nowrap;}
@@ -30,10 +27,10 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .ddi .arr{font-size:9px;}
 .dds{height:1px;background:#3c3c3c;margin:3px 0;}
 
-/* ─── MAIN LAYOUT ──────────────────────────── */
+/* ─── MAIN LAYOUT ─── */
 #main{display:flex;flex:1;overflow:hidden;}
 
-/* ─── ACTIVITY BAR ─────────────────────────── */
+/* ─── ACTIVITY BAR ─── */
 #actbar{width:48px;background:#333333;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
 .abt{display:flex;flex-direction:column;flex:1;align-items:center;padding-top:2px;}
 .abb{display:flex;flex-direction:column;align-items:center;padding-bottom:6px;}
@@ -44,25 +41,19 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .ab svg{width:24px;height:24px;}
 .ab .badge{position:absolute;top:8px;right:4px;background:#007acc;color:#fff;border-radius:10px;font-size:9px;min-width:16px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;font-weight:600;}
 
-/* ─── SIDEBAR ───────────────────────────────── */
+/* ─── SIDEBAR ─── */
 #sidebar{width:240px;background:#252526;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
 #sidebar.hide{width:0;}
 #sbr{width:5px;cursor:col-resize;flex-shrink:0;background:transparent;}
 #sbr:hover,#sbr.drag{background:#007acc;}
-
-/* Sidebar panel header */
 .sph{height:22px;padding:0 12px 0 8px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.08em;color:#bbbbbb;text-transform:uppercase;flex-shrink:0;cursor:default;user-select:none;margin-top:2px;}
 .sph:hover .spha{opacity:1;}
 .spha{opacity:0;display:flex;gap:2px;}
 .sphb{width:20px;height:20px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#858585;}
 .sphb:hover{background:#3c3c3c;color:#cccccc;}
 .sphb svg{width:14px;height:14px;}
-
-/* Panel */
 .pnl{display:none;flex-direction:column;height:100%;overflow:hidden;}
 .pnl.vis{display:flex;}
-
-/* File list */
 #fl{flex:1;overflow-y:auto;}
 #fl::-webkit-scrollbar{width:6px;}
 #fl::-webkit-scrollbar-thumb{background:#424242;}
@@ -77,11 +68,8 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .fi.mod:hover .fdot{display:none;}
 .fab{width:18px;height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#858585;line-height:1;}
 .fab:hover{background:#4c4c4c;color:#cccccc;}
-
 #dz{margin:8px;border:1px dashed #555;border-radius:3px;padding:16px 8px;text-align:center;font-size:11px;color:#858585;cursor:pointer;line-height:1.8;}
 #dz:hover,#dz.ov{border-color:#007acc;color:#007acc;background:rgba(0,122,204,.04);}
-
-/* Search panel */
 .srchbox{height:26px;background:#3c3c3c;border:1px solid #3c3c3c;border-radius:2px;display:flex;align-items:center;padding:0 6px;gap:4px;margin:4px 8px;}
 .srchbox:focus-within{border-color:#007acc;}
 .srchbox input{flex:1;background:none;border:none;outline:none;color:#cccccc;font-size:13px;}
@@ -94,10 +82,8 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .srm:hover{background:#2a2d2e;color:#ccc;}
 .srh{color:#f5a623;}
 
-/* ─── EDITOR AREA ───────────────────────────── */
+/* ─── EDITOR AREA ─── */
 #ea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
-
-/* Tabs */
 #tabs{height:35px;background:#2d2d2d;display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0;border-bottom:1px solid #252526;}
 #tabs::-webkit-scrollbar{height:3px;}
 #tabs::-webkit-scrollbar-thumb{background:#555;}
@@ -110,18 +96,12 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .tab:hover .tx,.tab.on .tx{opacity:1;}
 .tab:hover .tx:hover,.tab.on .tx:hover{color:#fff;}
 .tab .tdot{width:8px;height:8px;border-radius:50%;background:#cccccc;flex-shrink:0;margin-left:auto;margin-right:9px;cursor:pointer;}
-
-/* Breadcrumbs */
 #bc{height:22px;background:#1e1e1e;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#858585;border-bottom:1px solid #252526;flex-shrink:0;overflow:hidden;white-space:nowrap;}
 .bcs{cursor:pointer;padding:0 2px;display:inline-flex;align-items:center;gap:3px;}
 .bcs:hover{color:#ccc;}
 .bcarr{padding:0 2px;color:#555;}
-
-/* Editor */
 #ew{flex:1;display:flex;overflow:hidden;position:relative;}
 #monaco{flex:1;display:none;}
-
-/* Welcome screen - clean, no weird symbols */
 #welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#1e1e1e;}
 #welcome .wlogo{display:flex;align-items:center;gap:14px;}
 #welcome .wlogo svg{width:52px;height:52px;}
@@ -133,19 +113,14 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .wb.p{background:#0e639c;border-color:#0e639c;color:#fff;}
 .wb.p:hover{background:#1177bb;}
 
-/* Right gutter — problems panel stub */
-#problems-gutter{width:0;background:#252526;overflow:hidden;position:relative;}
-
-/* ─── STATUS BAR ────────────────────────────── */
+/* ─── STATUS BAR ─── */
 #sb{height:22px;background:#007acc;display:flex;align-items:center;font-size:11px;color:#fff;flex-shrink:0;user-select:none;}
 .sbi{padding:0 8px;height:22px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .sbi:hover{background:rgba(255,255,255,.15);}
 .sbi svg{width:13px;height:13px;}
 #sbr2{margin-left:auto;display:flex;}
-/* Clickable language in status bar opens language picker */
-#sb-lang{cursor:pointer;}
 
-/* ─── LANGUAGE PICKER (like Image 1) ────────── */
+/* ─── LANGUAGE PICKER ─── */
 #langpick{position:fixed;top:0;left:50%;transform:translateX(-50%);width:500px;background:#252526;border:1px solid #454545;z-index:9998;display:none;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.6);}
 #langpick.vis{display:flex;}
 #lpinput{background:#252526;border:none;border-bottom:1px solid #454545;outline:none;color:#cccccc;font-size:13px;padding:8px 12px;width:100%;}
@@ -155,7 +130,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .lpi .lpid{color:#6d6d6d;font-size:11px;}
 .lpi:hover .lpid,.lpi.sel .lpid{color:#bbb;}
 
-/* ─── CONTEXT MENU ──────────────────────────── */
+/* ─── CONTEXT MENU ─── */
 #ctx{position:fixed;background:#252526;border:1px solid #454545;box-shadow:4px 4px 12px rgba(0,0,0,.6);z-index:9997;min-width:160px;padding:4px 0;font-size:12px;display:none;}
 #ctx.vis{display:block;}
 .cxi{padding:4px 12px;height:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;}
@@ -165,7 +140,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .cxr{color:#f48771;}
 .cxs{height:1px;background:#454545;margin:3px 0;}
 
-/* ─── NEW FILE DIALOG ───────────────────────── */
+/* ─── NEW FILE DIALOG ─── */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:5000;display:none;align-items:flex-start;justify-content:center;padding-top:80px;}
 #overlay.vis{display:flex;}
 #dlg{background:#252526;border:1px solid #454545;min-width:380px;border-radius:2px;box-shadow:0 8px 32px rgba(0,0,0,.7);}
@@ -179,22 +154,137 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
 .dbtn.ok{background:#0e639c;border-color:#0e639c;color:#fff;}
 .dbtn.ok:hover{background:#1177bb;}
 
-/* ─── TOAST ─────────────────────────────────── */
+/* ─── TOAST ─── */
 #toast{position:fixed;bottom:28px;right:16px;background:#252526;border:1px solid #454545;border-radius:2px;padding:6px 12px;font-size:12px;color:#ccc;z-index:8000;box-shadow:0 4px 12px rgba(0,0,0,.5);display:none;max-width:340px;}
 #toast.vis{display:block;}
-
-/* File icon dot */
 .fic{display:inline-flex;align-items:center;justify-content:center;border-radius:2px;font-size:9px;font-weight:800;font-family:monospace;flex-shrink:0;}
 
 ::-webkit-scrollbar{width:10px;height:10px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#424242;}
 ::-webkit-scrollbar-thumb:hover{background:#555;}
+
+/* ══════════════════════════════════════
+   MOBILE VIEW — shown only on phones
+   Desktop view hidden on small screens
+══════════════════════════════════════ */
+.mobile-only { display: none; }
+
+@media (max-width: 700px) {
+  /* Hide the entire desktop editor */
+  #menubar, #main, #sb { display: none !important; }
+  #overlay, #toast, #ctx, #langpick { display: none !important; }
+  #overlay.vis { display: none !important; }
+
+  body { overflow: auto; background: #141414; }
+
+  .mobile-only { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Top bar */
+  .m-bar {
+    background: #1e1e1e; border-bottom: 1px solid #2d2d2d;
+    padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .m-bar-left { display: flex; align-items: center; gap: 10px; }
+  .m-bar-icon { width: 28px; height: 28px; }
+  .m-bar-title { font-size: 15px; font-weight: 600; color: #ccc; letter-spacing: -0.2px; }
+  .m-bar-badge {
+    font-size: 10px; color: #007acc; border: 1px solid #007acc;
+    border-radius: 3px; padding: 1px 6px; font-family: monospace;
+  }
+
+  /* Notice card */
+  .m-notice {
+    margin: 16px; border-radius: 6px; background: #1e1e1e;
+    border: 1px solid #2d2d2d; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .m-notice-head { display: flex; align-items: center; gap: 10px; }
+  .m-notice-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: #0e639c22;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .m-notice-icon svg { width: 18px; height: 18px; color: #007acc; }
+  .m-notice-title { font-size: 14px; font-weight: 600; color: #ccc; }
+  .m-notice-sub { font-size: 12px; color: #666; margin-top: 2px; }
+  .m-notice-body { font-size: 12px; color: #858585; line-height: 1.7; }
+  .m-notice-body strong { color: #aaa; font-weight: 500; }
+
+  /* Action buttons */
+  .m-actions { display: flex; flex-direction: column; gap: 8px; margin: 0 16px; }
+  .m-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 8px;
+    padding: 14px 16px; cursor: pointer; text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-btn:active { background: #252526; }
+  .m-btn-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .m-btn-icon.blue { background: #007acc22; }
+  .m-btn-icon.green { background: #44e8a022; }
+  .m-btn-icon.orange { background: #f5a62322; }
+  .m-btn-icon svg { width: 18px; height: 18px; }
+  .m-btn-icon.blue svg { color: #007acc; }
+  .m-btn-icon.green svg { color: #44e8a0; }
+  .m-btn-icon.orange svg { color: #f5a623; }
+  .m-btn-text { flex: 1; }
+  .m-btn-label { font-size: 13px; color: #ccc; font-weight: 500; }
+  .m-btn-hint { font-size: 11px; color: #555; margin-top: 2px; }
+  .m-btn-arrow { color: #444; font-size: 16px; }
+
+  /* File list */
+  .m-section-label {
+    font-size: 10px; font-family: monospace; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #555; padding: 20px 16px 8px;
+  }
+  .m-file-list { margin: 0 16px; display: flex; flex-direction: column; gap: 6px; }
+  .m-file-empty { font-size: 12px; color: #555; text-align: center; padding: 20px; font-style: italic; }
+  .m-file-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .m-file-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; font-family: monospace; flex-shrink: 0;
+  }
+  .m-file-info { flex: 1; min-width: 0; }
+  .m-file-name { font-size: 13px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-file-meta { font-size: 11px; color: #555; margin-top: 2px; }
+  .m-file-dl {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid #2d2d2d;
+    color: #555; background: none; cursor: pointer; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent; font-size: 16px; text-decoration: none;
+  }
+  .m-file-dl:active { background: #252526; color: #ccc; }
+
+  /* Footer */
+  .m-footer {
+    margin-top: auto; padding: 24px 16px 40px;
+    font-size: 11px; color: #444; text-align: center; line-height: 1.8; font-family: monospace;
+  }
+  .m-footer a { color: #555; text-decoration: none; }
+
+  /* Toast for mobile */
+  #m-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #252526; border: 1px solid #454545; border-radius: 20px;
+    padding: 8px 16px; font-size: 12px; color: #ccc; z-index: 9000;
+    box-shadow: 0 4px 20px rgba(0,0,0,.6); white-space: nowrap;
+    display: none; pointer-events: none;
+  }
+  #m-toast.vis { display: block; }
+}
 </style>
 </head>
 <body>
 
-<!-- ██ SINGLE TOP BAR: File Edit Selection View Go Run Terminal Help ██ -->
+<!-- ██ MENU BAR ██ -->
 <div id="menubar">
   <div class="mbi" data-m="file"       onclick="OM('file',this)">File</div>
   <div class="mbi" data-m="edit"       onclick="OM('edit',this)">Edit</div>
@@ -206,7 +296,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="mbi" data-m="help"       onclick="OM('help',this)">Help</div>
 </div>
 
-<!-- ██ FILE MENU ██ -->
+<!-- FILE MENU -->
 <div class="ddm" id="dd-file">
   <div class="ddi" onclick="A('new')">New Text File <span class="ks">Ctrl+N</span></div>
   <div class="ddi" onclick="A('new')">New File… <span class="ks">Ctrl+Alt+N</span></div>
@@ -239,7 +329,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi dim">Exit</div>
 </div>
 
-<!-- ██ EDIT MENU ██ -->
+<!-- EDIT MENU -->
 <div class="ddm" id="dd-edit">
   <div class="ddi" onclick="ME('undo')">Undo <span class="ks">Ctrl+Z</span></div>
   <div class="ddi" onclick="ME('redo')">Redo <span class="ks">Ctrl+Y</span></div>
@@ -271,7 +361,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi" onclick="EA('editor.action.duplicateSelection')">Duplicate Selection</div>
 </div>
 
-<!-- ██ SELECTION MENU ██ -->
+<!-- SELECTION MENU -->
 <div class="ddm" id="dd-selection">
   <div class="ddi" onclick="EA('editor.action.selectAll')">Select All <span class="ks">Ctrl+A</span></div>
   <div class="ddi" onclick="EA('expandLineSelection')">Expand Selection <span class="ks">Ctrl+L</span></div>
@@ -298,7 +388,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi dim">Column Selection Mode</div>
 </div>
 
-<!-- ██ VIEW MENU ██ -->
+<!-- VIEW MENU -->
 <div class="ddm" id="dd-view">
   <div class="ddi" onclick="A('sidebar')">Toggle Primary Side Bar <span class="ks">Ctrl+B</span></div>
   <div class="ddi" onclick="SP('search')">Toggle Search <span class="ks">Ctrl+Shift+F</span></div>
@@ -314,7 +404,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi" onclick="A('problems')">Toggle Problems Panel</div>
 </div>
 
-<!-- ██ GO MENU ██ -->
+<!-- GO MENU -->
 <div class="ddm" id="dd-go">
   <div class="ddi" onclick="EA('workbench.action.gotoLine')">Go to Line/Column… <span class="ks">Ctrl+G</span></div>
   <div class="dds"></div>
@@ -330,7 +420,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi" onclick="EA('editor.action.marker.prev')">Go to Previous Problem <span class="ks">Shift+F8</span></div>
 </div>
 
-<!-- ██ RUN MENU — all wired to real Monaco/browser actions ██ -->
+<!-- RUN MENU -->
 <div class="ddm" id="dd-run">
   <div class="ddi" onclick="A('runfile')">Run Current File <span class="ks">Ctrl+F5</span></div>
   <div class="dds"></div>
@@ -344,7 +434,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi dim">Remove All Breakpoints</div>
 </div>
 
-<!-- ██ TERMINAL MENU ██ -->
+<!-- TERMINAL MENU -->
 <div class="ddm" id="dd-terminal">
   <div class="ddi" onclick="A('terminal')">New Terminal <span class="ks">Ctrl+`</span></div>
   <div class="dds"></div>
@@ -357,7 +447,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi dim">Configure Tasks…</div>
 </div>
 
-<!-- ██ HELP MENU ██ -->
+<!-- HELP MENU -->
 <div class="ddm" id="dd-help">
   <div class="ddi" onclick="A('welcome')">Welcome</div>
   <div class="ddi" onclick="EA('editor.action.quickCommand')">Show All Commands <span class="ks">Ctrl+Shift+P</span></div>
@@ -383,80 +473,47 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   <div class="ddi" onclick="A('about')">About</div>
 </div>
 
-<!-- ██ MAIN ██ -->
+<!-- ██ MAIN (desktop) ██ -->
 <div id="main">
-
   <!-- ACTIVITY BAR -->
   <div id="actbar">
     <div class="abt">
       <div class="ab on" id="ab-e" title="Explorer (Ctrl+Shift+E)" onclick="SP('explorer')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-          <path d="M3 7a2 2 0 012-2h3.172a2 2 0 011.414.586L10.414 7H19a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linejoin="round"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 7a2 2 0 012-2h3.172a2 2 0 011.414.586L10.414 7H19a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linejoin="round"/></svg>
       </div>
       <div class="ab" id="ab-s" title="Search (Ctrl+Shift+F)" onclick="SP('search')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="7.5"/>
-          <path d="m16.5 16.5 4.5 4.5" stroke-linecap="round"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7.5"/><path d="m16.5 16.5 4.5 4.5" stroke-linecap="round"/></svg>
       </div>
-      <div class="ab" id="ab-g" title="Source Control (Ctrl+Shift+G)" onclick="SP('git')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/>
-          <path d="M6 8v8" stroke-linecap="round"/>
-          <path d="M8 6h6a4 4 0 014 4v2a3 3 0 003 3" stroke-linecap="round"/>
-        </svg>
+      <div class="ab" id="ab-g" title="Source Control" onclick="SP('git')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><path d="M6 8v8" stroke-linecap="round"/><path d="M8 6h6a4 4 0 014 4v2a3 3 0 003 3" stroke-linecap="round"/></svg>
       </div>
-      <div class="ab" id="ab-d" title="Run and Debug (Ctrl+Shift+D)" onclick="SP('debug')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M6.5 5.5l11 6.5-11 6.5V5.5z" stroke-linejoin="round"/>
-          <circle cx="18.5" cy="5.5" r="2" fill="currentColor" stroke="none"/>
-          <path d="M16.5 5.5h-11" stroke-linecap="round"/>
-          <circle cx="5.5" cy="18.5" r="2" fill="none" stroke="currentColor"/>
-          <path d="M16.5 18.5h-11" stroke-linecap="round"/>
-        </svg>
+      <div class="ab" id="ab-d" title="Run and Debug" onclick="SP('debug')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 5.5l11 6.5-11 6.5V5.5z" stroke-linejoin="round"/><circle cx="18.5" cy="5.5" r="2" fill="currentColor" stroke="none"/><path d="M16.5 5.5h-11" stroke-linecap="round"/><circle cx="5.5" cy="18.5" r="2" fill="none" stroke="currentColor"/><path d="M16.5 18.5h-11" stroke-linecap="round"/></svg>
       </div>
-      <div class="ab" id="ab-x" title="Extensions (Ctrl+Shift+X)" onclick="SP('ext')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M4 7h4V3m-4 4v4m0-4H2m16-4h2v2m-2-2v4m0-4h-2M4 17h-2v2m2-2v4m0-4h4m12-4h2v2m-2-2v-4m0 4h-2M4 17h4v4m12-8h-4v4m4-4v4m0-4h2"/>
-        </svg>
+      <div class="ab" id="ab-x" title="Extensions" onclick="SP('ext')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h4V3m-4 4v4m0-4H2m16-4h2v2m-2-2v4m0-4h-2M4 17h-2v2m2-2v4m0-4h4m12-4h2v2m-2-2v-4m0 4h-2M4 17h4v4m12-8h-4v4m4-4v4m0-4h2"/></svg>
       </div>
     </div>
     <div class="abb">
-      <div class="ab" id="ab-acc" title="Accounts" onclick="toast('Sign in to sync settings across devices')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke-linecap="round"/>
-        </svg>
+      <div class="ab" title="Accounts" onclick="toast('Sign in to sync settings across devices')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke-linecap="round"/></svg>
       </div>
-      <div class="ab" id="ab-set" title="Manage" onclick="A('settings')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="round"/>
-        </svg>
+      <div class="ab" title="Manage" onclick="A('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="round"/></svg>
       </div>
     </div>
   </div>
 
   <!-- SIDEBAR -->
   <div id="sidebar">
-
-    <!-- Explorer -->
     <div class="pnl vis" id="pnl-explorer">
       <div class="sph">
         <span>Explorer</span>
         <div class="spha">
-          <div class="sphb" title="New File (Ctrl+N)" onclick="newFileDlg()">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 1.1l3.4 3.5.1.4v2h-1V5H8V1H3v14h4v1H2.5l-.5-.5v-15l.5-.5h6.7l.3.1zM9 5h2.9L9 2.1V5zm4 9v-2h-2v-1h2V9h1v2h2v1h-2v2h-1z"/></svg>
-          </div>
-          <div class="sphb" title="Open File (Ctrl+O)" onclick="A('import')">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 3h-4.7L7.3 1.5 6.7 1H1.5l-.5.5v12l.5.5h12l.5-.5V3.5l-.5-.5zm-.5 10H2V2h4.3l1.5 1.5.4.5H13v9z"/></svg>
-          </div>
-          <div class="sphb" title="Download All as ZIP" onclick="A('dlall')">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.646 11.854a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V1.5a.5.5 0 00-1 0v8.793L5.354 8.146a.5.5 0 10-.708.708l3 3zM2 13.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg>
-          </div>
-          <div class="sphb" title="Collapse All" onclick="toast('All folders collapsed')">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9 9H4v1h5V9zm0-4H4v1h5V5zM5 13l3 2 3-2H9V8H7v5H5z"/></svg>
-          </div>
+          <div class="sphb" title="New File" onclick="newFileDlg()"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 1.1l3.4 3.5.1.4v2h-1V5H8V1H3v14h4v1H2.5l-.5-.5v-15l.5-.5h6.7l.3.1zM9 5h2.9L9 2.1V5zm4 9v-2h-2v-1h2V9h1v2h2v1h-2v2h-1z"/></svg></div>
+          <div class="sphb" title="Open File" onclick="A('import')"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 3h-4.7L7.3 1.5 6.7 1H1.5l-.5.5v12l.5.5h12l.5-.5V3.5l-.5-.5zm-.5 10H2V2h4.3l1.5 1.5.4.5H13v9z"/></svg></div>
+          <div class="sphb" title="Download All as ZIP" onclick="A('dlall')"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.646 11.854a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V1.5a.5.5 0 00-1 0v8.793L5.354 8.146a.5.5 0 10-.708.708l3 3zM2 13.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg></div>
+          <div class="sphb" title="Collapse All" onclick="toast('All folders collapsed')"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M9 9H4v1h5V9zm0-4H4v1h5V5zM5 13l3 2 3-2H9V8H7v5H5z"/></svg></div>
         </div>
       </div>
       <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
@@ -467,118 +524,66 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
         </div>
       </div>
     </div>
-
-    <!-- Search -->
     <div class="pnl" id="pnl-search">
-      <div class="sph" style="opacity:1;">
-        <span>Search</span>
+      <div class="sph" style="opacity:1;"><span>Search</span>
         <div style="display:flex;gap:2px;opacity:1;">
-          <div class="sphb" id="opt-c" title="Match Case (Alt+C)" onclick="toggleOpt('c')">Aa</div>
-          <div class="sphb" id="opt-w" title="Match Whole Word (Alt+W)" onclick="toggleOpt('w')">ab</div>
-          <div class="sphb" id="opt-r" title="Use Regex (Alt+R)" onclick="toggleOpt('r')">.*</div>
+          <div class="sphb" id="opt-c" title="Match Case" onclick="toggleOpt('c')">Aa</div>
+          <div class="sphb" id="opt-w" title="Match Whole Word" onclick="toggleOpt('w')">ab</div>
+          <div class="sphb" id="opt-r" title="Use Regex" onclick="toggleOpt('r')">.*</div>
         </div>
       </div>
       <div class="srchbox"><svg width="13" height="13" viewBox="0 0 16 16" fill="#858585" style="flex-shrink:0"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.115-.1zM12 6.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"/></svg><input id="sq" placeholder="Search" oninput="doSearch(this.value)"></div>
-      <div id="sc"></div>
-      <div id="srl"></div>
+      <div id="sc"></div><div id="srl"></div>
     </div>
-
-    <!-- Git -->
     <div class="pnl" id="pnl-git">
       <div class="sph"><span>Source Control</span></div>
       <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
-      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">
-        No source control providers registered.<br><br>
-        <span style="color:#3794ff;cursor:pointer" onclick="toast('Open a folder with a git repository to use source control')">How to use Git with VS Code</span>
-      </div>
+      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">No source control providers registered.<br><br><span style="color:#3794ff;cursor:pointer" onclick="toast('Open a folder with a git repository to use source control')">How to use Git with VS Code</span></div>
     </div>
-
-    <!-- Debug -->
     <div class="pnl" id="pnl-debug">
       <div class="sph"><span>Run and Debug</span></div>
       <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
-      <div style="padding:16px 12px;font-size:12px;color:#ccc;line-height:1.7;">
-        To customize Run and Debug,<br>open a folder and create a<br>launch.json file.<br><br>
-        <div onclick="A('runfile')" style="display:inline-flex;align-items:center;gap:6px;background:#0e639c;color:#fff;padding:5px 12px;border-radius:2px;cursor:pointer;font-size:12px;margin-top:4px;">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 3l9 5-9 5V3z"/></svg>
-          Run File
-        </div>
-      </div>
+      <div style="padding:16px 12px;font-size:12px;color:#ccc;line-height:1.7;">To customize Run and Debug,<br>open a folder and create a<br>launch.json file.<br><br><div onclick="A('runfile')" style="display:inline-flex;align-items:center;gap:6px;background:#0e639c;color:#fff;padding:5px 12px;border-radius:2px;cursor:pointer;font-size:12px;margin-top:4px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 3l9 5-9 5V3z"/></svg>Run File</div></div>
     </div>
-
-    <!-- Extensions -->
     <div class="pnl" id="pnl-ext">
       <div class="sph"><span>Extensions</span></div>
       <div style="height:1px;background:#3c3c3c;flex-shrink:0;"></div>
-      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">
-        This editor does not support<br>installing extensions.<br><br>
-        <span style="color:#3794ff;cursor:pointer" onclick="A('docurl')">Browse VS Code Extensions →</span>
-      </div>
+      <div style="padding:16px 12px;font-size:12px;color:#858585;line-height:1.7;">This editor does not support<br>installing extensions.<br><br><span style="color:#3794ff;cursor:pointer" onclick="A('docurl')">Browse VS Code Extensions →</span></div>
     </div>
-
-  </div><!-- /sidebar -->
+  </div>
 
   <!-- RESIZE -->
   <div id="sbr"></div>
 
   <!-- EDITOR AREA -->
   <div id="ea">
-
-    <!-- TABS -->
     <div id="tabs"></div>
-
-    <!-- BREADCRUMBS -->
     <div id="bc">
-      <span class="bcs" style="color:#4ec9b0;">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><path d="M1 3.5A1.5 1.5 0 012.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0115 5.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
-        Project
-      </span>
+      <span class="bcs" style="color:#4ec9b0;"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><path d="M1 3.5A1.5 1.5 0 012.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0115 5.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>Project</span>
       <span class="bcarr"> › </span>
       <span id="bc-f" class="bcs" style="color:#ccc;">No file open</span>
     </div>
-
-    <!-- EDITOR -->
     <div id="ew">
       <div id="welcome">
-        <div class="wlogo">
-          <svg width="52" height="52" viewBox="0 0 100 100">
-            <path d="M73.5 5L24 51.5 5 32.5 0 44l24 24 55-50z" fill="#007acc"/>
-          </svg>
-          <h2>Code Editor</h2>
-        </div>
+        <div class="wlogo"><svg width="52" height="52" viewBox="0 0 100 100"><path d="M73.5 5L24 51.5 5 32.5 0 44l24 24 55-50z" fill="#007acc"/></svg><h2>Code Editor</h2></div>
         <p>Powered by Monaco · A VS Code-style editor in your browser</p>
         <div class="wbtns">
           <button class="wb p" onclick="A('import')">Open File…</button>
           <button class="wb" onclick="newFileDlg()">New File</button>
           <button class="wb" id="wdlall" style="display:none" onclick="A('dlall')">Download All as ZIP</button>
         </div>
-        <p style="font-size:11px;color:#555;line-height:1.9;">
-          <strong style="color:#686868">Supported:</strong> .html .css .js .ts .json .md .py .java .cpp .c .cs .go .rs .php .rb .sh .sql .xml .yaml + more<br>
-          Drag &amp; drop files here · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+O</kbd> open · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+S</kbd> save
-        </p>
+        <p style="font-size:11px;color:#555;line-height:1.9;"><strong style="color:#686868">Supported:</strong> .html .css .js .ts .json .md .py .java .cpp .c .cs .go .rs .php .rb .sh .sql .xml .yaml + more<br>Drag &amp; drop files here · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+O</kbd> open · <kbd style="background:#2a2d2e;padding:1px 4px;border-radius:2px;font-size:10px;color:#ccc;">Ctrl+S</kbd> save</p>
       </div>
       <div id="monaco"></div>
     </div>
-
-  </div><!-- /editor area -->
-</div><!-- /main -->
+  </div>
+</div>
 
 <!-- STATUS BAR -->
 <div id="sb">
-  <div class="sbi" id="sb-branch" onclick="SP('git')" title="Source Control">
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z"/></svg>
-    main
-  </div>
-  <div class="sbi" title="Synchronize Changes">
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.502 6.27A6.5 6.5 0 0113.5 8h-1.5A5 5 0 004.39 6.646L6 8H2V4l1.5 1.5A6.5 6.5 0 012 8H.5a8 8 0 01.002-.73zM13.498 9.73A6.5 6.5 0 012.5 8H4a5 5 0 009.11 1.354L11.5 8H15.5v4L14 10.5A6.5 6.5 0 0113.998 8.73z"/></svg>
-    <span id="sb-sync">0↓ 0↑</span>
-  </div>
-  <div class="sbi" id="sb-errs" onclick="A('problems')" title="Problems">
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8.22 1.754a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368L8.22 1.754zm-1.763-.707c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM9 11a1 1 0 11-2 0 1 1 0 012 0zm-.25-5.25a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z"/></svg>
-    <span id="sb-ec">0</span>&nbsp;
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 110-2 1 1 0 010 2z"/></svg>
-    <span id="sb-wc">0</span>
-  </div>
+  <div class="sbi" id="sb-branch" onclick="SP('git')" title="Source Control"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z"/></svg>main</div>
+  <div class="sbi" title="Synchronize Changes"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.502 6.27A6.5 6.5 0 0113.5 8h-1.5A5 5 0 004.39 6.646L6 8H2V4l1.5 1.5A6.5 6.5 0 012 8H.5a8 8 0 01.002-.73zM13.498 9.73A6.5 6.5 0 012.5 8H4a5 5 0 009.11 1.354L11.5 8H15.5v4L14 10.5A6.5 6.5 0 0113.998 8.73z"/></svg><span id="sb-sync">0↓ 0↑</span></div>
+  <div class="sbi" id="sb-errs" onclick="A('problems')" title="Problems"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8.22 1.754a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368L8.22 1.754zm-1.763-.707c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM9 11a1 1 0 11-2 0 1 1 0 012 0zm-.25-5.25a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z"/></svg><span id="sb-ec">0</span>&nbsp;<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 110-2 1 1 0 010 2z"/></svg><span id="sb-wc">0</span></div>
   <div id="sbr2">
     <div class="sbi" id="sb-pos">Ln 1, Col 1</div>
     <div class="sbi" id="sb-spc">Spaces: 4</div>
@@ -586,10 +591,7 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
     <div class="sbi" id="sb-eol">CRLF</div>
     <div class="sbi" id="sb-lang" onclick="A('langpick')" title="Select Language Mode">Plain Text</div>
     <div class="sbi" id="sb-cnt">0 files</div>
-    <div class="sbi" onclick="toast('Go Live requires a local server — not available in browser')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>
-      Go Live
-    </div>
+    <div class="sbi" onclick="toast('Go Live requires a local server — not available in browser')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>Go Live</div>
   </div>
 </div>
 
@@ -623,10 +625,70 @@ body{font-family:-apple-system,'Segoe UI',Tahoma,sans-serif;background:#1e1e1e;c
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- DESKTOP TOAST -->
 <div id="toast"></div>
-<!-- FILE INPUT -->
+<!-- FILE INPUT (shared) -->
 <input type="file" id="fi" multiple style="display:none" onchange="handleFI(event)">
+
+<!-- ══════════════════════════════════════
+     MOBILE VIEW
+══════════════════════════════════════ -->
+<div class="mobile-only" id="mobile-root">
+  <div class="m-bar">
+    <div class="m-bar-left">
+      <svg class="m-bar-icon" viewBox="0 0 100 100"><path d="M73.5 5L24 51.5 5 32.5 0 44l24 24 55-50z" fill="#007acc"/></svg>
+      <span class="m-bar-title">Code Editor</span>
+    </div>
+    <span class="m-bar-badge">Monaco</span>
+  </div>
+
+  <div class="m-notice">
+    <div class="m-notice-head">
+      <div class="m-notice-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="m-notice-title">Best on desktop</div>
+        <div class="m-notice-sub">Full editor available on larger screens</div>
+      </div>
+    </div>
+    <div class="m-notice-body">
+      This code editor uses <strong>Monaco</strong> (the engine behind VS Code) and works best on a desktop or laptop. On mobile you can still <strong>open files, browse them, and download your work</strong> — but editing requires a larger screen.
+    </div>
+  </div>
+
+  <div class="m-actions">
+    <div class="m-btn" onclick="document.getElementById('fi').click()">
+      <div class="m-btn-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="m-btn-text">
+        <div class="m-btn-label">Open files</div>
+        <div class="m-btn-hint">Import files from your device</div>
+      </div>
+      <span class="m-btn-arrow">›</span>
+    </div>
+    <div class="m-btn" id="m-dlall-btn" onclick="mDlAll()" style="display:none">
+      <div class="m-btn-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="m-btn-text">
+        <div class="m-btn-label">Download all as ZIP</div>
+        <div class="m-btn-hint">Save all open files to your device</div>
+      </div>
+      <span class="m-btn-arrow">›</span>
+    </div>
+  </div>
+
+  <div class="m-section-label" id="m-files-label" style="display:none">Open files</div>
+  <div class="m-file-list" id="m-file-list"></div>
+
+  <div class="m-footer">
+    Powered by <a href="https://microsoft.github.io/monaco-editor/" target="_blank">Monaco Editor</a> · Open on desktop for full editing
+  </div>
+</div>
+
+<div id="m-toast"></div>
 
 <script>
 /* ════════════ STATE ════════════ */
@@ -662,8 +724,6 @@ const LL={html:'HTML',css:'CSS',javascript:'JavaScript',typescript:'TypeScript',
   sql:'SQL',kotlin:'Kotlin',swift:'Swift',ruby:'Ruby',php:'PHP',
   plaintext:'Plain Text',graphql:'GraphQL',scss:'SCSS',less:'Less',ini:'INI',
   lua:'Lua',r:'R',powershell:'PowerShell'};
-
-// Full language list for picker (like VS Code image 1)
 const ALL_LANGS=[
   {id:'abap',label:'ABAP'},{id:'bat',label:'Batch',alias:'bat'},
   {id:'bibtex',label:'BibTeX',alias:'bibtex'},{id:'plaintext',label:'Plain Text',alias:'(Plain Text)'},
@@ -728,11 +788,9 @@ function loadM(cb){
           F[aid].c=v;F[aid].mod=true;
           renderTabs();renderFL();
           if(autosave){F[aid].mod=false;renderTabs();renderFL();}
-          // update error/warning counts from markers
           setTimeout(updateMarkers,100);
         }
       });
-      // marker watcher
       monaco.editor.onDidChangeMarkers(()=>updateMarkers());
       cb();
     });
@@ -748,7 +806,6 @@ function updateMarkers(){
   warnCount=markers.filter(x=>x.severity===monaco.MarkerSeverity.Warning).length;
   document.getElementById('sb-ec').textContent=errCount;
   document.getElementById('sb-wc').textContent=warnCount;
-  // Color status bar red if errors
   document.getElementById('sb').style.background=errCount>0?'#c72e0f':'#007acc';
 }
 
@@ -756,7 +813,7 @@ function updateMarkers(){
 function addF(name,content){
   const id=uid(),lang=gl(name);
   F[id]={name,c:content,lang,mod:false};
-  renderFL();updSB();return id;
+  renderFL();renderMobileFiles();updSB();return id;
 }
 function openFile(id){
   if(!F[id])return;
@@ -795,31 +852,63 @@ function closeTab(id){
   }
   renderTabs();renderFL();
 }
-function delFile(id){closeTab(id);delete F[id];renderFL();updSB();}
+function delFile(id){closeTab(id);delete F[id];renderFL();renderMobileFiles();updSB();}
 function dlFile(id){
   const f=F[id];if(!f)return;
   const b=new Blob([f.c],{type:'text/plain'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();
   URL.revokeObjectURL(a.href);f.mod=false;renderTabs();renderFL();
-  toast(`Saved: ${f.name}`);
+  toast(`Saved: ${f.name}`);mToast(`Downloaded ${f.name}`);
 }
 function dlAll(){
-  const ids=Object.keys(F);if(!ids.length){toast('No files to download');return;}
+  const ids=Object.keys(F);if(!ids.length){toast('No files to download');mToast('No files to download');return;}
   if(typeof JSZip==='undefined'){toast('JSZip unavailable');return;}
   const z=new JSZip();ids.forEach(id=>z.file(F[id].name,F[id].c));
   z.generateAsync({type:'blob'}).then(b=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='project.zip';a.click();
     toast(`Downloaded project.zip (${ids.length} files)`);
+    mToast(`Downloaded project.zip`);
   });
 }
+function mDlAll(){dlAll();}
 function importF(){document.getElementById('fi').click();}
 function handleFI(e){
   Array.from(e.target.files).forEach(f=>{
     const r=new FileReader();r.onload=ev=>{
       const id=addF(f.name,ev.target.result);
-      if(!aid)openFile(id);else toast(`Imported: ${f.name}`);
+      // On desktop: open file; on mobile: just add to list
+      if(window.innerWidth>700){
+        if(!aid)openFile(id);else toast(`Imported: ${f.name}`);
+      } else {
+        mToast(`Imported: ${f.name}`);
+      }
     };r.readAsText(f);
   });e.target.value='';
+}
+
+/* ════════════ MOBILE FILE LIST ════════════ */
+function renderMobileFiles(){
+  const ids=Object.keys(F);
+  const label=document.getElementById('m-files-label');
+  const list=document.getElementById('m-file-list');
+  const dlBtn=document.getElementById('m-dlall-btn');
+  label.style.display=ids.length?'block':'none';
+  dlBtn.style.display=ids.length?'flex':'none';
+  if(!ids.length){list.innerHTML='';return;}
+  list.innerHTML=ids.map(id=>{
+    const f=F[id];
+    const c=IC[f.lang]||'#858585';
+    const le=IL[f.lang]||(f.lang[0]||'F').toUpperCase();
+    const kb=Math.ceil(f.c.length/1024);
+    return`<div class="m-file-row">
+      <div class="m-file-icon" style="background:${c}22;color:${c};">${le}</div>
+      <div class="m-file-info">
+        <div class="m-file-name">${esc(f.name)}</div>
+        <div class="m-file-meta">${gll(f.lang)} · ${kb < 1 ? '< 1' : kb} KB</div>
+      </div>
+      <a class="m-file-dl" onclick="dlFile('${id}')" title="Download">↓</a>
+    </div>`;
+  }).join('');
 }
 
 /* ════════════ DRAG & DROP ════════════ */
@@ -998,21 +1087,14 @@ function A(a){
       } else {toast('Run is only supported for .js and .html files');}}break;
     case'runsel':
       if(ed&&mok){try{const sel=ed.getModel()?.getValueInRange(ed.getSelection()||{});if(sel)eval(sel);toast('Selection executed');}catch(e){toast('Error: '+e.message);}}break;
-    case'runtask':
-      toast('No tasks configured. Create a tasks.json to configure tasks.');break;
-    case'terminal':
-      toast('Integrated terminal not available in browser. Use your system terminal.');break;
+    case'runtask':toast('No tasks configured. Create a tasks.json to configure tasks.');break;
+    case'terminal':toast('Integrated terminal not available in browser. Use your system terminal.');break;
     case'langpick':openLangPick();break;
-    case'settings':
-      toast('Settings: Use View menu to toggle Minimap, Word Wrap, and Whitespace rendering');break;
-    case'shortcuts':
-      toast('Ctrl+N New · Ctrl+O Open · Ctrl+S Save · Ctrl+W Close · Ctrl+B Sidebar · Ctrl+Shift+F Search');break;
-    case'welcome':
-      if(aid)closeTab(aid);break;
-    case'about':
-      toast('Code Editor — VS Code-style editor powered by Monaco Editor (Microsoft MIT License)');break;
-    case'docurl':
-      window.open('https://code.visualstudio.com/docs','_blank');break;
+    case'settings':toast('Settings: Use View menu to toggle Minimap, Word Wrap, and Whitespace rendering');break;
+    case'shortcuts':toast('Ctrl+N New · Ctrl+O Open · Ctrl+S Save · Ctrl+W Close · Ctrl+B Sidebar · Ctrl+Shift+F Search');break;
+    case'welcome':if(aid)closeTab(aid);break;
+    case'about':toast('Code Editor — VS Code-style editor powered by Monaco Editor (Microsoft MIT License)');break;
+    case'docurl':window.open('https://code.visualstudio.com/docs','_blank');break;
     case'search':SP('search');break;
   }
 }
@@ -1086,7 +1168,7 @@ function rnF(id){const f=F[id];if(!f)return;const n=prompt('Rename:',f.name);
   if(n&&n.trim()&&n!==f.name){f.name=n.trim();f.lang=gl(n);
     if(aid===id&&ed){const m=ed.getModel();if(m)monaco.editor.setModelLanguage(m,f.lang);
       document.getElementById('sb-lang').textContent=gll(f.lang);}
-    renderFL();renderTabs();}}
+    renderFL();renderTabs();renderMobileFiles();}}
 
 /* ════════════ DIALOG ════════════ */
 function newFileDlg(){closeMenus();document.getElementById('overlay').classList.add('vis');
@@ -1094,8 +1176,11 @@ function newFileDlg(){closeMenus();document.getElementById('overlay').classList.
 function closeDlg(){document.getElementById('overlay').classList.remove('vis');}
 function createFile(){
   const n=document.getElementById('nfi').value.trim();if(!n)return;
-  const id=addF(n,'');closeDlg();openFile(id);
-  document.getElementById('nfi').value='untitled.txt';toast(`Created: ${n}`);}
+  const id=addF(n,'');closeDlg();
+  if(window.innerWidth>700)openFile(id);
+  else{renderMobileFiles();mToast(`Created: ${n}`);}
+  document.getElementById('nfi').value='untitled.txt';
+  if(window.innerWidth>700)toast(`Created: ${n}`);}
 document.getElementById('nfi').addEventListener('keydown',e=>{if(e.key==='Enter')createFile();if(e.key==='Escape')closeDlg();});
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeDlg();});
 
@@ -1120,13 +1205,14 @@ document.addEventListener('keydown',e=>{
   if(c&&e.shiftKey&&(e.key==='F'||e.key==='f')){e.preventDefault();SP('search');}
   if(c&&e.shiftKey&&(e.key==='G'||e.key==='g')){e.preventDefault();SP('git');}
   if(c&&e.shiftKey&&(e.key==='X'||e.key==='x')){e.preventDefault();SP('ext');}
-  if(c&&e.shiftKey&&(e.key==='D'||e.key==='d')&&!e.key.startsWith('D')){e.preventDefault();SP('debug');}
   if(e.key==='Escape'){closeMenus();closeDlg();hCtx();}
 });
 
-/* ════════════ TOAST ════════════ */
+/* ════════════ TOASTS ════════════ */
 let tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('vis');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('vis'),3500);}
+let mtt;
+function mToast(msg){const el=document.getElementById('m-toast');el.textContent=msg;el.classList.add('vis');clearTimeout(mtt);mtt=setTimeout(()=>el.classList.remove('vis'),3000);}
 
 /* ════════════ INIT ════════════ */
 updSB();
