@@ -662,8 +662,12 @@
 
   /* ═══════════════════════════════════════
    *  SPEECH RESULT HANDLER
-   *  Receives final speech segments and routes
-   *  them through the NLP engine.
+   *
+   *  FIX: The Web Speech API returns final results with NO punctuation.
+   *  The NLP buffer waits for a sentence-terminating character before
+   *  processing, so without this fix the buffer just fills up and nothing
+   *  gets classified. We append a period to every final utterance so the
+   *  NLP engine treats each speech segment as a complete sentence.
    * ═══════════════════════════════════════ */
   function handleResult(e) {
     let finalText = '';
@@ -682,12 +686,13 @@
     rawOutput.appendChild(chunk);
 
     // ── Smart Notes: route through NLP engine ──
+    // Append a period so the NLP sentence buffer always sees a terminated
+    // segment — spoken utterances are already natural sentence boundaries.
     if (NLP) {
       updateNLPStatus('processing…');
-      const notes = NLP.processChunk(finalText);
+      const notes = NLP.processChunk(finalText.trim() + '.');
       notes.forEach(renderNote);
 
-      // Restore status
       const count = NLP.getSession().acceptedCount;
       updateNLPStatus(count > 0 ? `${count} note${count !== 1 ? 's' : ''}` : 'listening');
     }
