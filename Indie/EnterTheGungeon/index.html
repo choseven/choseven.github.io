@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enter the Gungeon</title>
+  <style>
+    @font-face {
+      font-family: 'ETGBig';
+      src: url('enter-the-gungeon-big.ttf') format('truetype');
+      font-display: swap;
+    }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background: #000; overflow: hidden;
+    }
+    #gameContainer {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100vw; height: 56.25vw;
+      max-height: 100vh; max-width: 177.7778vh;
+    }
+    #gameContainer canvas {
+      width: 100% !important; height: 100% !important;
+      display: block; background: #000;
+      image-rendering: pixelated;
+    }
+    #loadingVideo {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100vw; height: 56.25vw;
+      max-height: 100vh; max-width: 177.7778vh;
+      object-fit: cover; z-index: 10; background: #000;
+      transition: opacity 0.5s ease;
+    }
+    #loadingVideo.done { opacity: 0; pointer-events: none; }
+    #loadNotice {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 15; text-align: center; pointer-events: none;
+      font-family: Arial, Helvetica, sans-serif; color: #fff;
+      text-shadow: 0 2px 8px #000, 0 0 20px #000;
+      transition: opacity 0.5s ease; width: 90vw;
+    }
+    #loadNotice.done { opacity: 0; }
+    #loadNotice .big {
+      font-family: 'ETGBig', Arial, Helvetica, sans-serif;
+      font-size: 6vw; font-weight: 900; letter-spacing: 2px; color: #ff0000;
+    }
+    #loadNotice .sub {
+      font-family: 'ETGBig', Arial, Helvetica, sans-serif;
+      font-size: 2.4vw; font-weight: 900; letter-spacing: 1px;
+      margin-top: 2vh; color: #ffffff;
+    }
+    #fsButton {
+      position: absolute; right: 12px; bottom: 12px; z-index: 20;
+      width: 40px; height: 40px; line-height: 38px; text-align: center;
+      color: #888; background: rgba(0,0,0,0.55); border: 1px solid #333;
+      border-radius: 4px; font-size: 20px; cursor: pointer;
+      user-select: none; opacity: 0.4;
+    }
+    #fsButton:hover { opacity: 1; color: #fff; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="etgGamma">
+      <feComponentTransfer>
+        <feFuncR id="gR" type="gamma" amplitude="1" exponent="1" offset="0"/>
+        <feFuncG id="gG" type="gamma" amplitude="1" exponent="1" offset="0"/>
+        <feFuncB id="gB" type="gamma" amplitude="1" exponent="1" offset="0"/>
+      </feComponentTransfer>
+    </filter>
+  </svg>
+  <div id="gameContainer"></div>
+  <video id="loadingVideo" autoplay muted loop playsinline>
+    <source src="loopforetgsite.mp4" type="video/mp4">
+    <source src="loopforetgsite.mov">
+  </video>
+  <div id="loadNotice">
+    <div class="big">AUDIO IS NOT WORKING AS INTENDED</div>
+    <div class="sub">Sorry if you run out of memory, tell me and i'll fix</div>
+  </div>
+  <div id="fsButton" title="Fullscreen">&#x26F6;</div>
+
+  <script src="Build/60803b4bf4b6b215adcbd614c4f9dabb.js"></script>
+  <script>
+    (function () {
+      var m = /[?&]bright=([0-9.]+)/.exec(window.location.search);
+      if (!m) return;
+      var g = parseFloat(m[1]);
+      if (!g || g <= 0) return;
+      var exp = (1 / g).toFixed(4);
+      var ids = ['gR', 'gG', 'gB'];
+      for (var i = 0; i < ids.length; i++) {
+        document.getElementById(ids[i]).setAttribute('exponent', exp);
+      }
+      document.getElementById('gameContainer').style.filter = 'url(#etgGamma)';
+    })();
+    var gameInstance = null;
+    var gameReady = false;
+
+    function UnityProgress(instance, progress) {
+      if (progress >= 1 && !gameReady) {
+        gameReady = true;
+        var v = document.getElementById('loadingVideo');
+        var notice = document.getElementById('loadNotice');
+        if (notice) notice.className = 'done';
+        if (v) {
+          v.className = 'done';
+          setTimeout(function () {
+            v.style.display = 'none';
+            if (notice) notice.style.display = 'none';
+            try { v.pause(); } catch (e) {}
+          }, 600);
+        }
+        focusCanvas();
+      }
+    }
+
+    gameInstance = UnityLoader.instantiate('gameContainer', 'Build/3cd9637270dcb9a3606633df4bd4413c.json', { onProgress: UnityProgress });
+
+    (function () {
+      var v = document.getElementById('loadingVideo');
+      if (v) v.addEventListener('error', function () { v.style.display = 'none'; }, true);
+    })();
+
+    function focusCanvas() {
+      var c = document.querySelector('#gameContainer canvas');
+      if (c) { c.setAttribute('tabindex', '1'); c.focus(); }
+    }
+
+    function goFullscreen() {
+      if (gameInstance && gameInstance.SetFullscreen) {
+        gameInstance.SetFullscreen(1);
+      }
+      focusCanvas();
+    }
+
+    var fsArmed = true;
+    function firstGesture() {
+      if (!fsArmed || !gameReady) return;
+      fsArmed = false;
+      document.removeEventListener('pointerdown', firstGesture);
+      document.removeEventListener('keydown', firstGesture);
+      goFullscreen();
+    }
+    document.addEventListener('pointerdown', firstGesture);
+    document.addEventListener('keydown', firstGesture);
+    document.getElementById('fsButton').addEventListener('click', function (e) {
+      e.stopPropagation();
+      goFullscreen();
+    });
+
+    window.addEventListener('keydown', function (e) {
+      if ([32, 37, 38, 39, 40, 9].indexOf(e.keyCode) !== -1) e.preventDefault();
+    }, false);
+    document.addEventListener('click', focusCanvas);
+    window.addEventListener('blur', function () { fsArmed = false; });
+  </script>
+</body>
+</html>

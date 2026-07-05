@@ -1,0 +1,16 @@
+{
+"companyName": "Dodge Roll",
+"productName": "EnterTheGungeonExport",
+"dataUrl": "f0ac6b869810de1b1a8d42a881175333.unityweb",
+"wasmCodeUrl": "8e86e5c68a3e251b76db4918e53dc7a5.unityweb",
+"wasmFrameworkUrl": "bff89e1efa5f85b33993c05d3a8e805b.unityweb",
+"asmCodeUrl": "2432d8a1a1c7ae9aefc5bddbabbca90f.unityweb",
+"asmMemoryUrl": "538671b785c7b3c8562502b77f998290.unityweb",
+"asmFrameworkUrl": "bd521c79f8c220808c595f2f207ba2f3.unityweb",
+"TOTAL_MEMORY": 1207959552,
+"graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"dataUrl": "must-revalidate"}
+}
